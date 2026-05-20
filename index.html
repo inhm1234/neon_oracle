@@ -1,276 +1,75 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>NEON ORACLE v4</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NEON ORACLE</title>
 
-<style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#00ffe1">
 
-body{
-  margin:0;
-  height:100vh;
-  overflow:hidden;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:#050816;
-  font-family:sans-serif;
-  color:white;
-}
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: radial-gradient(circle at top, #050816, #000);
+      color: #00ffe1;
+      text-align: center;
+      overflow-x: hidden;
+    }
 
-/* 별 */
-.stars{position:fixed;inset:0;z-index:0;}
-.star{
-  position:absolute;
-  width:2px;height:2px;
-  background:white;
-  border-radius:50%;
-  animation:twinkle 3s infinite;
-}
-@keyframes twinkle{
-  0%,100%{opacity:.2}
-  50%{opacity:1}
-}
+    h1 {
+      margin-top: 60px;
+      font-size: 2.5rem;
+      text-shadow: 0 0 10px #00ffe1;
+    }
 
-/* 컨테이너 */
-.container{
-  position:relative;
-  z-index:2;
-  width:380px;
-  text-align:center;
-}
+    .card {
+      margin: 20px auto;
+      width: 90%;
+      max-width: 400px;
+      padding: 20px;
+      border: 1px solid #00ffe1;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+    }
 
-/* 제목 */
-h1{
-  color:#67e8f9;
-  text-shadow:0 0 10px #22d3ee;
-}
+    button {
+      background: transparent;
+      border: 1px solid #00ffe1;
+      color: #00ffe1;
+      padding: 10px 20px;
+      margin: 10px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
 
-/* 상태 */
-.mood button{
-  margin:3px;
-  padding:6px 10px;
-  border-radius:8px;
-  border:1px solid #22d3ee55;
-  background:#0f172a;
-  color:#67e8f9;
-}
-.mood button.active{
-  background:#22d3ee;
-  color:#001018;
-}
-
-/* 카드 */
-.card{
-  background:rgba(15,23,42,.85);
-  border:1px solid #22d3ee33;
-  border-radius:16px;
-  padding:18px;
-  margin-top:10px;
-}
-
-/* 결과 */
-#result{font-size:72px;font-weight:bold;}
-.good{color:#4ade80;}
-.mid{color:#facc15;}
-.bad{color:#fb7185;}
-
-/* 설명 */
-#label{
-  font-size:14px;
-  min-height:60px;
-  color:#cbd5e1;
-  line-height:1.5;
-}
-
-/* 흐름 */
-#flow{
-  margin-top:10px;
-  font-size:13px;
-  color:#67e8f9;
-}
-
-/* 버튼 */
-button.main{
-  margin-top:10px;
-  padding:12px 18px;
-  border-radius:10px;
-  border:1px solid #22d3ee55;
-  background:#0f172a;
-  color:#67e8f9;
-  cursor:pointer;
-}
-
-#history{
-  margin-top:10px;
-  font-size:12px;
-  color:#94a3b8;
-  text-align:left;
-}
-
-</style>
+    button:hover {
+      box-shadow: 0 0 10px #00ffe1;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="stars" id="stars"></div>
+  <h1>NEON ORACLE</h1>
 
-<div class="container">
+  <div class="card">
+    <p id="moodText">오늘의 운세를 확인하세요</p>
 
-<h1>NEON ORACLE</h1>
+    <button onclick="generate()">운세 생성</button>
+    <button id="installBtn" style="display:none;">앱 설치</button>
 
-<div class="mood">
-  <button onclick="setMood('low')" id="low">😴</button>
-  <button onclick="setMood('normal')" id="normal" class="active">🙂</button>
-  <button onclick="setMood('high')" id="high">🔥</button>
-</div>
+    <p id="result"></p>
+  </div>
 
-<div class="card">
-  <div id="result">--</div>
-  <div id="label">오늘 운세를 확인하세요</div>
-</div>
-
-<div id="flow"></div>
-
-<button class="main" onclick="run()">운세 보기</button>
-<button class="main" onclick="reroll()" id="reroll" disabled>리롤</button>
-
-<div id="history"></div>
-
-</div>
+<script src="app.js"></script>
 
 <script>
-
-/* 별 */
-const stars=document.getElementById("stars");
-for(let i=0;i<120;i++){
-  const s=document.createElement("div");
-  s.className="star";
-  s.style.left=Math.random()*100+"%";
-  s.style.top=Math.random()*100+"%";
-  stars.appendChild(s);
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./service-worker.js");
 }
-
-/* 상태 */
-let mood="normal";
-let used=false;
-let rerolled=false;
-let history=JSON.parse(localStorage.getItem("history")||"[]");
-
-/* mood */
-function setMood(m){
-  mood=m;
-  document.querySelectorAll(".mood button").forEach(b=>b.classList.remove("active"));
-  document.getElementById(m==="low"?"low":m==="high"?"high":"normal").classList.add("active");
-}
-
-/* seed */
-function seed(){
-  const d=new Date();
-  return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
-}
-
-function rand(x){
-  let v=Math.sin(x)*10000;
-  return v-Math.floor(v);
-}
-
-/* 타입 */
-function type(n){
-  return n<=25?"good":n<=75?"mid":"bad";
-}
-
-/* 해석 */
-function msg(t,m){
-  const map={
-    good:{
-      low:"회복 이후 기회가 열리는 흐름입니다.",
-      normal:"작은 선택이 큰 결과로 이어집니다.",
-      high:"속도감 있는 성공 흐름입니다."
-    },
-    mid:{
-      low:"무리하지 않으면 안정적입니다.",
-      normal:"균형이 중요한 하루입니다.",
-      high:"속도보다 방향이 중요합니다."
-    },
-    bad:{
-      low:"휴식이 최우선입니다.",
-      normal:"중요 결정은 미루세요.",
-      high:"충동을 조심하세요."
-    }
-  };
-  return map[t][m];
-}
-
-/* 흐름 분석 */
-function analyze(){
-  if(history.length<3) return "데이터 부족";
-
-  let good=0,bad=0;
-
-  history.forEach(h=>{
-    if(h.t==="good") good++;
-    if(h.t==="bad") bad++;
-  });
-
-  if(good>=3) return "📈 상승 흐름";
-  if(bad>=3) return "📉 하락 흐름";
-  return "⚖️ 안정 흐름";
-}
-
-/* render */
-function render(){
-  document.getElementById("history").innerHTML=
-    "최근 기록<br>" +
-    history.slice(0,7).map(h=>`${h.n} / ${h.t}`).join("<br>");
-
-  document.getElementById("flow").innerText=
-    "패턴 분석: " + analyze();
-}
-
-/* run */
-function run(){
-
-  if(used) return;
-
-  const n=Math.floor(rand(seed())*100)+1;
-  const t=type(n);
-  const m=msg(t,mood);
-
-  document.getElementById("result").innerText=n;
-  document.getElementById("result").className=t;
-  document.getElementById("label").innerText=m;
-
-  history.unshift({n,t});
-  history=history.slice(0,7);
-  localStorage.setItem("history",JSON.stringify(history));
-
-  used=true;
-  document.getElementById("reroll").disabled=false;
-
-  render();
-}
-
-/* reroll */
-function reroll(){
-  if(rerolled) return;
-
-  const n=Math.floor(Math.random()*100)+1;
-  const t=type(n);
-  const m=msg(t,mood);
-
-  document.getElementById("result").innerText=n;
-  document.getElementById("result").className=t;
-  document.getElementById("label").innerText=m;
-
-  rerolled=true;
-  document.getElementById("reroll").disabled=true;
-}
-
-/* init */
-render();
-
 </script>
 
 </body>
