@@ -8,6 +8,7 @@ const energyEl = document.getElementById("energy");
 const clickSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3");
 
 let energy = parseInt(localStorage.getItem("energy") || "0");
+let corruption = parseInt(localStorage.getItem("corruption") || "0");
 
 const oracles = [
   { name: "VOID CORE", message: "존재하지 않는 것에서 모든 것이 시작된다.", rarity: "COMMON" },
@@ -18,7 +19,7 @@ const oracles = [
   { name: "OMEGA SEED", message: "이 선택은 이미 모든 시간을 결정했다.", rarity: "LEGENDARY" }
 ];
 
-/* TYPE */
+/* TYPE EFFECT */
 function typeText(el, text, speed = 30) {
   el.textContent = "";
   let i = 0;
@@ -30,7 +31,7 @@ function typeText(el, text, speed = 30) {
   }, speed);
 }
 
-/* MATRIX */
+/* MATRIX BACKGROUND */
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
 
@@ -76,18 +77,39 @@ function drawMatrix() {
 
 setInterval(drawMatrix, 30);
 
-/* UPDATE ENERGY */
+/* ENERGY SYSTEM */
 function updateEnergy() {
-  energy += 5;
+  energy += 8;
+
   if (energy > 100) energy = 100;
 
   localStorage.setItem("energy", energy);
   energyEl.textContent = energy;
+
+  if (energy === 100) {
+    oracleMessage.textContent = "FULL ORACLE POWER ACTIVATED";
+    cardName.textContent = "SYSTEM UNLOCKED";
+    cardName.style.color = "#ff00ff";
+  }
 }
 
+/* CORRUPTION SYSTEM */
+function updateCorruption() {
+  corruption += 10;
+
+  if (corruption >= 100) {
+    oracleMessage.textContent = "SYSTEM OVERFLOW... REALITY IS UNSTABLE.";
+    document.body.style.background = "#110011";
+    corruption = 0;
+  }
+
+  localStorage.setItem("corruption", corruption);
+}
+
+/* INITIAL UI */
 energyEl.textContent = energy;
 
-/* CLICK */
+/* CLICK EVENT */
 oracleBtn.addEventListener("click", () => {
 
   clickSound.currentTime = 0;
@@ -97,6 +119,7 @@ oracleBtn.addEventListener("click", () => {
   setTimeout(() => document.body.classList.remove("glitch"), 200);
 
   updateEnergy();
+  updateCorruption();
 
   oracleCard.classList.remove("hidden");
 
@@ -108,7 +131,6 @@ oracleBtn.addEventListener("click", () => {
     const data = oracles[Math.floor(Math.random() * oracles.length)];
 
     cardName.textContent = data.name;
-
     rarityBox.textContent = "RARITY: " + data.rarity;
 
     if (data.rarity === "LEGENDARY") {
