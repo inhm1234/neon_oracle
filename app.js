@@ -6,6 +6,10 @@ const cardName = document.getElementById("cardName");
 
 const oracleMessage = document.getElementById("oracleMessage");
 
+const clickSound = new Audio(
+  "https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"
+);
+
 const oracles = [
 
   {
@@ -40,14 +44,36 @@ const oracles = [
 
 ];
 
+function typeText(element, text, speed = 40) {
+
+  element.textContent = "";
+
+  let i = 0;
+
+  const interval = setInterval(() => {
+
+    element.textContent += text[i];
+
+    i++;
+
+    if (i >= text.length) {
+      clearInterval(interval);
+    }
+
+  }, speed);
+
+}
+
 oracleBtn.addEventListener("click", () => {
+
+  clickSound.currentTime = 0;
+
+  clickSound.play();
 
   const random =
     oracles[Math.floor(Math.random() * oracles.length)];
 
   cardName.textContent = random.name;
-
-  oracleMessage.textContent = random.message;
 
   oracleCard.classList.remove("hidden");
 
@@ -56,5 +82,7 @@ oracleBtn.addEventListener("click", () => {
   void oracleCard.offsetWidth;
 
   oracleCard.classList.add("oracle-card");
+
+  typeText(oracleMessage, random.message);
 
 });
