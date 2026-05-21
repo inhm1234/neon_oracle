@@ -10,8 +10,19 @@ const clickSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2571/2
 let energy = parseInt(localStorage.getItem("energy") || "0");
 let corruption = parseInt(localStorage.getItem("corruption") || "0");
 let level = parseInt(localStorage.getItem("level") || "1");
-
 let gameEnded = false;
+
+/* ✔ 최초 방문자 초기화 (핵심) */
+if (!localStorage.getItem("init")) {
+  energy = 0;
+  corruption = 0;
+  level = 1;
+
+  localStorage.setItem("energy", "0");
+  localStorage.setItem("corruption", "0");
+  localStorage.setItem("level", "1");
+  localStorage.setItem("init", "true");
+}
 
 const oracles = [
   { name: "VOID CORE", message: "존재하지 않는 것에서 모든 것이 시작된다.", rarity: "COMMON" },
@@ -34,7 +45,7 @@ function typeText(el, text, speed = 25) {
   }, speed);
 }
 
-/* MATRIX */
+/* MATRIX BACKGROUND */
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
 
@@ -87,6 +98,13 @@ function save() {
   localStorage.setItem("level", level);
 }
 
+/* RESET (유저용) */
+function resetGame() {
+  localStorage.clear();
+  location.reload();
+}
+window.resetGame = resetGame;
+
 /* ENDING */
 function showEnding(text) {
   gameEnded = true;
@@ -121,7 +139,7 @@ function updateStats() {
 
   energyEl.textContent = energy;
 
-  /* 🔥 즉시 엔딩 체크 (중요 수정) */
+  /* ✔ 엔딩 우선 처리 (덮어쓰기 방지) */
   if (energy >= 100) {
     showEnding("SYSTEM COMPLETE: ORACLE AWAKENED");
     return;
