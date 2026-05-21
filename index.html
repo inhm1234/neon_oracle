@@ -2,75 +2,38 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NEON ORACLE</title>
 
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#00ffe1">
-
-  <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background: radial-gradient(circle at top, #050816, #000);
-      color: #00ffe1;
-      text-align: center;
-      overflow-x: hidden;
-    }
-
-    h1 {
-      margin-top: 60px;
-      font-size: 2.5rem;
-      text-shadow: 0 0 10px #00ffe1;
-    }
-
-    .card {
-      margin: 20px auto;
-      width: 90%;
-      max-width: 400px;
-      padding: 20px;
-      border: 1px solid #00ffe1;
-      border-radius: 12px;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(10px);
-    }
-
-    button {
-      background: transparent;
-      border: 1px solid #00ffe1;
-      color: #00ffe1;
-      padding: 10px 20px;
-      margin: 10px;
-      cursor: pointer;
-      border-radius: 8px;
-    }
-
-    button:hover {
-      box-shadow: 0 0 10px #00ffe1;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
 
-  <h1>NEON ORACLE</h1>
+  <div class="background-glow"></div>
 
-  <div class="card">
-    <p id="moodText">오늘의 운세를 확인하세요</p>
+  <main class="container">
 
-    <button onclick="generate()">운세 생성</button>
-    <button id="installBtn" style="display:none;">앱 설치</button>
+    <h1 class="title">NEON ORACLE</h1>
 
-    <p id="result"></p>
-  </div>
+    <p class="subtitle">
+      미래의 신호를 해석하라
+    </p>
 
-<script src="app.js"></script>
+    <button id="oracleBtn">
+      ORACLE ACTIVATE
+    </button>
 
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./service-worker.js");
-}
-</script>
+    <div id="oracleCard" class="oracle-card hidden">
+
+      <h2 id="cardName"></h2>
+
+      <p id="oracleMessage"></p>
+
+    </div>
+
+  </main>
+
+  <script src="app.js"></script>
 
 </body>
 </html>
