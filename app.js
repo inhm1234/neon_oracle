@@ -9,6 +9,7 @@ const clickSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2571/2
 
 let energy = parseInt(localStorage.getItem("energy") || "0");
 let corruption = parseInt(localStorage.getItem("corruption") || "0");
+let level = parseInt(localStorage.getItem("level") || "1");
 
 const oracles = [
   { name: "VOID CORE", message: "존재하지 않는 것에서 모든 것이 시작된다.", rarity: "COMMON" },
@@ -20,7 +21,7 @@ const oracles = [
 ];
 
 /* TYPE EFFECT */
-function typeText(el, text, speed = 30) {
+function typeText(el, text, speed = 25) {
   el.textContent = "";
   let i = 0;
 
@@ -31,7 +32,7 @@ function typeText(el, text, speed = 30) {
   }, speed);
 }
 
-/* MATRIX BACKGROUND */
+/* MATRIX */
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
 
@@ -77,39 +78,52 @@ function drawMatrix() {
 
 setInterval(drawMatrix, 30);
 
-/* ENERGY SYSTEM */
-function updateEnergy() {
-  energy += 8;
+/* SAVE SYSTEM */
+function save() {
+  localStorage.setItem("energy", energy);
+  localStorage.setItem("corruption", corruption);
+  localStorage.setItem("level", level);
+}
+
+/* SYSTEM UPDATE */
+function updateStats() {
+
+  energy += 10;
+  corruption += 8;
 
   if (energy > 100) energy = 100;
+  if (corruption > 100) corruption = 100;
 
-  localStorage.setItem("energy", energy);
+  if (energy % 30 === 0) {
+    level++;
+  }
+
+  save();
+
   energyEl.textContent = energy;
 
-  if (energy === 100) {
-    oracleMessage.textContent = "FULL ORACLE POWER ACTIVATED";
-    cardName.textContent = "SYSTEM UNLOCKED";
-    cardName.style.color = "#ff00ff";
-  }
-}
-
-/* CORRUPTION SYSTEM */
-function updateCorruption() {
-  corruption += 10;
-
   if (corruption >= 100) {
-    oracleMessage.textContent = "SYSTEM OVERFLOW... REALITY IS UNSTABLE.";
-    document.body.style.background = "#110011";
-    corruption = 0;
+    showEnding("BAD ENDING: REALITY COLLAPSED");
   }
 
-  localStorage.setItem("corruption", corruption);
+  if (level >= 5) {
+    showEnding("TRUE ENDING: YOU AWAKENED THE ORACLE");
+  }
 }
 
-/* INITIAL UI */
-energyEl.textContent = energy;
+/* ENDING SYSTEM */
+function showEnding(text) {
+  oracleCard.classList.remove("hidden");
+  cardName.textContent = "END OF SYSTEM";
+  oracleMessage.textContent = text;
 
-/* CLICK EVENT */
+  document.body.style.background = "#000";
+  document.body.style.color = "#ff00ff";
+
+  oracleBtn.disabled = true;
+}
+
+/* CLICK */
 oracleBtn.addEventListener("click", () => {
 
   clickSound.currentTime = 0;
@@ -118,13 +132,12 @@ oracleBtn.addEventListener("click", () => {
   document.body.classList.add("glitch");
   setTimeout(() => document.body.classList.remove("glitch"), 200);
 
-  updateEnergy();
-  updateCorruption();
+  updateStats();
 
   oracleCard.classList.remove("hidden");
 
-  cardName.textContent = "ANALYZING REALITY...";
-  oracleMessage.textContent = "SCANNING DIMENSIONAL SIGNAL...";
+  cardName.textContent = "PROCESSING...";
+  oracleMessage.textContent = "ACCESSING DIMENSION " + level;
 
   setTimeout(() => {
 
@@ -134,22 +147,18 @@ oracleBtn.addEventListener("click", () => {
     rarityBox.textContent = "RARITY: " + data.rarity;
 
     if (data.rarity === "LEGENDARY") {
-      rarityBox.style.color = "#ff00ff";
       cardName.style.color = "#ff00ff";
-
-      document.body.style.animation = "glitch 0.3s";
-      setTimeout(() => document.body.style.animation = "", 300);
-
+      rarityBox.style.color = "#ff00ff";
     } else if (data.rarity === "RARE") {
-      rarityBox.style.color = "#00ffff";
       cardName.style.color = "#00ffff";
+      rarityBox.style.color = "#00ffff";
     } else {
-      rarityBox.style.color = "#888";
       cardName.style.color = "#0ff";
+      rarityBox.style.color = "#888";
     }
 
     typeText(oracleMessage, data.message);
 
-  }, 1200);
+  }, 1000);
 
 });
