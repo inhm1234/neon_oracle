@@ -18,7 +18,7 @@ body {
   min-height: 100vh;
 }
 
-/* MATRIX CANVAS */
+/* MATRIX */
 #matrix {
   position: fixed;
   top: 0;
@@ -38,6 +38,7 @@ body {
   100% { transform: translate(0); }
 }
 
+/* GLOW */
 .background-glow {
   position: fixed;
   width: 500px;
@@ -49,12 +50,14 @@ body {
   z-index: -1;
 }
 
+/* LAYOUT */
 .container {
   text-align: center;
   max-width: 500px;
   padding: 20px;
 }
 
+/* TITLE */
 .title {
   font-size: 3rem;
   color: #00ffff;
@@ -67,6 +70,7 @@ body {
   letter-spacing: 2px;
 }
 
+/* BUTTON */
 button {
   border: 2px solid #00ffff;
   background: transparent;
@@ -84,6 +88,7 @@ button:hover {
   color: black;
 }
 
+/* CARD */
 .oracle-card {
   margin-top: 30px;
   padding: 25px;
@@ -116,6 +121,7 @@ button:hover {
   display: none;
 }
 
+/* ANIMATION */
 @keyframes reveal {
   from { opacity: 0; transform: translateY(20px);}
   to { opacity: 1; transform: translateY(0);}
