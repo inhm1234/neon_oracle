@@ -7,20 +7,17 @@ const energyEl = document.getElementById("energy");
 
 const clickSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3");
 
-let energy = parseInt(localStorage.getItem("energy") || "0");
-let corruption = parseInt(localStorage.getItem("corruption") || "0");
-
 let gameEnded = false;
 
-/* ✔ 초기 방문 세팅 */
+/* ✔ 최초 방문 초기화 (중요) */
 if (!localStorage.getItem("init")) {
-  energy = 0;
-  corruption = 0;
-
   localStorage.setItem("energy", "0");
   localStorage.setItem("corruption", "0");
   localStorage.setItem("init", "true");
 }
+
+let energy = parseInt(localStorage.getItem("energy") || "0");
+let corruption = parseInt(localStorage.getItem("corruption") || "0");
 
 const oracles = [
   { name: "VOID CORE", message: "존재하지 않는 것에서 모든 것이 시작된다.", rarity: "COMMON" },
@@ -119,13 +116,14 @@ function showEnding(text) {
   oracleBtn.disabled = true;
 }
 
-/* UPDATE */
+/* UPDATE SYSTEM (BALANCED) */
 function updateStats() {
 
   if (gameEnded) return;
 
-  energy += 10;
-  corruption += 8;
+  /* ✔ 훨씬 느린 성장 */
+  energy += Math.floor(Math.random() * 3) + 1;      // 1~3
+  corruption += Math.floor(Math.random() * 2);      // 0~1
 
   if (energy > 100) energy = 100;
   if (corruption > 100) corruption = 100;
@@ -134,7 +132,7 @@ function updateStats() {
 
   energyEl.textContent = energy;
 
-  /* ✔ 엔딩은 energy / corruption만 사용 */
+  /* ✔ 엔딩 안정화 */
   if (energy >= 100) {
     showEnding("SYSTEM COMPLETE: ORACLE AWAKENED");
     return;
