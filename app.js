@@ -9,18 +9,16 @@ const clickSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2571/2
 
 let energy = parseInt(localStorage.getItem("energy") || "0");
 let corruption = parseInt(localStorage.getItem("corruption") || "0");
-let level = parseInt(localStorage.getItem("level") || "1");
+
 let gameEnded = false;
 
-/* ✔ 최초 방문자 초기화 (핵심) */
+/* ✔ 초기 방문 세팅 */
 if (!localStorage.getItem("init")) {
   energy = 0;
   corruption = 0;
-  level = 1;
 
   localStorage.setItem("energy", "0");
   localStorage.setItem("corruption", "0");
-  localStorage.setItem("level", "1");
   localStorage.setItem("init", "true");
 }
 
@@ -45,7 +43,7 @@ function typeText(el, text, speed = 25) {
   }, speed);
 }
 
-/* MATRIX BACKGROUND */
+/* MATRIX */
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
 
@@ -95,10 +93,9 @@ setInterval(drawMatrix, 30);
 function save() {
   localStorage.setItem("energy", energy);
   localStorage.setItem("corruption", corruption);
-  localStorage.setItem("level", level);
 }
 
-/* RESET (유저용) */
+/* RESET */
 function resetGame() {
   localStorage.clear();
   location.reload();
@@ -122,7 +119,7 @@ function showEnding(text) {
   oracleBtn.disabled = true;
 }
 
-/* UPDATE SYSTEM */
+/* UPDATE */
 function updateStats() {
 
   if (gameEnded) return;
@@ -133,13 +130,11 @@ function updateStats() {
   if (energy > 100) energy = 100;
   if (corruption > 100) corruption = 100;
 
-  level = Math.floor(energy / 20) + 1;
-
   save();
 
   energyEl.textContent = energy;
 
-  /* ✔ 엔딩 우선 처리 (덮어쓰기 방지) */
+  /* ✔ 엔딩은 energy / corruption만 사용 */
   if (energy >= 100) {
     showEnding("SYSTEM COMPLETE: ORACLE AWAKENED");
     return;
@@ -147,11 +142,6 @@ function updateStats() {
 
   if (corruption >= 100) {
     showEnding("BAD ENDING: REALITY COLLAPSED");
-    return;
-  }
-
-  if (level >= 5) {
-    showEnding("TRUE ENDING: YOU AWAKENED THE ORACLE");
     return;
   }
 }
@@ -174,7 +164,7 @@ oracleBtn.addEventListener("click", () => {
   oracleCard.classList.remove("hidden");
 
   cardName.textContent = "PROCESSING...";
-  oracleMessage.textContent = "ACCESSING DIMENSION " + level;
+  oracleMessage.textContent = "ACCESSING SIGNAL...";
 
   setTimeout(() => {
 
