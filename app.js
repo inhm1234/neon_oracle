@@ -3,24 +3,23 @@ const oracleCard = document.getElementById("oracleCard");
 const cardName = document.getElementById("cardName");
 const oracleMessage = document.getElementById("oracleMessage");
 const rarityBox = document.getElementById("rarity");
+const energyEl = document.getElementById("energy");
 
-/* SOUND */
-const clickSound = new Audio(
-  "https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"
-);
+const clickSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3");
 
-/* ORACLE DATA */
+let energy = parseInt(localStorage.getItem("energy") || "0");
+
 const oracles = [
-  { name: "VOID", message: "침묵 속에서 새로운 문이 열린다.", rarity: "COMMON" },
-  { name: "SIGNAL", message: "반복되는 우연은 신호다.", rarity: "COMMON" },
-  { name: "ECLIPSE", message: "숨겨진 진실이 드러난다.", rarity: "RARE" },
-  { name: "CHAOS", message: "혼란은 재구성이다.", rarity: "RARE" },
-  { name: "MIRROR", message: "당신은 당신을 마주한다.", rarity: "RARE" },
-  { name: "OMEGA SEED", message: "선택은 이미 끝났다.", rarity: "LEGENDARY" }
+  { name: "VOID CORE", message: "존재하지 않는 것에서 모든 것이 시작된다.", rarity: "COMMON" },
+  { name: "SIGNAL LOOP", message: "반복은 미래의 언어다.", rarity: "COMMON" },
+  { name: "ECLIPSE MEMORY", message: "숨겨진 기억이 현실을 재구성한다.", rarity: "RARE" },
+  { name: "CHAOS ENGINE", message: "혼돈은 가장 정밀한 시스템이다.", rarity: "RARE" },
+  { name: "MIRROR GOD", message: "당신은 관찰되는 순간 변화한다.", rarity: "RARE" },
+  { name: "OMEGA SEED", message: "이 선택은 이미 모든 시간을 결정했다.", rarity: "LEGENDARY" }
 ];
 
-/* TYPE EFFECT */
-function typeText(el, text, speed = 35) {
+/* TYPE */
+function typeText(el, text, speed = 30) {
   el.textContent = "";
   let i = 0;
 
@@ -31,7 +30,7 @@ function typeText(el, text, speed = 35) {
   }, speed);
 }
 
-/* MATRIX FIXED (PC + DPR + SMOOTH) */
+/* MATRIX */
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
 
@@ -57,20 +56,17 @@ let columns = Math.floor(window.innerWidth / fontSize);
 let drops = Array(columns).fill(1);
 
 function drawMatrix() {
-
-  ctx.fillStyle = "rgba(0,0,0,0.08)";
+  ctx.fillStyle = "rgba(0,0,0,0.07)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.fillStyle = "#00ffff";
   ctx.font = fontSize + "px monospace";
 
   for (let i = 0; i < drops.length; i++) {
-
     const text = letters[Math.floor(Math.random() * letters.length)];
-
     ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
-    if (drops[i] * fontSize > window.innerHeight && Math.random() > 0.975) {
+    if (drops[i] * fontSize > window.innerHeight && Math.random() > 0.98) {
       drops[i] = 0;
     }
 
@@ -78,9 +74,20 @@ function drawMatrix() {
   }
 }
 
-setInterval(drawMatrix, 33);
+setInterval(drawMatrix, 30);
 
-/* CLICK EVENT */
+/* UPDATE ENERGY */
+function updateEnergy() {
+  energy += 5;
+  if (energy > 100) energy = 100;
+
+  localStorage.setItem("energy", energy);
+  energyEl.textContent = energy;
+}
+
+energyEl.textContent = energy;
+
+/* CLICK */
 oracleBtn.addEventListener("click", () => {
 
   clickSound.currentTime = 0;
@@ -89,22 +96,28 @@ oracleBtn.addEventListener("click", () => {
   document.body.classList.add("glitch");
   setTimeout(() => document.body.classList.remove("glitch"), 200);
 
+  updateEnergy();
+
   oracleCard.classList.remove("hidden");
 
-  cardName.textContent = "ANALYZING...";
-  oracleMessage.textContent = "SCANNING FUTURE STREAM...";
-  rarityBox.textContent = "";
+  cardName.textContent = "ANALYZING REALITY...";
+  oracleMessage.textContent = "SCANNING DIMENSIONAL SIGNAL...";
 
   setTimeout(() => {
 
     const data = oracles[Math.floor(Math.random() * oracles.length)];
 
     cardName.textContent = data.name;
+
     rarityBox.textContent = "RARITY: " + data.rarity;
 
     if (data.rarity === "LEGENDARY") {
       rarityBox.style.color = "#ff00ff";
       cardName.style.color = "#ff00ff";
+
+      document.body.style.animation = "glitch 0.3s";
+      setTimeout(() => document.body.style.animation = "", 300);
+
     } else if (data.rarity === "RARE") {
       rarityBox.style.color = "#00ffff";
       cardName.style.color = "#00ffff";

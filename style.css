@@ -18,15 +18,13 @@ body {
   min-height: 100vh;
 }
 
-/* MATRIX */
 #matrix {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: -2;
+  z-index: -3;
 }
 
-/* GLITCH */
 .glitch {
   animation: glitch 0.2s;
 }
@@ -34,43 +32,44 @@ body {
 @keyframes glitch {
   0% { transform: translate(0); filter: hue-rotate(0deg); }
   25% { transform: translate(2px, -2px); }
-  50% { transform: translate(-2px, 2px); filter: hue-rotate(90deg); }
+  50% { transform: translate(-2px, 2px); }
   100% { transform: translate(0); }
 }
 
-/* GLOW */
 .background-glow {
   position: fixed;
-  width: 500px;
-  height: 500px;
+  width: 600px;
+  height: 600px;
   background: cyan;
   border-radius: 50%;
-  filter: blur(180px);
+  filter: blur(200px);
   opacity: 0.12;
   z-index: -1;
 }
 
-/* LAYOUT */
 .container {
   text-align: center;
   max-width: 500px;
   padding: 20px;
 }
 
-/* TITLE */
 .title {
   font-size: 3rem;
   color: #00ffff;
-  text-shadow: 0 0 5px #00ffff, 0 0 20px #00ffff;
+  text-shadow: 0 0 10px #00ffff;
 }
 
 .subtitle {
   color: #888;
-  margin-bottom: 30px;
-  letter-spacing: 2px;
+  margin-bottom: 20px;
 }
 
-/* BUTTON */
+.energy {
+  margin-bottom: 20px;
+  color: #00ffff;
+  font-size: 0.9rem;
+}
+
 button {
   border: 2px solid #00ffff;
   background: transparent;
@@ -80,7 +79,7 @@ button {
 
   cursor: pointer;
 
-  box-shadow: 0 0 10px #00ffff;
+  box-shadow: 0 0 15px #00ffff;
 }
 
 button:hover {
@@ -88,9 +87,8 @@ button:hover {
   color: black;
 }
 
-/* CARD */
 .oracle-card {
-  margin-top: 30px;
+  margin-top: 25px;
   padding: 25px;
 
   border: 1px solid #00ffff;
@@ -108,7 +106,7 @@ button:hover {
 }
 
 #rarity {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   font-size: 0.9rem;
 }
 
@@ -121,7 +119,6 @@ button:hover {
   display: none;
 }
 
-/* ANIMATION */
 @keyframes reveal {
   from { opacity: 0; transform: translateY(20px);}
   to { opacity: 1; transform: translateY(0);}
