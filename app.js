@@ -9,15 +9,28 @@ const clickSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2571/2
 
 let gameEnded = false;
 
-/* ✔ 최초 방문 초기화 (중요) */
+/* ✔ 최초 1회만 초기화 */
 if (!localStorage.getItem("init")) {
   localStorage.setItem("energy", "0");
   localStorage.setItem("corruption", "0");
   localStorage.setItem("init", "true");
 }
 
-let energy = parseInt(localStorage.getItem("energy") || "0");
-let corruption = parseInt(localStorage.getItem("corruption") || "0");
+/* ✔ 항상 최신 값 기준으로 시작 */
+let energy = Number(localStorage.getItem("energy"));
+let corruption = Number(localStorage.getItem("corruption"));
+
+/* ✔ 화면 즉시 동기화 (핵심 수정) */
+function syncUI() {
+  energyEl.textContent = energy;
+}
+
+/* ✔ 저장 + 동기화 통합 */
+function saveState() {
+  localStorage.setItem("energy", energy);
+  localStorage.setItem("corruption", corruption);
+  syncUI();
+}
 
 const oracles = [
   { name: "VOID CORE", message: "존재하지 않는 것에서 모든 것이 시작된다.", rarity: "COMMON" },
@@ -86,19 +99,6 @@ function drawMatrix() {
 
 setInterval(drawMatrix, 30);
 
-/* SAVE */
-function save() {
-  localStorage.setItem("energy", energy);
-  localStorage.setItem("corruption", corruption);
-}
-
-/* RESET */
-function resetGame() {
-  localStorage.clear();
-  location.reload();
-}
-window.resetGame = resetGame;
-
 /* ENDING */
 function showEnding(text) {
   gameEnded = true;
@@ -116,23 +116,21 @@ function showEnding(text) {
   oracleBtn.disabled = true;
 }
 
-/* UPDATE SYSTEM (BALANCED) */
+/* UPDATE (완전 안정형) */
 function updateStats() {
 
   if (gameEnded) return;
 
-  /* ✔ 훨씬 느린 성장 */
-  energy += Math.floor(Math.random() * 3) + 1;      // 1~3
-  corruption += Math.floor(Math.random() * 2);      // 0~1
+  /* ✔ 너무 빠르지 않게 (밸런스 수정) */
+  energy += Math.floor(Math.random() * 2) + 1; // 1~2
+  corruption += Math.floor(Math.random() * 2);  // 0~1
 
   if (energy > 100) energy = 100;
   if (corruption > 100) corruption = 100;
 
-  save();
+  saveState();
 
-  energyEl.textContent = energy;
-
-  /* ✔ 엔딩 안정화 */
+  /* ✔ 엔딩 */
   if (energy >= 100) {
     showEnding("SYSTEM COMPLETE: ORACLE AWAKENED");
     return;
@@ -184,6 +182,9 @@ oracleBtn.addEventListener("click", () => {
 
     typeText(oracleMessage, data.message);
 
-  }, 1000);
+  }, 900);
 
 });
+
+/* ✔ 처음 화면 무조건 동기화 */
+syncUI();
