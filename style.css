@@ -9,16 +9,24 @@ body {
   color: white;
   font-family: Arial, sans-serif;
 
-  min-height: 100vh;
+  overflow: hidden;
 
   display: flex;
   justify-content: center;
   align-items: center;
 
-  overflow: hidden;
+  min-height: 100vh;
 }
 
-/* GLITCH EFFECT */
+/* MATRIX CANVAS */
+#matrix {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -2;
+}
+
+/* GLITCH */
 .glitch {
   animation: glitch 0.2s;
 }
@@ -27,8 +35,7 @@ body {
   0% { transform: translate(0); filter: hue-rotate(0deg); }
   25% { transform: translate(2px, -2px); }
   50% { transform: translate(-2px, 2px); filter: hue-rotate(90deg); }
-  75% { transform: translate(2px, 2px); }
-  100% { transform: translate(0); filter: hue-rotate(0deg); }
+  100% { transform: translate(0); }
 }
 
 .background-glow {
@@ -38,14 +45,12 @@ body {
   background: cyan;
   border-radius: 50%;
   filter: blur(180px);
-  opacity: 0.15;
+  opacity: 0.12;
   z-index: -1;
-  animation: pulse 6s infinite alternate;
 }
 
 .container {
   text-align: center;
-  width: 100%;
   max-width: 500px;
   padding: 20px;
 }
@@ -53,33 +58,23 @@ body {
 .title {
   font-size: 3rem;
   color: #00ffff;
-
-  text-shadow:
-    0 0 5px #00ffff,
-    0 0 10px #00ffff,
-    0 0 20px #00ffff,
-    0 0 40px #00ffff;
-
-  margin-bottom: 10px;
+  text-shadow: 0 0 5px #00ffff, 0 0 20px #00ffff;
 }
 
 .subtitle {
-  color: #999;
-  margin-bottom: 40px;
+  color: #888;
+  margin-bottom: 30px;
   letter-spacing: 2px;
 }
 
 button {
-  background: transparent;
   border: 2px solid #00ffff;
+  background: transparent;
   color: #00ffff;
 
   padding: 15px 30px;
-  font-size: 1rem;
 
   cursor: pointer;
-
-  transition: 0.3s;
 
   box-shadow: 0 0 10px #00ffff;
 }
@@ -87,32 +82,34 @@ button {
 button:hover {
   background: #00ffff;
   color: black;
-  box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff;
 }
 
 .oracle-card {
-  margin-top: 40px;
-  padding: 30px;
+  margin-top: 30px;
+  padding: 25px;
 
   border: 1px solid #00ffff;
+
   background: rgba(0,255,255,0.05);
 
   backdrop-filter: blur(10px);
 
-  box-shadow: 0 0 20px rgba(0,255,255,0.3);
-
-  animation: reveal 0.8s forwards;
+  animation: reveal 0.8s;
 }
 
 .oracle-card h2 {
   color: #00ffff;
-  font-size: 2rem;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+}
+
+#rarity {
+  margin-bottom: 15px;
+  font-size: 0.9rem;
 }
 
 .oracle-card p {
-  line-height: 1.8;
   color: #ddd;
+  line-height: 1.6;
 }
 
 .hidden {
@@ -120,33 +117,6 @@ button:hover {
 }
 
 @keyframes reveal {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulse {
-  from {
-    transform: scale(1);
-    opacity: 0.1;
-  }
-  to {
-    transform: scale(1.3);
-    opacity: 0.25;
-  }
-}
-
-@media (max-width: 600px) {
-  .title {
-    font-size: 2.2rem;
-  }
-
-  button {
-    width: 100%;
-  }
+  from { opacity: 0; transform: translateY(20px);}
+  to { opacity: 1; transform: translateY(0);}
 }

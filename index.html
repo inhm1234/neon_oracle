@@ -2,36 +2,40 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
   <title>NEON ORACLE</title>
 
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css"/>
 </head>
 
 <body>
 
-  <div class="background-glow"></div>
+<canvas id="matrix"></canvas>
 
-  <main class="container">
+<div class="background-glow"></div>
 
-    <h1 class="title">NEON ORACLE</h1>
+<main class="container">
 
-    <p class="subtitle">미래 신호 해석 시스템</p>
+  <h1 class="title">NEON ORACLE</h1>
 
-    <button id="oracleBtn">ORACLE ACTIVATE</button>
+  <p class="subtitle">FUTURE SIGNAL INTERFACE</p>
 
-    <div id="oracleCard" class="oracle-card hidden">
+  <button id="oracleBtn">ACTIVATE ORACLE</button>
 
-      <h2 id="cardName"></h2>
+  <div id="oracleCard" class="oracle-card hidden">
 
-      <p id="oracleMessage"></p>
+    <h2 id="cardName"></h2>
 
-    </div>
+    <div id="rarity"></div>
 
-  </main>
+    <p id="oracleMessage"></p>
 
-  <script src="app.js"></script>
+  </div>
+
+</main>
+
+<script src="app.js"></script>
 
 </body>
 </html>
