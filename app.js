@@ -11,6 +11,8 @@ let energy = parseInt(localStorage.getItem("energy") || "0");
 let corruption = parseInt(localStorage.getItem("corruption") || "0");
 let level = parseInt(localStorage.getItem("level") || "1");
 
+let gameEnded = false;
+
 const oracles = [
   { name: "VOID CORE", message: "존재하지 않는 것에서 모든 것이 시작된다.", rarity: "COMMON" },
   { name: "SIGNAL LOOP", message: "반복은 미래의 언어다.", rarity: "COMMON" },
@@ -78,44 +80,23 @@ function drawMatrix() {
 
 setInterval(drawMatrix, 30);
 
-/* SAVE SYSTEM */
+/* SAVE */
 function save() {
   localStorage.setItem("energy", energy);
   localStorage.setItem("corruption", corruption);
   localStorage.setItem("level", level);
 }
 
-/* SYSTEM UPDATE */
-function updateStats() {
-
-  energy += 10;
-  corruption += 8;
-
-  if (energy > 100) energy = 100;
-  if (corruption > 100) corruption = 100;
-
-  if (energy % 30 === 0) {
-    level++;
-  }
-
-  save();
-
-  energyEl.textContent = energy;
-
-  if (corruption >= 100) {
-    showEnding("BAD ENDING: REALITY COLLAPSED");
-  }
-
-  if (level >= 5) {
-    showEnding("TRUE ENDING: YOU AWAKENED THE ORACLE");
-  }
-}
-
-/* ENDING SYSTEM */
+/* ENDING */
 function showEnding(text) {
+  gameEnded = true;
+
   oracleCard.classList.remove("hidden");
+
   cardName.textContent = "END OF SYSTEM";
   oracleMessage.textContent = text;
+
+  rarityBox.textContent = "";
 
   document.body.style.background = "#000";
   document.body.style.color = "#ff00ff";
@@ -123,8 +104,44 @@ function showEnding(text) {
   oracleBtn.disabled = true;
 }
 
+/* UPDATE SYSTEM */
+function updateStats() {
+
+  if (gameEnded) return;
+
+  energy += 10;
+  corruption += 8;
+
+  if (energy > 100) energy = 100;
+  if (corruption > 100) corruption = 100;
+
+  level = Math.floor(energy / 20) + 1;
+
+  save();
+
+  energyEl.textContent = energy;
+
+  /* 🔥 즉시 엔딩 체크 (중요 수정) */
+  if (energy >= 100) {
+    showEnding("SYSTEM COMPLETE: ORACLE AWAKENED");
+    return;
+  }
+
+  if (corruption >= 100) {
+    showEnding("BAD ENDING: REALITY COLLAPSED");
+    return;
+  }
+
+  if (level >= 5) {
+    showEnding("TRUE ENDING: YOU AWAKENED THE ORACLE");
+    return;
+  }
+}
+
 /* CLICK */
 oracleBtn.addEventListener("click", () => {
+
+  if (gameEnded) return;
 
   clickSound.currentTime = 0;
   clickSound.play();
@@ -133,6 +150,8 @@ oracleBtn.addEventListener("click", () => {
   setTimeout(() => document.body.classList.remove("glitch"), 200);
 
   updateStats();
+
+  if (gameEnded) return;
 
   oracleCard.classList.remove("hidden");
 
