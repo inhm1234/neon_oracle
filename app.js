@@ -11,78 +11,68 @@ const clickSound = new Audio(
 );
 
 const oracles = [
-
   {
     name: "VOID",
-    message:
-      "침묵 속에서 새로운 문이 열린다. 오늘은 서두르지 말고 흐름을 관찰하라."
+    message: "침묵 속에서 새로운 문이 열린다. 서두르지 말고 흐름을 관찰하라."
   },
-
   {
     name: "ECLIPSE",
-    message:
-      "가려진 진실이 곧 모습을 드러낸다. 오래된 관계에 변화가 찾아온다."
+    message: "가려진 진실이 드러난다. 관계의 변화가 시작된다."
   },
-
   {
     name: "SIGNAL",
-    message:
-      "우연처럼 보이는 반복은 신호다. 오늘 마주치는 숫자와 단어를 기억하라."
+    message: "반복되는 우연은 신호다. 오늘의 숫자와 단어를 기억하라."
   },
-
   {
     name: "CHAOS",
-    message:
-      "혼란은 파괴가 아니라 재배치다. 예상 밖의 선택이 새로운 길을 만든다."
+    message: "혼란은 재배치다. 예상 밖의 선택이 길을 연다."
   },
-
   {
     name: "MIRROR",
-    message:
-      "당신이 두려워하는 것은 사실 가장 원하는 것이다. 감정을 피하지 마라."
+    message: "두려움은 욕망의 반사다. 감정을 피하지 마라."
   }
-
 ];
 
-function typeText(element, text, speed = 40) {
-
+function typeText(element, text, speed = 35) {
   element.textContent = "";
 
   let i = 0;
 
   const interval = setInterval(() => {
-
     element.textContent += text[i];
-
     i++;
 
     if (i >= text.length) {
       clearInterval(interval);
     }
-
   }, speed);
-
 }
 
 oracleBtn.addEventListener("click", () => {
 
   clickSound.currentTime = 0;
-
   clickSound.play();
 
-  const random =
-    oracles[Math.floor(Math.random() * oracles.length)];
+  document.body.classList.add("glitch");
 
-  cardName.textContent = random.name;
+  setTimeout(() => {
+    document.body.classList.remove("glitch");
+  }, 200);
 
   oracleCard.classList.remove("hidden");
 
-  oracleCard.classList.remove("oracle-card");
+  cardName.textContent = "ANALYZING SIGNAL...";
+  oracleMessage.textContent = "SCANNING FUTURE STREAM...";
 
-  void oracleCard.offsetWidth;
+  setTimeout(() => {
 
-  oracleCard.classList.add("oracle-card");
+    const random =
+      oracles[Math.floor(Math.random() * oracles.length)];
 
-  typeText(oracleMessage, random.message);
+    cardName.textContent = random.name;
+
+    typeText(oracleMessage, random.message);
+
+  }, 1200);
 
 });
