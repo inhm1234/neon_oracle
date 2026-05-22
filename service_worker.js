@@ -1,10 +1,10 @@
-const CACHE_NAME = "neon-oracle-v6-1";
+const CACHE_NAME = "neon-oracle-v6-3";
 
 const urlsToCache = [
   "./",
-  "./index.html",
-  "./style.css",
-  "./app.js",
+  "./index.html?v=63",
+  "./style.css?v=63",
+  "./app.js?v=63",
   "./manifest.json"
 ];
 
@@ -26,6 +26,8 @@ self.addEventListener("activate", (event) => {
           if (cacheName !== CACHE_NAME) {
             return caches.delete(cacheName);
           }
+
+          return null;
         })
       );
     }).then(() => {
@@ -40,8 +42,18 @@ self.addEventListener("fetch", (event) => {
   }
 
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
+    fetch(event.request)
+      .then((response) => {
+        const responseClone = response.clone();
+
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseClone);
+        });
+
+        return response;
+      })
+      .catch(() => {
+        return caches.match(event.request);
+      })
   );
 });

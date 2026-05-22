@@ -470,7 +470,7 @@ drawMatrix();
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service_worker.js").catch(() => {});
+    navigator.serviceWorker.register("./service_worker.js?v=63").catch(() => {});
   });
 }
 
