@@ -1,11 +1,11 @@
 {
-  "name": "NEON ORACLE",
-  "short_name": "ORACLE",
+  "name": "오늘의 운세코드",
+  "short_name": "운세코드",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#050816",
-  "theme_color": "#00ffe1",
+  "background_color": "#07111f",
+  "theme_color": "#8ef5ff",
   "orientation": "portrait",
   "icons": [
     {
