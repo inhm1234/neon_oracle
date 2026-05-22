@@ -15,8 +15,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <title>NEON ORACLE V5</title>
+  <title>NEON ORACLE V6</title>
 
+  <link rel="manifest" href="manifest.json"/>
   <link rel="stylesheet" href="style.css"/>
 </head>
 
@@ -25,26 +26,52 @@
 <canvas id="matrix"></canvas>
 
 <div class="background-glow"></div>
+<div id="screenFlash"></div>
+
+<div id="legendaryGate" class="legendary-gate hidden">
+  <div class="legendary-gate-box">
+    <div class="legendary-alert">LEGENDARY SIGNAL DETECTED</div>
+    <div id="legendaryGateTitle" class="legendary-gate-title">OMEGA SEED</div>
+    <div id="legendaryGateText" class="legendary-gate-text">
+      HIDDEN ORACLE CHANNEL OPEN
+    </div>
+  </div>
+</div>
 
 <main class="container">
 
-  <h1 class="title">NEON ORACLE</h1>
+  <h1 class="title" data-text="NEON ORACLE">NEON ORACLE</h1>
 
   <p class="subtitle">REALITY INTERFACE SYSTEM</p>
 
-  <div class="energy">
-    ORACLE ENERGY: <span id="energy">0</span>%
+  <div class="stats-box">
+    <div class="energy">
+      ORACLE ENERGY: <span id="energy">0</span>%
+    </div>
+
+    <div class="corruption">
+      REALITY CORRUPTION: <span id="corruption">0</span>%
+    </div>
   </div>
 
   <button id="oracleBtn">ACTIVATE ORACLE</button>
 
+  <div id="statusText" class="status-text">SYSTEM IDLE</div>
+
   <div id="oracleCard" class="oracle-card hidden">
+
+    <div class="card-top">
+      <div id="rarity"></div>
+      <div id="cardCode"></div>
+    </div>
 
     <h2 id="cardName"></h2>
 
-    <div id="rarity"></div>
-
     <p id="oracleMessage"></p>
+
+    <div id="hiddenMessage" class="hidden-message"></div>
+
+    <div id="systemLog" class="system-log"></div>
 
   </div>
 

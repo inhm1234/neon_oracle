@@ -2,6 +2,7 @@
   "name": "NEON ORACLE",
   "short_name": "ORACLE",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#050816",
   "theme_color": "#00ffe1",
