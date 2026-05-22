@@ -1,4 +1,4 @@
-const CACHE_NAME = "neon-oracle-v6";
+const CACHE_NAME = "neon-oracle-v6-1";
 
 const urlsToCache = [
   "./",
