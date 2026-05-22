@@ -21,6 +21,10 @@ let busy = false;
 let typingInterval = null;
 let audioContext = null;
 
+legendaryGate.classList.add("hidden");
+legendaryGate.classList.remove("show");
+legendaryGate.style.display = "none";
+
 if (!localStorage.getItem("init")) {
   localStorage.setItem("energy", "0");
   localStorage.setItem("corruption", "0");
@@ -253,18 +257,27 @@ function flashScreen() {
   }, 950);
 }
 
+function openLegendaryGate(data) {
+  legendaryGateTitle.textContent = "ORACLE BREACH";
+  legendaryGateText.textContent = randomItem(legendaryGateMessages);
+
+  legendaryGate.classList.remove("hidden");
+  legendaryGate.classList.add("show");
+  legendaryGate.style.display = "flex";
+}
+
+function closeLegendaryGate() {
+  legendaryGate.classList.add("hidden");
+  legendaryGate.classList.remove("show");
+  legendaryGate.style.display = "none";
+}
+
 function triggerLegendaryEvent(data, hiddenText) {
   playLegendarySound();
 
   document.body.classList.add("legendary-mode", "deep-glitch");
 
-  legendaryGateTitle.textContent = data.name;
-  legendaryGateText.textContent = randomItem(legendaryGateMessages);
-
-  legendaryGate.classList.remove("hidden");
-  legendaryGate.classList.remove("show");
-  void legendaryGate.offsetWidth;
-  legendaryGate.classList.add("show");
+  openLegendaryGate(data);
 
   flashScreen();
 
@@ -274,8 +287,7 @@ function triggerLegendaryEvent(data, hiddenText) {
 
   setTimeout(() => {
     document.body.classList.remove("legendary-mode");
-    legendaryGate.classList.add("hidden");
-    legendaryGate.classList.remove("show");
+    closeLegendaryGate();
     legendaryGateText.textContent = hiddenText;
   }, 2500);
 }
@@ -307,6 +319,7 @@ function showEnding(text) {
   busy = false;
 
   clearTyping();
+  closeLegendaryGate();
 
   oracleCard.className = "oracle-card legendary";
   oracleCard.classList.remove("hidden");
@@ -334,6 +347,7 @@ async function activateOracle() {
   oracleBtn.disabled = true;
 
   clearTyping();
+  closeLegendaryGate();
 
   playClickSound();
 
@@ -470,7 +484,7 @@ drawMatrix();
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service_worker.js?v=63").catch(() => {});
+    navigator.serviceWorker.register("./service_worker.js?v=64").catch(() => {});
   });
 }
 

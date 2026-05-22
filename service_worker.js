@@ -1,10 +1,10 @@
-const CACHE_NAME = "neon-oracle-v6-3";
+const CACHE_NAME = "neon-oracle-v6-4";
 
 const urlsToCache = [
   "./",
-  "./index.html?v=63",
-  "./style.css?v=63",
-  "./app.js?v=63",
+  "./index.html?v=64",
+  "./style.css?v=64",
+  "./app.js?v=64",
   "./manifest.json"
 ];
 
