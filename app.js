@@ -13,8 +13,15 @@ const screenFlash = document.getElementById("screenFlash");
 const legendaryGate = document.getElementById("legendaryGate");
 const legendaryGateTitle = document.getElementById("legendaryGateTitle");
 const legendaryGateText = document.getElementById("legendaryGateText");
+const collectionBtn = document.getElementById("collectionBtn");
+const collectionPanel = document.getElementById("collectionPanel");
+const collectionList = document.getElementById("collectionList");
+const collectionCountText = document.getElementById("collectionCountText");
+const closeCollectionBtn = document.getElementById("closeCollectionBtn");
 
 const clickSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3");
+
+const COLLECTION_KEY = "neon_oracle_collection_v66";
 
 let gameEnded = false;
 let busy = false;
@@ -47,6 +54,7 @@ function saveState() {
 
 const oracles = [
   {
+    id: "void_core",
     name: "고요한 공백",
     message: "아직 채워지지 않은 자리가 오늘의 가능성이 됩니다.",
     rarity: "COMMON",
@@ -54,6 +62,7 @@ const oracles = [
     keyword: "EMPTY SIGNAL"
   },
   {
+    id: "signal_loop",
     name: "반복되는 신호",
     message: "자꾸 반복해서 떠오르는 생각 안에 작은 힌트가 있습니다.",
     rarity: "COMMON",
@@ -61,6 +70,7 @@ const oracles = [
     keyword: "REPEATED SIGNAL"
   },
   {
+    id: "eclipse_memory",
     name: "가려진 기억",
     message: "잊고 있던 경험 하나가 지금의 선택을 조용히 도와줍니다.",
     rarity: "RARE",
@@ -68,6 +78,7 @@ const oracles = [
     keyword: "HIDDEN MEMORY"
   },
   {
+    id: "chaos_engine",
     name: "혼돈의 흐름",
     message: "정리되지 않은 상황 속에서도 방향은 천천히 만들어지고 있습니다.",
     rarity: "RARE",
@@ -75,6 +86,7 @@ const oracles = [
     keyword: "CHAOS PATTERN"
   },
   {
+    id: "mirror_god",
     name: "거울의 시선",
     message: "오늘의 답은 바깥보다 당신의 반응 안에서 더 선명하게 보입니다.",
     rarity: "RARE",
@@ -82,6 +94,7 @@ const oracles = [
     keyword: "MIRROR OBSERVER"
   },
   {
+    id: "omega_seed",
     name: "오메가 씨앗",
     message: "끝이라고 생각한 곳에서 새로운 시작의 씨앗이 깨어납니다.",
     rarity: "LEGENDARY",
@@ -199,6 +212,81 @@ function getRarityKorean(rarity) {
   if (rarity === "LEGENDARY") return "특별";
   if (rarity === "RARE") return "희귀";
   return "일반";
+}
+
+function getCollection() {
+  try {
+    return JSON.parse(localStorage.getItem(COLLECTION_KEY)) || {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function saveCollection(collection) {
+  localStorage.setItem(COLLECTION_KEY, JSON.stringify(collection));
+}
+
+function addToCollection(cardId) {
+  const collection = getCollection();
+
+  if (!collection[cardId]) {
+    collection[cardId] = true;
+    saveCollection(collection);
+  }
+
+  renderCollectionButton();
+}
+
+function getCollectionCount() {
+  const collection = getCollection();
+  return oracles.filter((card) => collection[card.id]).length;
+}
+
+function renderCollectionButton() {
+  collectionCountText.textContent = `${getCollectionCount()}/${oracles.length}`;
+}
+
+function openCollection() {
+  renderCollection();
+  collectionPanel.classList.remove("hidden");
+  statusText.textContent = "운세 도감 열림";
+}
+
+function closeCollection() {
+  collectionPanel.classList.add("hidden");
+  statusText.textContent = "준비 완료";
+}
+
+function renderCollection() {
+  const collection = getCollection();
+
+  collectionList.innerHTML = oracles.map((card) => {
+    const found = Boolean(collection[card.id]);
+
+    if (!found) {
+      return `
+        <div class="collection-item locked">
+          <div class="collection-symbol">?</div>
+          <div>
+            <div class="collection-name">???</div>
+            <div class="collection-desc">아직 발견하지 못한 운세 신호입니다.</div>
+            <div class="collection-rarity">미발견</div>
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="collection-item">
+        <div class="collection-symbol">${card.symbol}</div>
+        <div>
+          <div class="collection-name">${card.name}</div>
+          <div class="collection-desc">${card.message}</div>
+          <div class="collection-rarity">${getRarityKorean(card.rarity)} 신호</div>
+        </div>
+      </div>
+    `;
+  }).join("");
 }
 
 function getAudioContext() {
@@ -386,6 +474,8 @@ async function activateOracle() {
   const code = createCode(data);
   const hiddenText = data.rarity === "LEGENDARY" ? randomItem(legendaryHiddenMessages) : "";
 
+  addToCollection(data.id);
+
   if (data.rarity === "LEGENDARY") {
     statusText.textContent = "특별한 신호 감지";
     triggerLegendaryEvent();
@@ -429,6 +519,8 @@ async function activateOracle() {
 }
 
 oracleBtn.addEventListener("click", activateOracle);
+collectionBtn.addEventListener("click", openCollection);
+closeCollectionBtn.addEventListener("click", closeCollection);
 
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
@@ -487,8 +579,9 @@ drawMatrix();
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service_worker.js?v=65").catch(() => {});
+    navigator.serviceWorker.register("./service_worker.js?v=67").catch(() => {});
   });
 }
 
 syncUI();
+renderCollectionButton();

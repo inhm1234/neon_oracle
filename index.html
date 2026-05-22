@@ -15,10 +15,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <title>오늘의 운세코드</title>
+  <title>오늘의 운세코드 V6.6</title>
 
   <link rel="manifest" href="manifest.json"/>
-  <link rel="stylesheet" href="./style.css?v=66"/>
+  <link rel="stylesheet" href="./style.css?v=67"/>
 </head>
 
 <body>
@@ -58,7 +58,13 @@
     </div>
   </div>
 
-  <button id="oracleBtn">오늘의 신호 보기</button>
+  <div class="button-row">
+    <button id="oracleBtn">오늘의 신호 보기</button>
+
+    <button id="collectionBtn" class="secondary-button">
+      운세 도감 보기 <span id="collectionCountText">0/6</span>
+    </button>
+  </div>
 
   <div id="statusText" class="status-text">준비 완료</div>
 
@@ -79,9 +85,22 @@
 
   </div>
 
+  <section id="collectionPanel" class="collection-panel hidden">
+    <div class="collection-header">
+      <div>
+        <h2>운세 도감</h2>
+        <p>지금까지 발견한 운세 신호들이 이곳에 기록됩니다.</p>
+      </div>
+
+      <button id="closeCollectionBtn" class="close-collection">닫기</button>
+    </div>
+
+    <div id="collectionList" class="collection-list"></div>
+  </section>
+
 </main>
 
-<script src="./app.js?v=66"></script>
+<script src="./app.js?v=67"></script>
 
 </body>
 </html>
