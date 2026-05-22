@@ -579,4 +579,11 @@ body.legendary-mode .title {
   .legendary-gate-text {
     font-size: 0.8rem;
   }
+  .legendary-gate.hidden {
+    display: none;
+  }
+  
+  .legendary-gate.show {
+    display: flex;
+  }
 }
