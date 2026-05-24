@@ -18,7 +18,7 @@
   <title>오늘의 운세코드</title>
 
   <link rel="manifest" href="manifest.json"/>
-  <link rel="stylesheet" href="./style.css?upload=1"/>
+  <link rel="stylesheet" href="./style.css"/>
 </head>
 
 <body>
@@ -35,6 +35,58 @@
   <p class="subtitle">
     생년월일과 태어난 시간을 바탕으로 오늘의 운세 흐름을 분석합니다.
   </p>
+
+  <section class="partner-card">
+
+    <div id="partnerEmpty" class="partner-empty">
+      <div class="partner-empty-orb">?</div>
+      <h2>파트너 오라클이 기다리고 있습니다</h2>
+      <p>
+        운세를 함께 봐주는 작은 파트너를 만나보세요.
+        파트너는 운세를 볼 때마다 경험치를 얻고 성장합니다.
+      </p>
+      <button id="meetPartnerBtn" type="button">랜덤 파트너 만나기</button>
+    </div>
+
+    <div id="partnerActive" class="partner-active hidden">
+
+      <div class="partner-left">
+        <div id="partnerOrb" class="partner-orb">
+          <div class="partner-aura"></div>
+          <div class="partner-ring"></div>
+          <span id="partnerEmoji">✨</span>
+        </div>
+      </div>
+
+      <div class="partner-info">
+        <div class="partner-top">
+          <div>
+            <span class="small-label">PARTNER ORACLE</span>
+            <h2 id="partnerName">루미</h2>
+          </div>
+          <button id="resetPartnerBtn" class="small-button" type="button">초기화</button>
+        </div>
+
+        <p id="partnerType" class="partner-type">차분한 빛의 파트너</p>
+
+        <div class="partner-status">
+          <span id="partnerLevel">Lv.1</span>
+          <span id="partnerStage">새싹형</span>
+          <span id="partnerExpText">EXP 0 / 20</span>
+        </div>
+
+        <div class="exp-bar">
+          <div id="partnerExpFill"></div>
+        </div>
+
+        <div id="partnerSpeech" class="partner-speech">
+          오늘도 같이 운세를 봐줄게.
+        </div>
+      </div>
+
+    </div>
+
+  </section>
 
   <section class="input-card">
     <form id="fortuneForm">
@@ -79,30 +131,6 @@
           </select>
         </label>
 
-      </div>
-
-      <div class="image-upload-box">
-        <div class="image-upload-text">
-          <strong>오라클 이미지</strong>
-          <p>이미지를 올리면 AI 운세 분석 화면 안에서 살아 움직이는 듯한 형태로 표시됩니다.</p>
-        </div>
-
-        <label class="upload-label" for="imageUpload">
-          이미지 업로드
-        </label>
-
-        <input id="imageUpload" type="file" accept="image/png, image/jpeg, image/webp, image/gif" />
-      </div>
-
-      <div id="visualStage" class="visual-stage hidden">
-        <div class="visual-aura"></div>
-        <div class="visual-ring"></div>
-
-        <img id="oracleImage" alt="사용자가 업로드한 오라클 이미지" />
-
-        <button id="removeImageBtn" class="remove-image-btn" type="button">
-          이미지 삭제
-        </button>
       </div>
 
       <p class="notice">
@@ -184,7 +212,7 @@
 
 </main>
 
-<script src="./app.js?upload=1"></script>
+<script src="./app.js"></script>
 
 </body>
 </html>

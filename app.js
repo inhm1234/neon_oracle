@@ -6,11 +6,6 @@ const genderEl = document.getElementById("gender");
 const birthDateEl = document.getElementById("birthDate");
 const birthTimeEl = document.getElementById("birthTime");
 
-const imageUpload = document.getElementById("imageUpload");
-const visualStage = document.getElementById("visualStage");
-const oracleImage = document.getElementById("oracleImage");
-const removeImageBtn = document.getElementById("removeImageBtn");
-
 const statusText = document.getElementById("statusText");
 const resultCard = document.getElementById("resultCard");
 
@@ -28,7 +23,88 @@ const cautionFortune = document.getElementById("cautionFortune");
 const luckyItems = document.getElementById("luckyItems");
 const finalAdvice = document.getElementById("finalAdvice");
 
-let uploadedImageUrl = null;
+const meetPartnerBtn = document.getElementById("meetPartnerBtn");
+const resetPartnerBtn = document.getElementById("resetPartnerBtn");
+const partnerEmpty = document.getElementById("partnerEmpty");
+const partnerActive = document.getElementById("partnerActive");
+const partnerOrb = document.getElementById("partnerOrb");
+const partnerEmoji = document.getElementById("partnerEmoji");
+const partnerName = document.getElementById("partnerName");
+const partnerType = document.getElementById("partnerType");
+const partnerLevel = document.getElementById("partnerLevel");
+const partnerStage = document.getElementById("partnerStage");
+const partnerExpText = document.getElementById("partnerExpText");
+const partnerExpFill = document.getElementById("partnerExpFill");
+const partnerSpeech = document.getElementById("partnerSpeech");
+
+const PARTNER_KEY = "fortune_partner_guest_v1";
+const EXP_PER_LEVEL = 20;
+
+const partnerTemplates = [
+  {
+    id: "lumy",
+    name: "루미",
+    type: "차분한 빛의 파트너",
+    emojis: ["✨", "🌙", "🌌"],
+    greetings: [
+      "오늘도 같이 운세를 봐줄게.",
+      "천천히 입력해줘. 내가 흐름을 같이 읽어볼게.",
+      "오늘의 신호가 어떤 모습인지 궁금해."
+    ],
+    analyzing: [
+      "출생 정보와 오늘의 기운을 연결하고 있어.",
+      "잠깐만, 오늘의 흐름을 조용히 읽는 중이야.",
+      "빛의 방향이 조금씩 정리되고 있어."
+    ],
+    result: [
+      "분석이 끝났어. 오늘은 작은 신호를 놓치지 않는 게 좋아.",
+      "오늘의 흐름이 정리됐어. 천천히 읽어봐.",
+      "좋아, 오늘의 운세코드를 찾았어."
+    ]
+  },
+  {
+    id: "moko",
+    name: "모코",
+    type: "장난기 많은 불꽃 파트너",
+    emojis: ["🐾", "🦊", "🔥"],
+    greetings: [
+      "왔구나! 오늘 운세도 내가 같이 볼게!",
+      "오늘은 뭔가 재밌는 신호가 잡힐 것 같아.",
+      "준비됐어? 얼른 분석해보자!"
+    ],
+    analyzing: [
+      "오오, 신호가 움직이고 있어!",
+      "좋아 좋아, 오늘의 기운을 추적 중이야.",
+      "잠깐만! 중요한 흐름을 잡은 것 같아."
+    ],
+    result: [
+      "분석 끝! 오늘은 너무 급하게 달리지만 않으면 좋아.",
+      "봤지? 오늘의 힌트가 나왔어!",
+      "운세코드 확인 완료! 이제 잘 써먹어보자."
+    ]
+  },
+  {
+    id: "nova",
+    name: "노바",
+    type: "신비로운 별의 파트너",
+    emojis: ["💧", "🐉", "🔮"],
+    greetings: [
+      "오늘의 별빛이 너를 기다리고 있었어.",
+      "조용히 흐름을 열어볼게.",
+      "네 운세코드는 아직 잠들어 있어. 깨워보자."
+    ],
+    analyzing: [
+      "시간의 결을 따라가고 있어.",
+      "오늘의 오행이 천천히 맞물리고 있어.",
+      "잠시만, 숨겨진 신호를 확인하고 있어."
+    ],
+    result: [
+      "오늘의 흐름이 열렸어. 결과를 천천히 살펴봐.",
+      "운세코드가 응답했어. 오늘은 균형이 중요해.",
+      "분석은 끝났어. 이제 선택은 네가 하면 돼."
+    ]
+  }
+];
 
 const stems = [
   ["갑", "wood"], ["을", "wood"], ["병", "fire"], ["정", "fire"], ["무", "earth"],
@@ -134,6 +210,175 @@ const fortuneText = {
     advice: "오늘은 기본을 지키는 것이 가장 강한 운입니다."
   }
 };
+
+function getTodayKey() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function randomItem(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function loadPartner() {
+  try {
+    return JSON.parse(localStorage.getItem(PARTNER_KEY));
+  } catch (error) {
+    localStorage.removeItem(PARTNER_KEY);
+    return null;
+  }
+}
+
+function savePartner(partner) {
+  localStorage.setItem(PARTNER_KEY, JSON.stringify(partner));
+}
+
+function getPartnerTemplate(id) {
+  return partnerTemplates.find((item) => item.id === id) || partnerTemplates[0];
+}
+
+function getLevel(exp) {
+  return Math.floor(exp / EXP_PER_LEVEL) + 1;
+}
+
+function getStageIndex(level) {
+  if (level >= 10) return 2;
+  if (level >= 5) return 1;
+  return 0;
+}
+
+function getStageName(level) {
+  if (level >= 10) return "각성형";
+  if (level >= 5) return "성장형";
+  return "새싹형";
+}
+
+function renderPartner() {
+  const partner = loadPartner();
+
+  if (!partner) {
+    partnerEmpty.classList.remove("hidden");
+    partnerActive.classList.add("hidden");
+    return;
+  }
+
+  const template = getPartnerTemplate(partner.id);
+  const level = getLevel(partner.exp);
+  const stageIndex = getStageIndex(level);
+  const currentLevelExp = partner.exp % EXP_PER_LEVEL;
+  const expPercent = (currentLevelExp / EXP_PER_LEVEL) * 100;
+
+  partnerEmpty.classList.add("hidden");
+  partnerActive.classList.remove("hidden");
+
+  partnerOrb.className = `partner-orb partner-${template.id} stage-${stageIndex + 1}`;
+  partnerEmoji.textContent = template.emojis[stageIndex];
+
+  partnerName.textContent = template.name;
+  partnerType.textContent = template.type;
+
+  partnerLevel.textContent = `Lv.${level}`;
+  partnerStage.textContent = getStageName(level);
+  partnerExpText.textContent = `EXP ${currentLevelExp} / ${EXP_PER_LEVEL}`;
+  partnerExpFill.style.width = `${expPercent}%`;
+
+  partnerSpeech.textContent = partner.speech || randomItem(template.greetings);
+}
+
+function createRandomPartner() {
+  const template = randomItem(partnerTemplates);
+
+  const partner = {
+    id: template.id,
+    exp: 0,
+    visits: 0,
+    createdAt: getTodayKey(),
+    lastVisit: "",
+    speech: `안녕, 나는 ${template.name}. 오늘부터 네 운세를 같이 봐줄게.`
+  };
+
+  savePartner(partner);
+  claimDailyVisitExp();
+  renderPartner();
+
+  statusText.textContent = `${template.name}가 파트너로 연결되었습니다.`;
+}
+
+function claimDailyVisitExp() {
+  const partner = loadPartner();
+  if (!partner) return;
+
+  const todayKey = getTodayKey();
+
+  if (partner.lastVisit !== todayKey) {
+    partner.exp += 5;
+    partner.visits += 1;
+    partner.lastVisit = todayKey;
+    partner.speech = "오늘도 와줘서 고마워. 첫 방문 보너스로 EXP를 얻었어.";
+
+    savePartner(partner);
+  }
+}
+
+function addPartnerExp(amount, reason) {
+  const partner = loadPartner();
+  if (!partner) return;
+
+  const oldLevel = getLevel(partner.exp);
+  partner.exp += amount;
+  const newLevel = getLevel(partner.exp);
+
+  const template = getPartnerTemplate(partner.id);
+
+  if (newLevel > oldLevel) {
+    const oldStage = getStageIndex(oldLevel);
+    const newStage = getStageIndex(newLevel);
+
+    if (newStage > oldStage) {
+      partner.speech = `느껴져... 내가 ${getStageName(newLevel)}으로 성장했어!`;
+    } else {
+      partner.speech = `좋아! Lv.${newLevel}이 되었어. 오늘도 조금 더 강해졌어.`;
+    }
+  } else {
+    partner.speech = reason || randomItem(template.result);
+  }
+
+  savePartner(partner);
+  renderPartner();
+
+  partnerOrb.classList.add("happy");
+  setTimeout(() => partnerOrb.classList.remove("happy"), 800);
+}
+
+function resetPartner() {
+  const ok = confirm("현재 파트너 기록을 초기화할까요?");
+  if (!ok) return;
+
+  localStorage.removeItem(PARTNER_KEY);
+  renderPartner();
+  statusText.textContent = "파트너 기록이 초기화되었습니다.";
+}
+
+function setPartnerSpeech(type) {
+  const partner = loadPartner();
+  if (!partner) return;
+
+  const template = getPartnerTemplate(partner.id);
+
+  if (type === "analyzing") {
+    partner.speech = randomItem(template.analyzing);
+  } else if (type === "result") {
+    partner.speech = randomItem(template.result);
+  } else {
+    partner.speech = randomItem(template.greetings);
+  }
+
+  savePartner(partner);
+  renderPartner();
+}
 
 function mod(value, size) {
   return ((value % size) + size) % size;
@@ -301,42 +546,6 @@ function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function handleImageUpload(event) {
-  const file = event.target.files[0];
-
-  if (!file) return;
-
-  if (!file.type.startsWith("image/")) {
-    statusText.textContent = "이미지 파일만 업로드할 수 있습니다.";
-    imageUpload.value = "";
-    return;
-  }
-
-  if (uploadedImageUrl) {
-    URL.revokeObjectURL(uploadedImageUrl);
-  }
-
-  uploadedImageUrl = URL.createObjectURL(file);
-  oracleImage.src = uploadedImageUrl;
-
-  visualStage.classList.remove("hidden");
-  statusText.textContent = "오라클 이미지가 연결되었습니다.";
-}
-
-function removeUploadedImage() {
-  if (uploadedImageUrl) {
-    URL.revokeObjectURL(uploadedImageUrl);
-    uploadedImageUrl = null;
-  }
-
-  oracleImage.removeAttribute("src");
-  imageUpload.value = "";
-  visualStage.classList.add("hidden");
-  visualStage.classList.remove("analyzing");
-
-  statusText.textContent = "오라클 이미지가 삭제되었습니다.";
-}
-
 async function analyzeFortune(event) {
   event.preventDefault();
 
@@ -361,14 +570,15 @@ async function analyzeFortune(event) {
   resultCard.classList.add("hidden");
   document.body.classList.add("scanning");
 
-  if (!visualStage.classList.contains("hidden")) {
-    visualStage.classList.add("analyzing");
+  if (loadPartner()) {
+    partnerOrb.classList.add("analyzing");
+    setPartnerSpeech("analyzing");
   }
 
   statusText.textContent = "출생 정보를 읽는 중...";
   await wait(450);
 
-  statusText.textContent = "오라클 이미지를 연결하는 중...";
+  statusText.textContent = "파트너 오라클과 연결하는 중...";
   await wait(450);
 
   statusText.textContent = "천간·지지 흐름을 계산하는 중...";
@@ -383,15 +593,20 @@ async function analyzeFortune(event) {
   const result = makeResult(profile);
   renderResult(result);
 
+  if (loadPartner()) {
+    partnerOrb.classList.remove("analyzing");
+    setPartnerSpeech("result");
+    addPartnerExp(10, "운세 분석을 함께 마쳤어. EXP를 얻었어!");
+  }
+
   statusText.textContent = "오늘의 운세 분석이 완료되었습니다.";
   document.body.classList.remove("scanning");
-  visualStage.classList.remove("analyzing");
   analyzeBtn.disabled = false;
 }
 
 form.addEventListener("submit", analyzeFortune);
-imageUpload.addEventListener("change", handleImageUpload);
-removeImageBtn.addEventListener("click", removeUploadedImage);
+meetPartnerBtn.addEventListener("click", createRandomPartner);
+resetPartnerBtn.addEventListener("click", resetPartner);
 
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
@@ -458,5 +673,7 @@ function clearOldCachesAndWorkers() {
 resize();
 drawMatrix();
 clearOldCachesAndWorkers();
+claimDailyVisitExp();
+renderPartner();
 
 window.addEventListener("resize", resize);
