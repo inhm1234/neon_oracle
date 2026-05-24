@@ -1,59 +1,16 @@
-const CACHE_NAME = "fortune-code-v7-0";
-
-const urlsToCache = [
-  "./",
-  "./index.html?v=70",
-  "./style.css?v=70",
-  "./app.js?v=70",
-  "./manifest.json"
-];
-
 self.addEventListener("install", (event) => {
   self.skipWaiting();
-
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(urlsToCache);
-    })
-  );
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-
-          return null;
-        })
-      );
-    }).then(() => {
-      return self.clients.claim();
-    })
+    caches.keys()
+      .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+      .then(() => self.clients.claim())
   );
 });
 
-self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") {
-    return;
-  }
-
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        const responseClone = response.clone();
-
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseClone);
-        });
-
-        return response;
-      })
-      .catch(() => {
-        return caches.match(event.request);
-      })
-  );
+self.addEventListener("fetch", () => {
+  // 캐시를 사용하지 않습니다.
+  // 기존 service worker 파일은 보관하되, 현재 프로젝트에서는 오프라인 캐시 기능을 비활성화합니다.
 });
