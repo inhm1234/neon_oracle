@@ -694,7 +694,7 @@ button:disabled {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 @media (max-width: 680px) {
