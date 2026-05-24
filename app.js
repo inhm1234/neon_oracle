@@ -6,6 +6,11 @@ const genderEl = document.getElementById("gender");
 const birthDateEl = document.getElementById("birthDate");
 const birthTimeEl = document.getElementById("birthTime");
 
+const imageUpload = document.getElementById("imageUpload");
+const visualStage = document.getElementById("visualStage");
+const oracleImage = document.getElementById("oracleImage");
+const removeImageBtn = document.getElementById("removeImageBtn");
+
 const statusText = document.getElementById("statusText");
 const resultCard = document.getElementById("resultCard");
 
@@ -22,6 +27,8 @@ const healthFortune = document.getElementById("healthFortune");
 const cautionFortune = document.getElementById("cautionFortune");
 const luckyItems = document.getElementById("luckyItems");
 const finalAdvice = document.getElementById("finalAdvice");
+
+let uploadedImageUrl = null;
 
 const stems = [
   ["갑", "wood"], ["을", "wood"], ["병", "fire"], ["정", "fire"], ["무", "earth"],
@@ -294,6 +301,42 @@ function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  if (!file.type.startsWith("image/")) {
+    statusText.textContent = "이미지 파일만 업로드할 수 있습니다.";
+    imageUpload.value = "";
+    return;
+  }
+
+  if (uploadedImageUrl) {
+    URL.revokeObjectURL(uploadedImageUrl);
+  }
+
+  uploadedImageUrl = URL.createObjectURL(file);
+  oracleImage.src = uploadedImageUrl;
+
+  visualStage.classList.remove("hidden");
+  statusText.textContent = "오라클 이미지가 연결되었습니다.";
+}
+
+function removeUploadedImage() {
+  if (uploadedImageUrl) {
+    URL.revokeObjectURL(uploadedImageUrl);
+    uploadedImageUrl = null;
+  }
+
+  oracleImage.removeAttribute("src");
+  imageUpload.value = "";
+  visualStage.classList.add("hidden");
+  visualStage.classList.remove("analyzing");
+
+  statusText.textContent = "오라클 이미지가 삭제되었습니다.";
+}
+
 async function analyzeFortune(event) {
   event.preventDefault();
 
@@ -318,7 +361,14 @@ async function analyzeFortune(event) {
   resultCard.classList.add("hidden");
   document.body.classList.add("scanning");
 
+  if (!visualStage.classList.contains("hidden")) {
+    visualStage.classList.add("analyzing");
+  }
+
   statusText.textContent = "출생 정보를 읽는 중...";
+  await wait(450);
+
+  statusText.textContent = "오라클 이미지를 연결하는 중...";
   await wait(450);
 
   statusText.textContent = "천간·지지 흐름을 계산하는 중...";
@@ -335,10 +385,13 @@ async function analyzeFortune(event) {
 
   statusText.textContent = "오늘의 운세 분석이 완료되었습니다.";
   document.body.classList.remove("scanning");
+  visualStage.classList.remove("analyzing");
   analyzeBtn.disabled = false;
 }
 
 form.addEventListener("submit", analyzeFortune);
+imageUpload.addEventListener("change", handleImageUpload);
+removeImageBtn.addEventListener("click", removeUploadedImage);
 
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
