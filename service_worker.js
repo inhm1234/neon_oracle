@@ -1,10 +1,10 @@
-const CACHE_NAME = "neon-oracle-v6-6";
+const CACHE_NAME = "fortune-code-v7-0";
 
 const urlsToCache = [
   "./",
-  "./index.html?v=67",
-  "./style.css?v=67",
-  "./app.js?v=67",
+  "./index.html?v=70",
+  "./style.css?v=70",
+  "./app.js?v=70",
   "./manifest.json"
 ];
 
