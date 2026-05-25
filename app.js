@@ -47,6 +47,9 @@ const partnerInsightText = document.getElementById("partnerInsightText");
 const levelToast = document.getElementById("levelToast");
 const levelToastTitle = document.getElementById("levelToastTitle");
 const levelToastText = document.getElementById("levelToastText");
+const fortuneHistoryEmpty = document.getElementById("fortuneHistoryEmpty");
+const fortuneHistoryList = document.getElementById("fortuneHistoryList");
+const clearHistoryBtn = document.getElementById("clearHistoryBtn");
 const devVersionBadge = document.getElementById("devVersionBadge");
 const devChecklistItems = document.querySelectorAll("[data-check-id]");
 const devChecklistProgress = document.getElementById("devChecklistProgress");
@@ -57,9 +60,11 @@ const devCheckCard = document.getElementById("devCheckCard");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V2-3.3";
+const DEV_VERSION = "V2-4";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
+const HISTORY_KEY = "fortune_history_guest_v1";
+const HISTORY_LIMIT = 20;
 
 const relationMeta = {
   support: {
@@ -354,6 +359,16 @@ function getTodayKey() {
 
 function randomItem(list) {
   return list[Math.floor(Math.random() * list.length)];
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (match) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#039;"
+  }[match]));
 }
 
 function loadPartner() {
@@ -792,6 +807,176 @@ function renderResult(result, partnerReaction = null) {
   resultCard.classList.remove("hidden");
 }
 
+function loadFortuneHistory() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(HISTORY_KEY));
+    return Array.isArray(saved) ? saved : [];
+  } catch (error) {
+    localStorage.removeItem(HISTORY_KEY);
+    return [];
+  }
+}
+
+function saveFortuneHistoryList(list) {
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+  } catch (error) {
+    console.error("운세 기록 저장 실패", error);
+  }
+}
+
+function getGenderLabel(value) {
+  if (value === "male") return "남성";
+  if (value === "female") return "여성";
+  return "선택 안 함";
+}
+
+function getBirthTimeLabel(key) {
+  if (key === "unknown") return "시간 모름";
+
+  const info = getTimeInfo(key);
+  if (!info) return "시간 모름";
+
+  return `${info.name}시 ${info.range}`;
+}
+
+function formatSavedAt(value) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value || "저장 시간 없음";
+  }
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hour = String(date.getHours()).padStart(2, "0");
+  const minute = String(date.getMinutes()).padStart(2, "0");
+
+  return `${year}.${month}.${day} ${hour}:${minute}`;
+}
+
+function buildHistoryRecord(profile, result, partnerReaction) {
+  const partner = loadPartner();
+  const template = partner ? getPartnerTemplate(partner.id) : null;
+  const relation = relationMeta[result.relation] || relationMeta.balance;
+  const inputKey = getHash(`${profile.date}-${profile.time}-${profile.name}-${profile.gender}`);
+
+  return {
+    id: `${getTodayKey()}-${inputKey}`,
+    savedAt: new Date().toISOString(),
+    todayKey: getTodayKey(),
+    title: result.title,
+    code: result.code,
+    name: profile.name || "이름 없음",
+    birthDate: profile.date,
+    birthTime: getBirthTimeLabel(profile.time),
+    gender: getGenderLabel(profile.gender),
+    relationLabel: relation.label,
+    relationShort: relation.short,
+    mainElement: elementName[result.mainElement],
+    todayElement: elementName[result.todayElement],
+    total: result.fortunes.total,
+    advice: result.fortunes.advice,
+    lucky: result.lucky,
+    partnerName: template ? template.name : "파트너 없음",
+    partnerLevel: partner ? getLevel(partner.exp || 0) : null,
+    partnerStage: partner ? getStageName(getLevel(partner.exp || 0)) : null,
+    partnerReaction: partnerReaction ? partnerReaction.text : "파트너 없이 저장된 운세입니다."
+  };
+}
+
+function saveFortuneHistory(profile, result, partnerReaction) {
+  const record = buildHistoryRecord(profile, result, partnerReaction);
+  const history = loadFortuneHistory().filter((item) => item.id !== record.id);
+  const nextHistory = [record, ...history].slice(0, HISTORY_LIMIT);
+
+  saveFortuneHistoryList(nextHistory);
+  renderFortuneHistory();
+}
+
+function renderHistoryLucky(items) {
+  if (!Array.isArray(items) || !items.length) return "";
+
+  return items.map(([label, value]) => `
+    <span class="history-lucky-chip">${escapeHtml(label)} · ${escapeHtml(value)}</span>
+  `).join("");
+}
+
+function renderFortuneHistory() {
+  if (!fortuneHistoryEmpty || !fortuneHistoryList) return;
+
+  const history = loadFortuneHistory();
+
+  if (!history.length) {
+    fortuneHistoryEmpty.classList.remove("hidden");
+    fortuneHistoryList.innerHTML = "";
+    if (clearHistoryBtn) clearHistoryBtn.disabled = true;
+    return;
+  }
+
+  fortuneHistoryEmpty.classList.add("hidden");
+  if (clearHistoryBtn) clearHistoryBtn.disabled = false;
+
+  fortuneHistoryList.innerHTML = history.map((item) => `
+    <article class="history-item">
+      <details>
+        <summary>
+          <span class="history-date">${escapeHtml(formatSavedAt(item.savedAt))}</span>
+          <strong>${escapeHtml(item.title)}</strong>
+          <em>${escapeHtml(item.code)} · ${escapeHtml(item.relationShort)}</em>
+        </summary>
+
+        <div class="history-detail">
+          <div class="history-mini-grid">
+            <div><span>생년월일</span><strong>${escapeHtml(item.birthDate)}</strong></div>
+            <div><span>태어난 시간</span><strong>${escapeHtml(item.birthTime)}</strong></div>
+            <div><span>중심 오행</span><strong>${escapeHtml(item.mainElement)}</strong></div>
+            <div><span>오늘 흐름</span><strong>${escapeHtml(item.relationLabel)}</strong></div>
+          </div>
+
+          <div class="history-text-block">
+            <span>총운</span>
+            <p>${escapeHtml(item.total)}</p>
+          </div>
+
+          <div class="history-text-block">
+            <span>파트너 해석</span>
+            <p>${escapeHtml(item.partnerName)}${item.partnerLevel ? ` Lv.${escapeHtml(item.partnerLevel)}` : ""}${item.partnerStage ? ` · ${escapeHtml(item.partnerStage)}` : ""}<br>${escapeHtml(item.partnerReaction)}</p>
+          </div>
+
+          <div class="history-lucky-row">
+            ${renderHistoryLucky(item.lucky)}
+          </div>
+
+          <div class="history-text-block advice-history">
+            <span>한 줄 조언</span>
+            <p>${escapeHtml(item.advice)}</p>
+          </div>
+
+          <button class="small-button history-delete-btn" type="button" data-history-delete="${escapeHtml(item.id)}">이 기록 삭제</button>
+        </div>
+      </details>
+    </article>
+  `).join("");
+}
+
+function deleteHistoryRecord(id) {
+  const history = loadFortuneHistory().filter((item) => item.id !== id);
+  saveFortuneHistoryList(history);
+  renderFortuneHistory();
+  statusText.textContent = "선택한 운세 기록을 삭제했습니다.";
+}
+
+function clearFortuneHistory() {
+  const ok = confirm("저장된 이전 운세 기록을 모두 삭제할까요?");
+  if (!ok) return;
+
+  localStorage.removeItem(HISTORY_KEY);
+  renderFortuneHistory();
+  statusText.textContent = "이전 운세 기록을 모두 삭제했습니다.";
+}
+
 function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -851,7 +1036,8 @@ async function analyzeFortune(event) {
       addPartnerExp(10, reaction);
     }
 
-    statusText.textContent = "오늘의 운세 분석이 완료되었습니다.";
+    saveFortuneHistory(profile, result, reaction);
+    statusText.textContent = "오늘의 운세 분석이 완료되었습니다. 이전 운세 기록에도 저장되었습니다.";
   } catch (error) {
     console.error(error);
     statusText.textContent = "분석 중 오류가 생겼습니다. 파일을 새로 덮어씌운 뒤 Ctrl + F5로 새로고침해주세요.";
@@ -1010,6 +1196,19 @@ if (resetChecklistBtn) {
   resetChecklistBtn.addEventListener("click", resetDevChecklist);
 }
 
+if (clearHistoryBtn) {
+  clearHistoryBtn.addEventListener("click", clearFortuneHistory);
+}
+
+if (fortuneHistoryList) {
+  fortuneHistoryList.addEventListener("click", (event) => {
+    const deleteButton = event.target.closest("[data-history-delete]");
+    if (!deleteButton) return;
+
+    deleteHistoryRecord(deleteButton.getAttribute("data-history-delete"));
+  });
+}
+
 if (checklistJumpBtn) {
   checklistJumpBtn.addEventListener("click", jumpToDevChecklist);
 }
@@ -1086,3 +1285,4 @@ clearOldCachesAndWorkers();
 initDevChecklist();
 claimDailyVisitExp();
 renderPartner();
+renderFortuneHistory();

@@ -18,7 +18,7 @@
   <title>오늘의 운세코드</title>
 
   <link rel="manifest" href="manifest.json"/>
-  <link rel="stylesheet" href="./style.css?v=20260525-v233"/>
+  <link rel="stylesheet" href="./style.css?v=20260525-v24"/>
 </head>
 
 <body>
@@ -276,13 +276,34 @@
   </section>
 
 
+  <section id="historyCard" class="history-card" aria-label="이전 운세 기록">
+    <div class="history-top">
+      <div>
+        <span class="small-label">FORTUNE HISTORY</span>
+        <h2>이전 운세 다시보기</h2>
+      </div>
+      <button id="clearHistoryBtn" class="small-button" type="button">기록 전체 삭제</button>
+    </div>
+
+    <p class="history-desc">
+      운세를 분석하면 이 브라우저에 오늘의 기록이 저장됩니다. 같은 날짜와 같은 입력값은 하나의 기록으로 갱신됩니다.
+    </p>
+
+    <div id="fortuneHistoryEmpty" class="history-empty">
+      아직 저장된 운세 기록이 없습니다. 운세를 한 번 분석하면 여기에 표시됩니다.
+    </div>
+
+    <div id="fortuneHistoryList" class="history-list"></div>
+  </section>
+
+
   <section id="devCheckCard" class="dev-check-card" aria-label="개발 점검 체크리스트">
     <div class="dev-check-top">
       <div>
         <span class="small-label">DEVELOPMENT CHECKLIST</span>
         <h2>업데이트 점검표</h2>
       </div>
-      <strong id="devVersionBadge" class="version-badge">V2-3.3</strong>
+      <strong id="devVersionBadge" class="version-badge">V2-4</strong>
     </div>
 
     <p class="dev-check-desc">
@@ -299,52 +320,52 @@
     <div class="dev-check-list">
       <label class="dev-check-item">
         <input type="checkbox" data-check-id="version-visible" />
-        <span>화면에 현재 버전 V2-3.3이 보인다.</span>
+        <span>화면에 현재 버전 V2-4가 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="choice-cards" />
-        <span>파트너가 없을 때 루미 / 모코 / 노바 선택 카드가 보인다.</span>
+        <input type="checkbox" data-check-id="history-added" />
+        <span>운세 분석 후 이전 운세 다시보기 영역에 기록이 추가된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="random-draw" />
-        <span>랜덤 파트너 만나기 버튼을 누르면 연결 연출이 나온다.</span>
+        <input type="checkbox" data-check-id="history-persist" />
+        <span>새로고침해도 이전 운세 기록이 유지된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="direct-select" />
-        <span>루미 / 모코 / 노바 중 하나를 직접 선택하면 캐릭터가 표시된다.</span>
+        <input type="checkbox" data-check-id="history-dedupe" />
+        <span>같은 날짜와 같은 입력값으로 다시 분석하면 기록이 중복으로 늘어나지 않는다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="change-button" />
-        <span>파트너가 있을 때 교체 버튼이 보이고, 누르면 다시 선택 화면으로 돌아간다.</span>
+        <input type="checkbox" data-check-id="history-detail" />
+        <span>이전 기록을 펼치면 총운 / 조언 / 행운 요소가 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="fortune-result" />
-        <span>생년월일 입력 후 AI 운세 분석하기 버튼을 누르면 운세 결과가 나온다.</span>
+        <input type="checkbox" data-check-id="history-partner" />
+        <span>기록 안에 파트너 해석이 함께 저장된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="partner-insight" />
-        <span>운세 결과 안에 파트너 해석 박스가 나온다.</span>
+        <input type="checkbox" data-check-id="history-delete-one" />
+        <span>개별 기록 삭제 버튼이 작동한다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="exp-up" />
-        <span>운세 분석 후 파트너 EXP가 증가한다.</span>
+        <input type="checkbox" data-check-id="history-clear-all" />
+        <span>기록 전체 삭제 버튼이 작동한다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="level-toast" />
-        <span>레벨업 조건이 되면 화면 아래 LEVEL UP 알림이 뜬다.</span>
+        <input type="checkbox" data-check-id="partner-still-ok" />
+        <span>기존 파트너 EXP / 레벨 / 성장 단계가 유지된다.</span>
       </label>
 
       <label class="dev-check-item">
         <input type="checkbox" data-check-id="check-save" />
-        <span>새로고침해도 내가 체크한 항목이 유지된다.</span>
+        <span>새로고침해도 개발 점검 체크 상태가 유지된다.</span>
       </label>
     </div>
 
@@ -353,7 +374,7 @@
     </div>
   </section>
 
-  <div class="version-footer">오늘의 운세코드 V2-3.3 · 개발 점검 체크리스트 버전</div>
+  <div class="version-footer">오늘의 운세코드 V2-4 · 기록 저장 / 이전 운세 다시보기 버전</div>
 
 </main>
 
@@ -364,7 +385,7 @@
   <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
 
-<script src="./app.js?v=20260525-v233"></script>
+<script src="./app.js?v=20260525-v24"></script>
 
 </body>
 </html>
