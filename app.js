@@ -50,6 +50,9 @@ const levelToastText = document.getElementById("levelToastText");
 const fortuneHistoryEmpty = document.getElementById("fortuneHistoryEmpty");
 const fortuneHistoryList = document.getElementById("fortuneHistoryList");
 const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+const activePartnerProfile = document.getElementById("activePartnerProfile");
+const partnerDexGrid = document.getElementById("partnerDexGrid");
+const partnerDexProgress = document.getElementById("partnerDexProgress");
 const devVersionBadge = document.getElementById("devVersionBadge");
 const devChecklistItems = document.querySelectorAll("[data-check-id]");
 const devChecklistProgress = document.getElementById("devChecklistProgress");
@@ -60,11 +63,12 @@ const devCheckCard = document.getElementById("devCheckCard");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V2-4";
+const DEV_VERSION = "V2-5";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
 const HISTORY_LIMIT = 20;
+const DEX_KEY = "fortune_partner_dex_guest_v1";
 
 const relationMeta = {
   support: {
@@ -244,6 +248,31 @@ const partnerTemplates = [
   }
 ];
 
+
+const partnerDexMeta = {
+  lumy: {
+    specialty: "관계운 · 마음 흐름 · 부드러운 조언",
+    personality: "다정하고 조심스럽게 마음을 살피는 빛의 파트너",
+    profile: "루미는 하루의 감정선과 사람 사이의 작은 신호를 읽는 데 강합니다. 관계가 예민한 날에는 말의 온도를 낮춰주는 조언을 건넵니다.",
+    unlockHint: "첫 파트너로 선택하거나 랜덤 연결에서 만나면 도감에 기록됩니다.",
+    growthHint: "운세를 함께 볼수록 빛이 선명해지고, Lv.5부터 성장형 분위기가 열립니다."
+  },
+  moko: {
+    specialty: "건강운 · 휴식 · 루틴 균형",
+    personality: "말랑하고 편안하게 컨디션을 챙겨주는 숲의 파트너",
+    profile: "모코는 몸과 마음의 속도를 살피는 데 강합니다. 무리하기 쉬운 날에는 쉬어가는 선택도 좋은 운이라는 걸 알려줍니다.",
+    unlockHint: "첫 파트너로 선택하거나 랜덤 연결에서 만나면 도감에 기록됩니다.",
+    growthHint: "매일의 방문과 운세 분석으로 숲의 기운이 커지고, Lv.10부터 각성형 분위기가 열립니다."
+  },
+  nova: {
+    specialty: "재물운 · 일운 · 데이터 분석",
+    personality: "별빛 데이터로 패턴을 읽는 신비로운 AI 파트너",
+    profile: "노바는 오늘의 선택값과 흐름을 차갑지만 정확하게 정리하는 데 강합니다. 돈, 일, 판단이 필요한 날에 특히 잘 맞습니다.",
+    unlockHint: "첫 파트너로 선택하거나 랜덤 연결에서 만나면 도감에 기록됩니다.",
+    growthHint: "운세코드를 함께 쌓을수록 분석 모듈이 확장되고, 각성형이 되면 오라클 느낌이 더 강해집니다."
+  }
+};
+
 const stems = [
   ["갑", "wood"], ["을", "wood"], ["병", "fire"], ["정", "fire"], ["무", "earth"],
   ["기", "earth"], ["경", "metal"], ["신", "metal"], ["임", "water"], ["계", "water"]
@@ -409,6 +438,193 @@ function getPartnerBond(template, level) {
   return template.bonds[stageIndex] || "운세 동반자";
 }
 
+
+function loadPartnerDex() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(DEX_KEY));
+    return saved && typeof saved === "object" && !Array.isArray(saved) ? saved : {};
+  } catch (error) {
+    localStorage.removeItem(DEX_KEY);
+    return {};
+  }
+}
+
+function savePartnerDex(dex) {
+  try {
+    localStorage.setItem(DEX_KEY, JSON.stringify(dex));
+  } catch (error) {
+    console.error("파트너 도감 저장 실패", error);
+  }
+}
+
+function rememberPartnerDiscovery(id, countMeet = false) {
+  const template = getPartnerTemplate(id);
+  const dex = loadPartnerDex();
+  const todayKey = getTodayKey();
+
+  if (!dex[template.id]) {
+    dex[template.id] = {
+      id: template.id,
+      name: template.name,
+      discoveredAt: todayKey,
+      lastSeen: todayKey,
+      meetCount: 0
+    };
+  }
+
+  dex[template.id].name = template.name;
+  dex[template.id].lastSeen = todayKey;
+
+  if (countMeet) {
+    dex[template.id].meetCount = (dex[template.id].meetCount || 0) + 1;
+  }
+
+  savePartnerDex(dex);
+}
+
+function syncCurrentPartnerToDex() {
+  const partner = loadPartner();
+  if (!partner) return;
+  rememberPartnerDiscovery(partner.id, false);
+}
+
+function getNextStageInfo(exp) {
+  const level = getLevel(exp || 0);
+
+  if (level < 5) {
+    const targetExp = (5 - 1) * EXP_PER_LEVEL;
+    return {
+      label: "Lv.5 성장형까지",
+      remaining: Math.max(0, targetExp - (exp || 0)),
+      percent: Math.min(100, ((exp || 0) / targetExp) * 100)
+    };
+  }
+
+  if (level < 10) {
+    const targetExp = (10 - 1) * EXP_PER_LEVEL;
+    return {
+      label: "Lv.10 각성형까지",
+      remaining: Math.max(0, targetExp - (exp || 0)),
+      percent: Math.min(100, ((exp || 0) / targetExp) * 100)
+    };
+  }
+
+  return {
+    label: "최종 각성형 도달",
+    remaining: 0,
+    percent: 100
+  };
+}
+
+function formatDexDate(value) {
+  if (!value) return "기록 없음";
+  return String(value).replaceAll("-", ".");
+}
+
+function renderActivePartnerProfile(partner) {
+  if (!activePartnerProfile) return;
+
+  if (!partner) {
+    activePartnerProfile.className = "active-partner-profile empty-profile";
+    activePartnerProfile.innerHTML = `
+      <div class="profile-empty-symbol">?</div>
+      <div>
+        <strong>현재 파트너 없음</strong>
+        <p>루미 / 모코 / 노바 중 한 명을 선택하면 이곳에 파트너 프로필과 성장 조건이 표시됩니다.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const template = getPartnerTemplate(partner.id);
+  const meta = partnerDexMeta[template.id];
+  const level = getLevel(partner.exp || 0);
+  const stageIndex = getStageIndex(level);
+  const nextStage = getNextStageInfo(partner.exp || 0);
+  const currentLevelExp = (partner.exp || 0) % EXP_PER_LEVEL;
+
+  activePartnerProfile.className = `active-partner-profile active-${template.id}`;
+  activePartnerProfile.innerHTML = `
+    <div class="profile-avatar partner-${template.id} stage-${stageIndex + 1}">
+      <span>${escapeHtml(template.symbols[stageIndex])}</span>
+    </div>
+
+    <div class="profile-main">
+      <div class="profile-title-row">
+        <div>
+          <span class="small-label">CURRENT PARTNER</span>
+          <h3>${escapeHtml(template.name)} · ${escapeHtml(getStageName(level))}</h3>
+        </div>
+        <strong>Lv.${escapeHtml(level)}</strong>
+      </div>
+
+      <p>${escapeHtml(meta.profile)}</p>
+
+      <div class="profile-stat-grid">
+        <div><span>현재 EXP</span><strong>${escapeHtml(currentLevelExp)} / ${EXP_PER_LEVEL}</strong></div>
+        <div><span>누적 EXP</span><strong>${escapeHtml(partner.exp || 0)}</strong></div>
+        <div><span>방문 횟수</span><strong>${escapeHtml(partner.visits || 0)}회</strong></div>
+        <div><span>칭호</span><strong>${escapeHtml(getPartnerBond(template, level))}</strong></div>
+      </div>
+
+      <div class="growth-guide">
+        <div class="growth-guide-top">
+          <span>${escapeHtml(nextStage.label)}</span>
+          <strong>${nextStage.remaining ? `남은 EXP ${escapeHtml(nextStage.remaining)}` : "완료"}</strong>
+        </div>
+        <div class="growth-guide-bar" aria-hidden="true">
+          <div style="width: ${nextStage.percent}%"></div>
+        </div>
+        <p>성장 조건: Lv.5 성장형 · Lv.10 각성형</p>
+      </div>
+    </div>
+  `;
+}
+
+function renderPartnerDex() {
+  if (!partnerDexGrid || !partnerDexProgress) return;
+
+  syncCurrentPartnerToDex();
+
+  const partner = loadPartner();
+  const dex = loadPartnerDex();
+  const discoveredCount = partnerTemplates.filter((template) => dex[template.id]).length;
+
+  partnerDexProgress.textContent = `${discoveredCount} / ${partnerTemplates.length} 발견`;
+  renderActivePartnerProfile(partner);
+
+  partnerDexGrid.innerHTML = partnerTemplates.map((template) => {
+    const meta = partnerDexMeta[template.id];
+    const found = Boolean(dex[template.id]);
+    const current = partner && partner.id === template.id;
+    const level = current ? getLevel(partner.exp || 0) : null;
+    const stageIndex = current ? getStageIndex(level) : 0;
+    const symbol = found || current ? template.symbols[stageIndex] : "?";
+    const discoveredAt = found ? formatDexDate(dex[template.id].discoveredAt) : "미발견";
+    const cardClass = `dex-card dex-${template.id}${found ? " discovered" : " locked"}${current ? " current" : ""}`;
+
+    return `
+      <article class="${cardClass}">
+        <div class="dex-card-top">
+          <div class="dex-symbol partner-${template.id} stage-${stageIndex + 1}">${escapeHtml(symbol)}</div>
+          <span>${current ? "CURRENT" : found ? "DISCOVERED" : "LOCKED"}</span>
+        </div>
+
+        <h3>${found || current ? escapeHtml(template.name) : "???"}</h3>
+        <p class="dex-type">${found || current ? escapeHtml(template.type) : "아직 만나지 않은 파트너입니다."}</p>
+
+        <div class="dex-info-list">
+          <div><span>담당</span><strong>${found || current ? escapeHtml(meta.specialty) : "도감에 기록되면 공개"}</strong></div>
+          <div><span>성격</span><strong>${found || current ? escapeHtml(meta.personality) : "미발견"}</strong></div>
+          <div><span>발견일</span><strong>${escapeHtml(discoveredAt)}</strong></div>
+        </div>
+
+        <p class="dex-hint">${escapeHtml(found || current ? meta.growthHint : meta.unlockHint)}</p>
+      </article>
+    `;
+  }).join("");
+}
+
 function showLevelToast(title, text) {
   if (!levelToast || !levelToastTitle || !levelToastText) return;
 
@@ -442,6 +658,7 @@ function renderPartner() {
   if (!partner) {
     partnerEmpty.classList.remove("hidden");
     partnerActive.classList.add("hidden");
+    renderPartnerDex();
     return;
   }
 
@@ -472,6 +689,7 @@ function renderPartner() {
   partnerExpFill.style.width = `${expPercent}%`;
 
   partnerSpeech.textContent = partner.speech || randomItem(template.greetings);
+  renderPartnerDex();
 }
 
 async function playPartnerDraw(template, isRandom = false) {
@@ -514,6 +732,7 @@ async function createPartnerById(id, isRandom = false) {
 
   const partner = buildPartner(template);
   savePartner(partner);
+  rememberPartnerDiscovery(template.id, true);
   claimDailyVisitExp(true);
   renderPartner();
 

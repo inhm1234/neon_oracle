@@ -4,6 +4,10 @@ AI 운세 분석 웹사이트 개발 버전입니다.
 
 ## 현재 버전
 
+V2-5
+
+## 이전 안정 버전
+
 V2-4
 
 ## 핵심 기능
@@ -13,15 +17,16 @@ V2-4
 - 파트너 직접 선택 / 랜덤 뽑기 / 교체
 - 운세 결과에 따른 파트너 해석
 - EXP / 레벨업 / 성장 단계
-- 오늘의 운세 기록 자동 저장
-- 이전 운세 다시보기
-- 개별 기록 삭제 / 전체 기록 삭제
+- 오늘의 기록 저장 / 이전 운세 다시보기
+- 파트너 도감 / 현재 파트너 프로필
+- 발견 / 미발견 파트너 표시
+- Lv.5 성장형 / Lv.10 각성형 조건 안내
 - 개발 점검 체크리스트
 - 체크리스트 상태 새로고침 후 유지
 
 ## 적용 방법
 
-GitHub Pages 저장소에 아래 파일을 덮어씌웁니다.
+GitHub Pages 저장소에 아래 파일을 덮어씁니다.
 
 - index.html
 - style.css
@@ -36,10 +41,11 @@ GitHub Pages 저장소에 아래 파일을 덮어씌웁니다.
 
 ## 저장 방식
 
-현재는 로그인 없이 브라우저의 localStorage에 저장됩니다.
+현재는 로그인 없이 브라우저 localStorage에 저장됩니다.
 
-- 파트너 기록: `fortune_partner_guest_v1`
+- 파트너 정보: `fortune_partner_guest_v1`
 - 운세 기록: `fortune_history_guest_v1`
+- 파트너 도감: `fortune_partner_dex_guest_v1`
 - 개발 점검표: `fortune_dev_checklist_state`
 
-나중에 Supabase 또는 Firebase를 붙이면 계정 기반 저장으로 확장할 수 있습니다.
+나중에 Firebase 또는 Supabase 로그인 구조를 붙일 때 이 저장 구조를 서버 저장 구조로 옮길 수 있습니다.

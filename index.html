@@ -18,7 +18,7 @@
   <title>오늘의 운세코드</title>
 
   <link rel="manifest" href="manifest.json"/>
-  <link rel="stylesheet" href="./style.css?v=20260525-v24"/>
+  <link rel="stylesheet" href="./style.css?v=20260525-v25"/>
 </head>
 
 <body>
@@ -146,6 +146,26 @@
 
     </div>
 
+  </section>
+
+  <section id="partnerDexCard" class="partner-dex-card" aria-label="파트너 도감과 프로필">
+    <div class="partner-dex-top">
+      <div>
+        <span class="small-label">PARTNER COLLECTION</span>
+        <h2>파트너 도감 / 프로필</h2>
+      </div>
+      <strong id="partnerDexProgress" class="dex-progress-badge">0 / 3 발견</strong>
+    </div>
+
+    <p class="partner-dex-desc">
+      지금 만난 파트너와 앞으로 만날 수 있는 파트너를 한눈에 확인합니다. 현재 파트너의 레벨, 성장 단계, 다음 진화 조건도 여기서 볼 수 있습니다.
+    </p>
+
+    <div id="activePartnerProfile" class="active-partner-profile">
+      파트너를 선택하면 현재 파트너 프로필이 표시됩니다.
+    </div>
+
+    <div id="partnerDexGrid" class="partner-dex-grid"></div>
   </section>
 
   <section class="input-card">
@@ -303,7 +323,7 @@
         <span class="small-label">DEVELOPMENT CHECKLIST</span>
         <h2>업데이트 점검표</h2>
       </div>
-      <strong id="devVersionBadge" class="version-badge">V2-4</strong>
+      <strong id="devVersionBadge" class="version-badge">V2-5</strong>
     </div>
 
     <p class="dev-check-desc">
@@ -319,52 +339,52 @@
 
     <div class="dev-check-list">
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="version-visible" />
-        <span>화면에 현재 버전 V2-4가 보인다.</span>
+        <input type="checkbox" data-check-id="v25-version-visible" />
+        <span>화면에 현재 버전 V2-5가 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="history-added" />
-        <span>운세 분석 후 이전 운세 다시보기 영역에 기록이 추가된다.</span>
+        <input type="checkbox" data-check-id="v25-dex-visible" />
+        <span>파트너 도감 / 프로필 화면이 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="history-persist" />
-        <span>새로고침해도 이전 운세 기록이 유지된다.</span>
+        <input type="checkbox" data-check-id="v25-active-profile" />
+        <span>현재 선택된 파트너의 프로필 카드가 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="history-dedupe" />
-        <span>같은 날짜와 같은 입력값으로 다시 분석하면 기록이 중복으로 늘어나지 않는다.</span>
+        <input type="checkbox" data-check-id="v25-current-badge" />
+        <span>현재 파트너가 도감에서 CURRENT 표시로 구분된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="history-detail" />
-        <span>이전 기록을 펼치면 총운 / 조언 / 행운 요소가 보인다.</span>
+        <input type="checkbox" data-check-id="v25-locked-card" />
+        <span>아직 만나지 않은 파트너는 미발견 상태로 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="history-partner" />
-        <span>기록 안에 파트너 해석이 함께 저장된다.</span>
+        <input type="checkbox" data-check-id="v25-level-info" />
+        <span>현재 파트너의 레벨 / EXP / 성장 단계가 프로필에 표시된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="history-delete-one" />
-        <span>개별 기록 삭제 버튼이 작동한다.</span>
+        <input type="checkbox" data-check-id="v25-growth-guide" />
+        <span>Lv.5 성장형 / Lv.10 각성형 조건 안내가 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="history-clear-all" />
-        <span>기록 전체 삭제 버튼이 작동한다.</span>
+        <input type="checkbox" data-check-id="v25-dex-update" />
+        <span>파트너를 새로 선택하거나 랜덤으로 만나면 도감 발견 상태가 갱신된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="partner-still-ok" />
-        <span>기존 파트너 EXP / 레벨 / 성장 단계가 유지된다.</span>
+        <input type="checkbox" data-check-id="v25-history-still-ok" />
+        <span>V2-4의 이전 운세 다시보기 기능이 그대로 작동한다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="check-save" />
+        <input type="checkbox" data-check-id="v25-check-save" />
         <span>새로고침해도 개발 점검 체크 상태가 유지된다.</span>
       </label>
     </div>
@@ -374,7 +394,7 @@
     </div>
   </section>
 
-  <div class="version-footer">오늘의 운세코드 V2-4 · 기록 저장 / 이전 운세 다시보기 버전</div>
+  <div class="version-footer">오늘의 운세코드 V2-5 · 파트너 도감 / 프로필 화면 버전</div>
 
 </main>
 
@@ -385,7 +405,7 @@
   <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
 
-<script src="./app.js?v=20260525-v24"></script>
+<script src="./app.js?v=20260525-v25"></script>
 
 </body>
 </html>
