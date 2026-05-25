@@ -28,7 +28,7 @@ const resetPartnerBtn = document.getElementById("resetPartnerBtn");
 const partnerEmpty = document.getElementById("partnerEmpty");
 const partnerActive = document.getElementById("partnerActive");
 const partnerOrb = document.getElementById("partnerOrb");
-const partnerEmoji = document.getElementById("partnerEmoji");
+const partnerSymbol = document.getElementById("partnerSymbol");
 const partnerName = document.getElementById("partnerName");
 const partnerType = document.getElementById("partnerType");
 const partnerLevel = document.getElementById("partnerLevel");
@@ -44,20 +44,27 @@ const partnerTemplates = [
   {
     id: "lumy",
     name: "루미",
-    type: "차분한 빛의 파트너",
-    emojis: ["✨", "🌙", "🌌"],
+    type: "빛과 마음을 읽는 다정한 파트너",
+    symbols: ["✦", "☾", "✧"],
     greetings: [
-      "오늘도 같이 운세를 봐줄게.",
-      "천천히 입력해줘. 내가 흐름을 같이 읽어볼게.",
-      "오늘의 신호가 어떤 모습인지 궁금해."
+      "오늘도 같이 운세를 봐줄게. 너무 서두르지 않아도 괜찮아.",
+      "네 하루에 작은 빛이 생기도록 내가 옆에서 읽어볼게.",
+      "오늘의 마음 흐름을 천천히 살펴보자."
     ],
     analyzing: [
-      "출생 정보와 오늘의 기운을 연결하고 있어.",
-      "잠깐만, 오늘의 흐름을 조용히 읽는 중이야.",
-      "빛의 방향이 조금씩 정리되고 있어."
+      "마음의 결이 어디로 흐르는지 조용히 읽고 있어.",
+      "오늘의 빛과 관계의 흐름을 연결하는 중이야.",
+      "작은 신호까지 놓치지 않게 천천히 분석하고 있어."
     ],
+    reactions: {
+      support: "오늘은 주변의 도움을 받아도 좋은 날이야. 혼자 버티지 말고 따뜻한 말 한마디를 믿어봐.",
+      output: "표현의 운이 살아나는 날이야. 마음을 너무 숨기지 말고 부드럽게 꺼내봐.",
+      control: "오늘은 네가 중심을 잡을 수 있어. 다만 상대의 마음도 같이 살피면 더 좋아.",
+      pressure: "조금 부담이 느껴질 수 있어. 오늘은 스스로에게 너무 엄격하지 않아도 괜찮아.",
+      balance: "큰 변화보다 안정이 좋은 날이야. 평소의 리듬을 지키는 게 운을 밝게 만들어줘."
+    },
     result: [
-      "분석이 끝났어. 오늘은 작은 신호를 놓치지 않는 게 좋아.",
+      "분석이 끝났어. 오늘은 작은 친절이 운을 열어줄 수 있어.",
       "오늘의 흐름이 정리됐어. 천천히 읽어봐.",
       "좋아, 오늘의 운세코드를 찾았어."
     ]
@@ -65,43 +72,57 @@ const partnerTemplates = [
   {
     id: "moko",
     name: "모코",
-    type: "장난기 많은 불꽃 파트너",
-    emojis: ["🐾", "🦊", "🔥"],
+    type: "휴식과 균형을 지키는 말랑한 파트너",
+    symbols: ["●", "♧", "☘"],
     greetings: [
-      "왔구나! 오늘 운세도 내가 같이 볼게!",
-      "오늘은 뭔가 재밌는 신호가 잡힐 것 같아.",
-      "준비됐어? 얼른 분석해보자!"
+      "왔구나. 오늘도 천천히 같이 봐보자.",
+      "오늘은 무리하지 않는 쪽으로 운을 잘 굴려보자.",
+      "준비됐어? 네 하루의 컨디션부터 살펴볼게."
     ],
     analyzing: [
-      "오오, 신호가 움직이고 있어!",
-      "좋아 좋아, 오늘의 기운을 추적 중이야.",
-      "잠깐만! 중요한 흐름을 잡은 것 같아."
+      "몸과 마음의 리듬을 말랑하게 확인하고 있어.",
+      "오늘의 기운이 너무 뾰족하지 않은지 살펴보는 중이야.",
+      "잠깐만. 쉬어가야 할 신호가 있는지 확인하고 있어."
     ],
+    reactions: {
+      support: "오늘은 편하게 도움을 받아도 좋아. 혼자 다 하려고 하면 오히려 피곤해질 수 있어.",
+      output: "움직임이 생기는 날이야. 다만 너무 신나서 체력을 한 번에 쓰지는 말자.",
+      control: "정리하고 관리하기 좋은 날이야. 작은 것부터 차근차근 처리하면 편해질 거야.",
+      pressure: "오늘은 무리 금지야. 잠깐 쉬는 것도 네 운을 지키는 방법이야.",
+      balance: "안정적인 흐름이야. 평소 루틴만 잘 지켜도 하루가 꽤 괜찮게 지나갈 거야."
+    },
     result: [
-      "분석 끝! 오늘은 너무 급하게 달리지만 않으면 좋아.",
-      "봤지? 오늘의 힌트가 나왔어!",
-      "운세코드 확인 완료! 이제 잘 써먹어보자."
+      "분석 끝. 오늘은 천천히 가도 괜찮아.",
+      "오늘의 힌트가 나왔어. 무리하지 않는 게 핵심이야.",
+      "운세코드 확인 완료. 몸의 신호도 같이 챙겨줘."
     ]
   },
   {
     id: "nova",
     name: "노바",
-    type: "신비로운 별의 파트너",
-    emojis: ["💧", "🐉", "🔮"],
+    type: "별과 데이터를 읽는 신비로운 AI 파트너",
+    symbols: ["◆", "✶", "✹"],
     greetings: [
-      "오늘의 별빛이 너를 기다리고 있었어.",
-      "조용히 흐름을 열어볼게.",
-      "네 운세코드는 아직 잠들어 있어. 깨워보자."
+      "오늘의 별빛 데이터가 준비됐어. 흐름을 열어볼게.",
+      "네 운세코드는 아직 잠들어 있어. 지금부터 깨워보자.",
+      "오늘의 선택값을 분석할 준비가 됐어."
     ],
     analyzing: [
-      "시간의 결을 따라가고 있어.",
-      "오늘의 오행이 천천히 맞물리고 있어.",
-      "잠시만, 숨겨진 신호를 확인하고 있어."
+      "시간의 결을 따라 오늘의 패턴을 계산하고 있어.",
+      "오행 데이터와 오늘의 흐름을 매칭하는 중이야.",
+      "잠시만. 숨겨진 신호와 반복되는 패턴을 확인하고 있어."
     ],
+    reactions: {
+      support: "오늘은 외부 흐름이 너를 보조하는 패턴이야. 기회가 오면 거절보다 확인을 먼저 해봐.",
+      output: "표현과 실행 쪽 신호가 강해. 머릿속에 있던 걸 밖으로 꺼내면 결과값이 달라질 수 있어.",
+      control: "주도권을 잡기 좋은 흐름이야. 단, 강한 판단일수록 근거를 한 번 더 확인해.",
+      pressure: "압박 신호가 감지됐어. 오늘은 속도보다 안정성이 더 높은 선택값이야.",
+      balance: "균형 패턴이야. 큰 변화보다 루틴을 정렬하는 쪽이 오늘의 효율을 높여줘."
+    },
     result: [
-      "오늘의 흐름이 열렸어. 결과를 천천히 살펴봐.",
       "운세코드가 응답했어. 오늘은 균형이 중요해.",
-      "분석은 끝났어. 이제 선택은 네가 하면 돼."
+      "분석은 끝났어. 이제 선택은 네가 하면 돼.",
+      "오늘의 흐름이 열렸어. 결과를 천천히 살펴봐."
     ]
   }
 ];
@@ -266,16 +287,16 @@ function renderPartner() {
   }
 
   const template = getPartnerTemplate(partner.id);
-  const level = getLevel(partner.exp);
+  const level = getLevel(partner.exp || 0);
   const stageIndex = getStageIndex(level);
-  const currentLevelExp = partner.exp % EXP_PER_LEVEL;
+  const currentLevelExp = (partner.exp || 0) % EXP_PER_LEVEL;
   const expPercent = (currentLevelExp / EXP_PER_LEVEL) * 100;
 
   partnerEmpty.classList.add("hidden");
   partnerActive.classList.remove("hidden");
 
   partnerOrb.className = `partner-orb partner-${template.id} stage-${stageIndex + 1}`;
-  partnerEmoji.textContent = template.emojis[stageIndex];
+  partnerSymbol.textContent = template.symbols[stageIndex];
 
   partnerName.textContent = template.name;
   partnerType.textContent = template.type;
@@ -301,23 +322,26 @@ function createRandomPartner() {
   };
 
   savePartner(partner);
-  claimDailyVisitExp();
+  claimDailyVisitExp(true);
   renderPartner();
 
   statusText.textContent = `${template.name}가 파트너로 연결되었습니다.`;
 }
 
-function claimDailyVisitExp() {
+function claimDailyVisitExp(isFirstMeet = false) {
   const partner = loadPartner();
   if (!partner) return;
 
   const todayKey = getTodayKey();
 
   if (partner.lastVisit !== todayKey) {
-    partner.exp += 5;
-    partner.visits += 1;
+    const template = getPartnerTemplate(partner.id);
+    partner.exp = (partner.exp || 0) + 5;
+    partner.visits = (partner.visits || 0) + 1;
     partner.lastVisit = todayKey;
-    partner.speech = "오늘도 와줘서 고마워. 첫 방문 보너스로 EXP를 얻었어.";
+    partner.speech = isFirstMeet
+      ? `안녕, 나는 ${template.name}. 첫 만남 보너스로 EXP를 얻었어.`
+      : "오늘도 와줘서 고마워. 첫 방문 보너스로 EXP를 얻었어.";
 
     savePartner(partner);
   }
@@ -327,8 +351,8 @@ function addPartnerExp(amount, reason) {
   const partner = loadPartner();
   if (!partner) return;
 
-  const oldLevel = getLevel(partner.exp);
-  partner.exp += amount;
+  const oldLevel = getLevel(partner.exp || 0);
+  partner.exp = (partner.exp || 0) + amount;
   const newLevel = getLevel(partner.exp);
 
   const template = getPartnerTemplate(partner.id);
@@ -378,6 +402,14 @@ function setPartnerSpeech(type) {
 
   savePartner(partner);
   renderPartner();
+}
+
+function getPartnerReaction(result) {
+  const partner = loadPartner();
+  if (!partner) return "";
+
+  const template = getPartnerTemplate(partner.id);
+  return template.reactions[result.relation] || randomItem(template.result);
 }
 
 function mod(value, size) {
@@ -480,7 +512,7 @@ function makeResult(profile) {
   const relation = getRelation(mainElement, todayElement);
   const text = fortuneText[relation];
 
-  const seed = getHash(`${profile.date}-${profile.time}-${new Date().toDateString()}`);
+  const seed = getHash(`${profile.date}-${profile.time}-${profile.name}-${profile.gender}-${getTodayKey()}`);
   const lucky = luckyData[mainElement];
   const luckyNumber = String((seed % 9) + 1);
 
@@ -488,6 +520,9 @@ function makeResult(profile) {
     title: profile.name ? `${profile.name}님의 오늘 운세` : "오늘의 운세 분석 결과",
     code: `#${yearInfo.ganji}-${seed % 10000}`,
     complete: timeInfo ? "94%" : "82%",
+    relation,
+    mainElement,
+    todayElement,
     base: [
       ["출생 간지", yearInfo.ganji],
       ["띠", `${yearInfo.animal}띠`],
@@ -571,8 +606,8 @@ async function analyzeFortune(event) {
   document.body.classList.add("scanning");
 
   if (loadPartner()) {
-    partnerOrb.classList.add("analyzing");
     setPartnerSpeech("analyzing");
+    partnerOrb.classList.add("analyzing");
   }
 
   statusText.textContent = "출생 정보를 읽는 중...";
@@ -595,8 +630,8 @@ async function analyzeFortune(event) {
 
   if (loadPartner()) {
     partnerOrb.classList.remove("analyzing");
-    setPartnerSpeech("result");
-    addPartnerExp(10, "운세 분석을 함께 마쳤어. EXP를 얻었어!");
+    const reaction = getPartnerReaction(result);
+    addPartnerExp(10, reaction);
   }
 
   statusText.textContent = "오늘의 운세 분석이 완료되었습니다.";

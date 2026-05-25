@@ -51,23 +51,43 @@
     <div id="partnerActive" class="partner-active hidden">
 
       <div class="partner-left">
-        <div id="partnerOrb" class="partner-orb">
+        <div id="partnerOrb" class="partner-orb partner-lumy stage-1" aria-label="파트너 캐릭터">
           <div class="partner-aura"></div>
           <div class="partner-ring"></div>
-          <span id="partnerEmoji">✨</span>
+
+          <div class="partner-character">
+            <div class="character-halo"></div>
+            <div class="character-wing character-wing-left"></div>
+            <div class="character-wing character-wing-right"></div>
+            <div class="character-ear character-ear-left"></div>
+            <div class="character-ear character-ear-right"></div>
+
+            <div class="character-core">
+              <div class="character-mark" id="partnerSymbol">✦</div>
+              <div class="character-face">
+                <span class="character-eye character-eye-left"></span>
+                <span class="character-eye character-eye-right"></span>
+                <span class="character-mouth"></span>
+              </div>
+              <div class="character-cheek character-cheek-left"></div>
+              <div class="character-cheek character-cheek-right"></div>
+            </div>
+
+            <div class="character-shadow"></div>
+          </div>
         </div>
       </div>
 
       <div class="partner-info">
         <div class="partner-top">
           <div>
-            <span class="small-label">PARTNER ORACLE</span>
+            <span class="small-label">PARTNER ORACLE V2</span>
             <h2 id="partnerName">루미</h2>
           </div>
           <button id="resetPartnerBtn" class="small-button" type="button">초기화</button>
         </div>
 
-        <p id="partnerType" class="partner-type">차분한 빛의 파트너</p>
+        <p id="partnerType" class="partner-type">빛과 마음을 읽는 파트너</p>
 
         <div class="partner-status">
           <span id="partnerLevel">Lv.1</span>
