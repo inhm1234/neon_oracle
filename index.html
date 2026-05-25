@@ -18,7 +18,7 @@
   <title>오늘의 운세코드</title>
 
   <link rel="manifest" href="manifest.json"/>
-  <link rel="stylesheet" href="./style.css?v=20260525-v26"/>
+  <link rel="stylesheet" href="./style.css?v=20260525-v27"/>
 </head>
 
 <body>
@@ -153,6 +153,47 @@
 
     </div>
 
+  </section>
+
+  <section id="attendanceCard" class="attendance-card" aria-label="출석 보상">
+    <div class="attendance-top">
+      <div>
+        <span class="small-label">DAILY CHECK-IN</span>
+        <h2>출석 보상</h2>
+      </div>
+      <strong id="attendanceTodayStatus" class="attendance-status-badge">오늘 보상 대기</strong>
+    </div>
+
+    <p class="attendance-desc">
+      하루에 한 번 파트너 출석 보상을 받을 수 있습니다. 연속 출석이 쌓이면 추가 EXP 보상이 붙습니다.
+    </p>
+
+    <div class="attendance-stat-grid">
+      <div>
+        <span>현재 연속</span>
+        <strong id="attendanceStreak">0일</strong>
+      </div>
+      <div>
+        <span>최고 연속</span>
+        <strong id="attendanceBest">0일</strong>
+      </div>
+      <div>
+        <span>누적 출석</span>
+        <strong id="attendanceTotal">0회</strong>
+      </div>
+    </div>
+
+    <div class="attendance-reward-box">
+      <p id="attendanceRewardText">파트너를 선택하면 출석 보상을 받을 수 있습니다.</p>
+      <button id="attendanceClaimBtn" class="small-button" type="button">오늘 출석 보상 받기</button>
+    </div>
+
+    <div class="attendance-log-box">
+      <span>최근 보상 기록</span>
+      <ul id="attendanceLogList">
+        <li>아직 출석 보상 기록이 없습니다.</li>
+      </ul>
+    </div>
   </section>
 
   <section id="partnerDexCard" class="partner-dex-card" aria-label="파트너 도감과 프로필">
@@ -330,7 +371,7 @@
         <span class="small-label">DEVELOPMENT CHECKLIST</span>
         <h2>업데이트 점검표</h2>
       </div>
-      <strong id="devVersionBadge" class="version-badge">V2-6</strong>
+      <strong id="devVersionBadge" class="version-badge">V2-7</strong>
     </div>
 
     <p class="dev-check-desc">
@@ -346,52 +387,52 @@
 
     <div class="dev-check-list">
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v26-version-visible" />
-        <span>화면에 현재 버전 V2-6이 보인다.</span>
+        <input type="checkbox" data-check-id="v27-version-visible" />
+        <span>화면에 현재 버전 V2-7이 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v26-mood-badge" />
-        <span>파트너 정보에 현재 감정 반응 배지가 보인다.</span>
+        <input type="checkbox" data-check-id="v27-attendance-card" />
+        <span>출석 보상 카드가 화면에 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v26-mood-hint" />
-        <span>파트너 말풍선 아래에 반응 힌트 박스가 보인다.</span>
+        <input type="checkbox" data-check-id="v27-attendance-stats" />
+        <span>현재 연속 / 최고 연속 / 누적 출석 숫자가 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v26-reaction-change" />
-        <span>운세 분석 후 파트너 대사가 결과 흐름에 맞게 바뀐다.</span>
+        <input type="checkbox" data-check-id="v27-claim-button" />
+        <span>오늘 출석 보상 받기 버튼 또는 완료 상태가 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v26-expression-change" />
-        <span>운세 결과에 따라 파트너 표정 또는 오라 효과가 달라진다.</span>
+        <input type="checkbox" data-check-id="v27-claim-once" />
+        <span>오늘 보상을 받은 뒤에는 중복으로 다시 받을 수 없다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v26-insight-mood" />
-        <span>운세 결과 안의 파트너 해석 박스가 반응 분위기에 맞게 표시된다.</span>
+        <input type="checkbox" data-check-id="v27-attendance-log" />
+        <span>출석 보상을 받으면 최근 보상 기록에 남는다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v26-history-mood" />
-        <span>이전 운세 기록에 파트너 반응 상태가 함께 저장된다.</span>
+        <input type="checkbox" data-check-id="v27-emotion-still-ok" />
+        <span>V2-6의 파트너 감정 반응 기능이 그대로 작동한다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v26-dex-still-ok" />
+        <input type="checkbox" data-check-id="v27-dex-still-ok" />
         <span>V2-5의 파트너 도감 / 프로필 화면이 그대로 작동한다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v26-history-still-ok" />
+        <input type="checkbox" data-check-id="v27-history-still-ok" />
         <span>V2-4의 이전 운세 다시보기 기능이 그대로 작동한다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v26-check-save" />
+        <input type="checkbox" data-check-id="v27-check-save" />
         <span>새로고침해도 개발 점검 체크 상태가 유지된다.</span>
       </label>
     </div>
@@ -401,7 +442,7 @@
     </div>
   </section>
 
-  <div class="version-footer">오늘의 운세코드 V2-6 · 파트너 감정 반응 강화 버전</div>
+  <div class="version-footer">오늘의 운세코드 V2-7 · 출석 보상 강화 버전</div>
 
 </main>
 
@@ -412,7 +453,7 @@
   <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
 
-<script src="./app.js?v=20260525-v26"></script>
+<script src="./app.js?v=20260525-v27"></script>
 
 </body>
 </html>

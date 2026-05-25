@@ -55,6 +55,13 @@ const clearHistoryBtn = document.getElementById("clearHistoryBtn");
 const activePartnerProfile = document.getElementById("activePartnerProfile");
 const partnerDexGrid = document.getElementById("partnerDexGrid");
 const partnerDexProgress = document.getElementById("partnerDexProgress");
+const attendanceStreak = document.getElementById("attendanceStreak");
+const attendanceBest = document.getElementById("attendanceBest");
+const attendanceTotal = document.getElementById("attendanceTotal");
+const attendanceTodayStatus = document.getElementById("attendanceTodayStatus");
+const attendanceRewardText = document.getElementById("attendanceRewardText");
+const attendanceClaimBtn = document.getElementById("attendanceClaimBtn");
+const attendanceLogList = document.getElementById("attendanceLogList");
 const devVersionBadge = document.getElementById("devVersionBadge");
 const devChecklistItems = document.querySelectorAll("[data-check-id]");
 const devChecklistProgress = document.getElementById("devChecklistProgress");
@@ -65,12 +72,14 @@ const devCheckCard = document.getElementById("devCheckCard");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V2-6";
+const DEV_VERSION = "V2-7";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
 const HISTORY_LIMIT = 20;
 const DEX_KEY = "fortune_partner_dex_guest_v1";
+const ATTENDANCE_KEY = "fortune_attendance_guest_v1";
+const ATTENDANCE_LOG_LIMIT = 10;
 
 const relationMeta = {
   support: {
@@ -715,6 +724,143 @@ function renderActivePartnerProfile(partner) {
   `;
 }
 
+
+function getDefaultAttendance() {
+  return {
+    lastClaimDate: "",
+    currentStreak: 0,
+    bestStreak: 0,
+    totalClaims: 0,
+    totalExp: 0,
+    log: []
+  };
+}
+
+function loadAttendance() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(ATTENDANCE_KEY));
+    return {
+      ...getDefaultAttendance(),
+      ...(saved && typeof saved === "object" ? saved : {})
+    };
+  } catch (error) {
+    localStorage.removeItem(ATTENDANCE_KEY);
+    return getDefaultAttendance();
+  }
+}
+
+function saveAttendance(attendance) {
+  try {
+    localStorage.setItem(ATTENDANCE_KEY, JSON.stringify(attendance));
+  } catch (error) {
+    console.error("출석 보상 저장 실패", error);
+  }
+}
+
+function getDateDiffDays(fromDateKey, toDateKey) {
+  if (!fromDateKey || !toDateKey) return null;
+
+  const from = new Date(`${fromDateKey}T00:00:00`);
+  const to = new Date(`${toDateKey}T00:00:00`);
+
+  if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) return null;
+
+  return Math.round((to - from) / 86400000);
+}
+
+function getNextAttendanceStreak(attendance, todayKey) {
+  if (!attendance.lastClaimDate) return 1;
+  if (attendance.lastClaimDate === todayKey) return attendance.currentStreak || 1;
+
+  const diff = getDateDiffDays(attendance.lastClaimDate, todayKey);
+  return diff === 1 ? (attendance.currentStreak || 0) + 1 : 1;
+}
+
+function getAttendanceReward(streak) {
+  const baseExp = 5;
+  let bonusExp = 0;
+  let bonusLabel = "기본 보상";
+
+  if (streak > 0 && streak % 30 === 0) {
+    bonusExp = 20;
+    bonusLabel = "30일 연속 대보상";
+  } else if (streak > 0 && streak % 14 === 0) {
+    bonusExp = 12;
+    bonusLabel = "14일 연속 보상";
+  } else if (streak > 0 && streak % 7 === 0) {
+    bonusExp = 7;
+    bonusLabel = "7일 연속 보상";
+  } else if (streak > 0 && streak % 3 === 0) {
+    bonusExp = 3;
+    bonusLabel = "3일 연속 보상";
+  }
+
+  return {
+    baseExp,
+    bonusExp,
+    totalExp: baseExp + bonusExp,
+    bonusLabel
+  };
+}
+
+function formatAttendanceDate(value) {
+  if (!value) return "기록 없음";
+  return String(value).replaceAll("-", ".");
+}
+
+function renderAttendance() {
+  if (!attendanceStreak || !attendanceBest || !attendanceTotal || !attendanceTodayStatus || !attendanceRewardText || !attendanceClaimBtn || !attendanceLogList) return;
+
+  const partner = loadPartner();
+  const attendance = loadAttendance();
+  const todayKey = getTodayKey();
+  const alreadyClaimed = attendance.lastClaimDate === todayKey;
+  const previewStreak = getNextAttendanceStreak(attendance, todayKey);
+  const reward = getAttendanceReward(previewStreak);
+
+  attendanceStreak.textContent = `${attendance.currentStreak || 0}일`;
+  attendanceBest.textContent = `${attendance.bestStreak || 0}일`;
+  attendanceTotal.textContent = `${attendance.totalClaims || 0}회`;
+
+  if (!partner) {
+    attendanceTodayStatus.textContent = "파트너 선택 필요";
+    attendanceRewardText.textContent = "파트너를 먼저 만나면 출석 보상을 받을 수 있습니다.";
+    attendanceClaimBtn.disabled = true;
+    attendanceClaimBtn.textContent = "파트너 선택 후 가능";
+  } else if (alreadyClaimed) {
+    attendanceTodayStatus.textContent = "오늘 보상 수령 완료";
+    attendanceRewardText.textContent = `최근 수령일 ${formatAttendanceDate(attendance.lastClaimDate)} · 내일 다시 받을 수 있습니다.`;
+    attendanceClaimBtn.disabled = true;
+    attendanceClaimBtn.textContent = "오늘 보상 완료";
+  } else {
+    attendanceTodayStatus.textContent = "오늘 보상 대기";
+    attendanceRewardText.textContent = `${previewStreak}일차 출석 보상: EXP +${reward.totalExp}${reward.bonusExp ? ` (${reward.bonusLabel} +${reward.bonusExp})` : ""}`;
+    attendanceClaimBtn.disabled = false;
+    attendanceClaimBtn.textContent = "오늘 출석 보상 받기";
+  }
+
+  if (!attendance.log || !attendance.log.length) {
+    attendanceLogList.innerHTML = `<li>아직 출석 보상 기록이 없습니다.</li>`;
+    return;
+  }
+
+  attendanceLogList.innerHTML = attendance.log.slice(0, ATTENDANCE_LOG_LIMIT).map((item) => `
+    <li>
+      <span>${escapeHtml(formatAttendanceDate(item.date))}</span>
+      <strong>${escapeHtml(item.streak)}일차 · EXP +${escapeHtml(item.exp)}</strong>
+      <em>${escapeHtml(item.partnerName)} · ${escapeHtml(item.rewardLabel)}</em>
+    </li>
+  `).join("");
+}
+
+function playAttendanceRewardEffect() {
+  const partner = loadPartner();
+  if (!partner || !partnerOrb) return;
+
+  partnerOrb.classList.add("attendance-reward");
+  setTimeout(() => partnerOrb.classList.remove("attendance-reward"), 1100);
+}
+
 function renderPartnerDex() {
   if (!partnerDexGrid || !partnerDexProgress) return;
 
@@ -794,6 +940,7 @@ function renderPartner() {
     partnerActive.classList.add("hidden");
     renderPartnerMoodHint(null);
     renderPartnerDex();
+    renderAttendance();
     return;
   }
 
@@ -830,6 +977,7 @@ function renderPartner() {
   partnerSpeech.textContent = partner.speech || randomItem(template.greetings);
   renderPartnerMoodHint(partner);
   renderPartnerDex();
+  renderAttendance();
 }
 
 async function playPartnerDraw(template, isRandom = false) {
@@ -891,21 +1039,77 @@ async function createRandomPartner() {
 
 function claimDailyVisitExp(isFirstMeet = false) {
   const partner = loadPartner();
-  if (!partner) return;
+
+  if (!partner) {
+    renderAttendance();
+    statusText.textContent = "출석 보상은 파트너를 선택한 뒤 받을 수 있습니다.";
+    return;
+  }
 
   const todayKey = getTodayKey();
+  const attendance = loadAttendance();
+  const alreadyClaimed = attendance.lastClaimDate === todayKey;
+  const template = getPartnerTemplate(partner.id);
 
-  if (partner.lastVisit !== todayKey) {
-    const template = getPartnerTemplate(partner.id);
-    partner.exp = (partner.exp || 0) + 5;
-    partner.visits = (partner.visits || 0) + 1;
-    partner.lastVisit = todayKey;
-    partner.speech = isFirstMeet
-      ? `안녕, 나는 ${template.name}. 첫 만남 보너스로 EXP를 얻었어.`
-      : "오늘도 와줘서 고마워. 첫 방문 보너스로 EXP를 얻었어.";
+  if (alreadyClaimed) {
+    if (isFirstMeet && partner.lastVisit !== todayKey) {
+      partner.exp = (partner.exp || 0) + 5;
+      partner.visits = (partner.visits || 0) + 1;
+      partner.lastVisit = todayKey;
+      partner.speech = `안녕, 나는 ${template.name}. 첫 만남 보너스로 EXP +5를 얻었어.`;
+      savePartner(partner);
+      renderPartner();
+      renderAttendance();
+      return;
+    }
 
-    savePartner(partner);
+    renderAttendance();
+    statusText.textContent = "오늘 출석 보상은 이미 받았습니다.";
+    return;
   }
+
+  const nextStreak = getNextAttendanceStreak(attendance, todayKey);
+  const reward = getAttendanceReward(nextStreak);
+  const oldLevel = getLevel(partner.exp || 0);
+
+  partner.exp = (partner.exp || 0) + reward.totalExp;
+  partner.visits = (partner.visits || 0) + 1;
+  partner.lastVisit = todayKey;
+  partner.speech = isFirstMeet
+    ? `안녕, 나는 ${template.name}. 첫 만남과 ${nextStreak}일차 출석 보상으로 EXP +${reward.totalExp}를 얻었어.`
+    : `${nextStreak}일차 출석 보상을 받았어. EXP +${reward.totalExp}! 내일도 같이 와보자.`;
+
+  const newLevel = getLevel(partner.exp || 0);
+
+  attendance.lastClaimDate = todayKey;
+  attendance.currentStreak = nextStreak;
+  attendance.bestStreak = Math.max(attendance.bestStreak || 0, nextStreak);
+  attendance.totalClaims = (attendance.totalClaims || 0) + 1;
+  attendance.totalExp = (attendance.totalExp || 0) + reward.totalExp;
+  attendance.log = [
+    {
+      date: todayKey,
+      streak: nextStreak,
+      exp: reward.totalExp,
+      partnerName: template.name,
+      rewardLabel: reward.bonusLabel
+    },
+    ...(attendance.log || [])
+  ].slice(0, ATTENDANCE_LOG_LIMIT);
+
+  saveAttendance(attendance);
+  savePartner(partner);
+  renderPartner();
+  renderAttendance();
+  playAttendanceRewardEffect();
+
+  if (newLevel > oldLevel) {
+    showLevelToast("ATTENDANCE LEVEL UP", `${template.name}가 출석 보상으로 Lv.${newLevel}이 되었습니다.`);
+  } else {
+    showLevelToast("ATTENDANCE REWARD", `${nextStreak}일차 출석 보상 EXP +${reward.totalExp}`);
+  }
+
+  statusText.textContent = `${nextStreak}일차 출석 보상을 받았습니다. EXP +${reward.totalExp}`;
 }
 
 function addPartnerExp(amount, reaction) {
@@ -960,6 +1164,7 @@ function resetPartner() {
   localStorage.removeItem(PARTNER_KEY);
   renderPartner();
   renderPartnerInsight(null);
+  renderAttendance();
   statusText.textContent = "파트너 기록이 초기화되었습니다. 새 파트너를 선택할 수 있습니다.";
 }
 
@@ -970,6 +1175,7 @@ function changePartner() {
   localStorage.removeItem(PARTNER_KEY);
   renderPartner();
   renderPartnerInsight(null);
+  renderAttendance();
   statusText.textContent = "새 파트너를 선택하거나 랜덤으로 만나보세요.";
 }
 
@@ -1567,6 +1773,10 @@ if (resetPartnerBtn) {
   resetPartnerBtn.addEventListener("click", resetPartner);
 }
 
+if (attendanceClaimBtn) {
+  attendanceClaimBtn.addEventListener("click", () => claimDailyVisitExp(false));
+}
+
 if (resetChecklistBtn) {
   resetChecklistBtn.addEventListener("click", resetDevChecklist);
 }
@@ -1658,6 +1868,6 @@ if (canvas && ctx) {
 
 clearOldCachesAndWorkers();
 initDevChecklist();
-claimDailyVisitExp();
 renderPartner();
 renderFortuneHistory();
+renderAttendance();
