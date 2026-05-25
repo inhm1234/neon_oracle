@@ -1615,7 +1615,7 @@ button:disabled {
 
 .profile-stat-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
   gap: 8px;
   margin-bottom: 12px;
 }
@@ -2008,4 +2008,194 @@ button:disabled {
   .history-mini-grid {
     grid-template-columns: 1fr;
   }
+}
+
+
+/* V2-6 partner mood reaction system */
+#partnerMoodBadge {
+  border-color: color-mix(in srgb, var(--p-accent) 56%, transparent);
+  color: #fff1b8;
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--p-accent) 18%, transparent), transparent 60%),
+    rgba(0, 0, 0, 0.2);
+}
+
+.partner-mood-hint {
+  margin-top: 10px;
+  padding: 11px 13px;
+  border: 1px solid rgba(142, 245, 255, 0.18);
+  border-radius: 15px;
+  background:
+    radial-gradient(circle at top left, rgba(142, 245, 255, 0.08), transparent 58%),
+    rgba(0, 0, 0, 0.16);
+  color: rgba(239, 252, 255, 0.78);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.partner-mood-hint span {
+  display: block;
+  margin-bottom: 4px;
+  color: rgba(225, 248, 255, 0.5);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+}
+
+.partner-mood-hint strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #fff1b8;
+  font-size: 0.84rem;
+}
+
+.partner-mood-hint p {
+  margin: 0;
+  color: rgba(239, 252, 255, 0.78);
+}
+
+.partner-mood-hint.hint-warm {
+  border-color: rgba(255, 161, 224, 0.28);
+  background:
+    radial-gradient(circle at top left, rgba(255, 161, 224, 0.13), transparent 58%),
+    rgba(0, 0, 0, 0.16);
+}
+
+.partner-mood-hint.hint-bright {
+  border-color: rgba(142, 245, 255, 0.32);
+  background:
+    radial-gradient(circle at top left, rgba(142, 245, 255, 0.15), transparent 58%),
+    rgba(0, 0, 0, 0.16);
+}
+
+.partner-mood-hint.hint-focus {
+  border-color: rgba(255, 225, 132, 0.3);
+  background:
+    radial-gradient(circle at top left, rgba(255, 225, 132, 0.13), transparent 58%),
+    rgba(0, 0, 0, 0.16);
+}
+
+.partner-mood-hint.hint-caution {
+  border-color: rgba(255, 147, 119, 0.36);
+  background:
+    radial-gradient(circle at top left, rgba(255, 147, 119, 0.15), transparent 58%),
+    rgba(0, 0, 0, 0.16);
+}
+
+.partner-mood-hint.hint-calm {
+  border-color: rgba(114, 240, 180, 0.26);
+  background:
+    radial-gradient(circle at top left, rgba(114, 240, 180, 0.1), transparent 58%),
+    rgba(0, 0, 0, 0.16);
+}
+
+.partner-orb::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.mood-warm .character-cheek {
+  opacity: 1;
+  transform: scale(1.14);
+  background: rgba(255, 117, 178, 0.48);
+}
+
+.mood-warm .partner-aura {
+  background: radial-gradient(circle, rgba(255, 161, 224, 0.48), transparent 66%);
+}
+
+.mood-warm .partner-orb,
+.mood-warm.partner-orb {
+  animation: partnerFloat 4.2s infinite ease-in-out;
+}
+
+.mood-bright .character-eye {
+  height: 17px;
+  box-shadow:
+    inset 2px 3px 0 rgba(255, 255, 255, 0.9),
+    0 0 11px var(--p-glow),
+    0 0 18px rgba(255, 225, 132, 0.28);
+}
+
+.mood-bright .character-mark {
+  animation: moodSpark 1.35s infinite ease-in-out;
+}
+
+.mood-bright.partner-orb::after {
+  opacity: 0.85;
+  border: 1px dashed rgba(142, 245, 255, 0.36);
+  animation: moodOrbit 3.2s infinite linear;
+}
+
+.mood-focus .character-eye {
+  height: 9px;
+  border-radius: 8px;
+  transform: translateY(2px);
+}
+
+.mood-focus .character-mouth {
+  width: 16px;
+  border-bottom-width: 2px;
+}
+
+.mood-focus .partner-ring::before {
+  border-style: solid;
+  border-color: rgba(255, 225, 132, 0.42);
+}
+
+.mood-caution .partner-character {
+  animation: cautionTinyShake 1.25s infinite ease-in-out;
+}
+
+.mood-caution .character-eye {
+  height: 11px;
+  opacity: 0.9;
+}
+
+.mood-caution .character-cheek {
+  background: rgba(255, 147, 119, 0.34);
+}
+
+.mood-caution.partner-orb::after {
+  opacity: 0.7;
+  border: 1px solid rgba(255, 147, 119, 0.32);
+  box-shadow: 0 0 18px rgba(255, 147, 119, 0.18);
+  animation: cautionPulse 1.6s infinite ease-in-out;
+}
+
+.mood-calm .character-mouth {
+  width: 18px;
+  opacity: 0.78;
+}
+
+.mood-calm .partner-aura {
+  animation-duration: 3.7s;
+}
+
+@keyframes moodSpark {
+  0% { transform: translateX(-50%) scale(1); box-shadow: 0 0 10px var(--p-glow); }
+  50% { transform: translateX(-50%) scale(1.14); box-shadow: 0 0 18px rgba(255, 225, 132, 0.42); }
+  100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 10px var(--p-glow); }
+}
+
+@keyframes moodOrbit {
+  from { transform: rotate(0deg) scale(0.94); }
+  to { transform: rotate(360deg) scale(0.94); }
+}
+
+@keyframes cautionTinyShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-1px); }
+  50% { transform: translateX(1px); }
+  75% { transform: translateX(-1px); }
+}
+
+@keyframes cautionPulse {
+  0% { transform: scale(0.94); opacity: 0.38; }
+  50% { transform: scale(1.06); opacity: 0.82; }
+  100% { transform: scale(0.94); opacity: 0.38; }
 }

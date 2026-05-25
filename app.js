@@ -39,8 +39,10 @@ const partnerLevel = document.getElementById("partnerLevel");
 const partnerStage = document.getElementById("partnerStage");
 const partnerExpText = document.getElementById("partnerExpText");
 const partnerBond = document.getElementById("partnerBond");
+const partnerMoodBadge = document.getElementById("partnerMoodBadge");
 const partnerExpFill = document.getElementById("partnerExpFill");
 const partnerSpeech = document.getElementById("partnerSpeech");
+const partnerMoodHint = document.getElementById("partnerMoodHint");
 const partnerInsightBox = document.getElementById("partnerInsightBox");
 const partnerInsightLabel = document.getElementById("partnerInsightLabel");
 const partnerInsightText = document.getElementById("partnerInsightText");
@@ -63,7 +65,7 @@ const devCheckCard = document.getElementById("devCheckCard");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V2-5";
+const DEV_VERSION = "V2-6";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -74,27 +76,129 @@ const relationMeta = {
   support: {
     label: "도움을 받는 흐름",
     mood: "warm",
-    short: "외부의 도움과 협력이 살아나는 날"
+    short: "외부의 도움과 협력이 살아나는 날",
+    emotion: "따뜻한 응원 반응"
   },
   output: {
     label: "표현이 살아나는 흐름",
     mood: "bright",
-    short: "생각을 밖으로 꺼낼수록 좋아지는 날"
+    short: "생각을 밖으로 꺼낼수록 좋아지는 날",
+    emotion: "반짝이는 표현 반응"
   },
   control: {
     label: "주도권을 잡는 흐름",
     mood: "focus",
-    short: "정리와 판단이 중요한 날"
+    short: "정리와 판단이 중요한 날",
+    emotion: "집중 분석 반응"
   },
   pressure: {
     label: "속도를 줄여야 하는 흐름",
     mood: "caution",
-    short: "조급함보다 안정이 필요한 날"
+    short: "조급함보다 안정이 필요한 날",
+    emotion: "조심 경보 반응"
   },
   balance: {
     label: "균형을 맞추는 흐름",
     mood: "calm",
-    short: "기본과 루틴이 힘을 주는 날"
+    short: "기본과 루틴이 힘을 주는 날",
+    emotion: "차분한 균형 반응"
+  }
+};
+
+const moodMeta = {
+  warm: {
+    badge: "따뜻한 응원",
+    title: "따뜻한 응원 모드",
+    hint: "도움을 받아도 좋은 흐름이라 파트너가 부드럽고 다정하게 반응합니다."
+  },
+  bright: {
+    badge: "반짝 표현",
+    title: "반짝 표현 모드",
+    hint: "말과 행동을 밖으로 꺼내기 좋은 흐름이라 눈빛과 오라가 더 밝아집니다."
+  },
+  focus: {
+    badge: "집중 분석",
+    title: "집중 분석 모드",
+    hint: "정리와 판단이 중요한 흐름이라 파트너가 차분하고 날카롭게 반응합니다."
+  },
+  caution: {
+    badge: "조심 경보",
+    title: "조심 경보 모드",
+    hint: "속도를 줄여야 하는 흐름이라 파트너가 걱정스러운 표정으로 조심 신호를 보냅니다."
+  },
+  calm: {
+    badge: "균형 안정",
+    title: "균형 안정 모드",
+    hint: "큰 변화보다 루틴이 중요한 흐름이라 파트너가 안정적으로 하루를 정리해줍니다."
+  }
+};
+
+const reactionBonusLines = {
+  lumy: {
+    support: [
+      "오늘은 누군가의 작은 말이 큰 힘이 될 수 있어. 고마운 마음을 숨기지 말고 받아들여봐.",
+      "따뜻한 흐름이 네 주변에 있어. 혼자 해결하려는 마음을 조금 내려놓아도 괜찮아."
+    ],
+    output: [
+      "오늘은 네 진심이 빛처럼 전달될 수 있어. 짧은 말이라도 따뜻하게 꺼내봐.",
+      "마음속에 있던 표현을 조금만 보여줘도 관계의 온도가 달라질 수 있어."
+    ],
+    control: [
+      "중심을 잡기 좋은 날이지만, 부드러운 말투가 네 판단을 더 빛나게 해줄 거야.",
+      "오늘의 결정은 따뜻함을 잃지 않을 때 더 좋은 방향으로 흐를 수 있어."
+    ],
+    pressure: [
+      "걱정이 커질 수 있는 날이야. 답을 빨리 내기보다 마음을 먼저 다독여줘.",
+      "조금 흔들려도 괜찮아. 오늘은 속도보다 네 마음을 보호하는 게 먼저야."
+    ],
+    balance: [
+      "잔잔한 하루의 힘이 있어. 평소처럼 해내는 것만으로도 충분히 좋은 운이야.",
+      "오늘은 작은 루틴이 마음을 밝혀줘. 무리하지 말고 차분하게 이어가자."
+    ]
+  },
+  moko: {
+    support: [
+      "오늘은 기대도 괜찮아. 누군가가 도와주면 고맙게 받고 체력을 아껴두자.",
+      "혼자 끙끙대기보다 나눠서 하면 훨씬 가벼워질 흐름이야."
+    ],
+    output: [
+      "움직임이 좋은 날이야. 그래도 쉬는 시간을 중간에 꼭 끼워 넣자.",
+      "하고 싶은 걸 작게 시작해봐. 한 번에 다 하려고만 하지 않으면 좋아."
+    ],
+    control: [
+      "정리하기 좋은 흐름이야. 오늘은 딱 하나만 치워도 기분이 꽤 좋아질 거야.",
+      "계획표를 너무 빡빡하게 만들지 말고, 지킬 수 있는 만큼만 정리해보자."
+    ],
+    pressure: [
+      "몸이 먼저 신호를 보낼 수 있어. 피곤하면 그건 게으른 게 아니라 쉬라는 뜻이야.",
+      "오늘은 마음을 말랑하게 풀어줘. 무리하면 운도 같이 뻣뻣해질 수 있어."
+    ],
+    balance: [
+      "평소 루틴이 제일 든든한 날이야. 밥, 물, 잠만 잘 챙겨도 흐름이 좋아져.",
+      "조용히 쌓이는 운이 있어. 크게 바꾸지 말고 편한 리듬을 지켜보자."
+    ]
+  },
+  nova: {
+    support: [
+      "외부 지원값이 올라왔어. 혼자 계산하지 말고 주변 자원을 변수에 넣어봐.",
+      "협력 신호가 안정적이야. 도움 요청은 리스크가 아니라 효율을 높이는 선택값이야."
+    ],
+    output: [
+      "출력 신호가 강해. 머릿속 데이터는 실행으로 변환될 때 의미가 생겨.",
+      "오늘은 아이디어를 저장만 하지 말고 하나라도 배포해봐. 결과값이 갱신될 수 있어."
+    ],
+    control: [
+      "판단 모듈이 활성화됐어. 기준을 먼저 세우면 선택 오류를 줄일 수 있어.",
+      "오늘은 주도권을 가져도 좋아. 다만 근거 없는 확신은 한 번 필터링해."
+    ],
+    pressure: [
+      "경고값이 감지됐어. 중요한 선택은 즉시 실행보다 재검토 루프를 추천해.",
+      "속도보다 안정성이 우선이야. 오늘은 보수적인 선택이 전체 손실을 줄여."
+    ],
+    balance: [
+      "균형값이 안정적이야. 새로운 변수보다 기존 루틴을 최적화하는 쪽이 효율적이야.",
+      "현재 시스템은 안정 모드야. 유지보수와 정리가 오늘의 핵심 작업이야."
+    ]
   }
 };
 
@@ -438,6 +542,35 @@ function getPartnerBond(template, level) {
   return template.bonds[stageIndex] || "운세 동반자";
 }
 
+function getMoodInfo(mood) {
+  return moodMeta[mood] || moodMeta.calm;
+}
+
+function renderPartnerMoodHint(partner) {
+  if (!partnerMoodHint) return;
+
+  if (!partner) {
+    partnerMoodHint.className = "partner-mood-hint hint-calm";
+    partnerMoodHint.innerHTML = `
+      <span>현재 반응</span>
+      <strong>균형 모드</strong>
+      <p>파트너를 선택하고 운세를 분석하면 표정과 대사가 결과에 맞춰 바뀝니다.</p>
+    `;
+    return;
+  }
+
+  const mood = partner.mood || "calm";
+  const info = getMoodInfo(mood);
+  const relationText = partner.lastRelation ? ` · ${escapeHtml(partner.lastRelation)}` : "";
+
+  partnerMoodHint.className = `partner-mood-hint hint-${mood}`;
+  partnerMoodHint.innerHTML = `
+    <span>현재 반응${relationText}</span>
+    <strong>${escapeHtml(partner.moodTitle || info.title)}</strong>
+    <p>${escapeHtml(partner.moodHint || info.hint)}</p>
+  `;
+}
+
 
 function loadPartnerDex() {
   try {
@@ -565,6 +698,7 @@ function renderActivePartnerProfile(partner) {
         <div><span>누적 EXP</span><strong>${escapeHtml(partner.exp || 0)}</strong></div>
         <div><span>방문 횟수</span><strong>${escapeHtml(partner.visits || 0)}회</strong></div>
         <div><span>칭호</span><strong>${escapeHtml(getPartnerBond(template, level))}</strong></div>
+        <div><span>최근 반응</span><strong>${escapeHtml(partner.moodBadge || getMoodInfo(partner.mood || "calm").badge)}</strong></div>
       </div>
 
       <div class="growth-guide">
@@ -658,6 +792,7 @@ function renderPartner() {
   if (!partner) {
     partnerEmpty.classList.remove("hidden");
     partnerActive.classList.add("hidden");
+    renderPartnerMoodHint(null);
     renderPartnerDex();
     return;
   }
@@ -686,9 +821,14 @@ function renderPartner() {
   if (partnerBond) {
     partnerBond.textContent = getPartnerBond(template, level);
   }
+  if (partnerMoodBadge) {
+    const moodInfo = getMoodInfo(partner.mood || "calm");
+    partnerMoodBadge.textContent = partner.moodBadge || moodInfo.badge;
+  }
   partnerExpFill.style.width = `${expPercent}%`;
 
   partnerSpeech.textContent = partner.speech || randomItem(template.greetings);
+  renderPartnerMoodHint(partner);
   renderPartnerDex();
 }
 
@@ -721,6 +861,10 @@ function buildPartner(template) {
     createdAt: getTodayKey(),
     lastVisit: "",
     mood: "calm",
+    moodBadge: moodMeta.calm.badge,
+    moodTitle: moodMeta.calm.title,
+    moodHint: moodMeta.calm.hint,
+    lastRelation: "",
     speech: `안녕, 나는 ${template.name}. 오늘부터 네 운세를 같이 봐줄게.`
   };
 }
@@ -777,7 +921,12 @@ function addPartnerExp(amount, reaction) {
   const reactionMood = typeof reaction === "object" ? reaction?.mood : null;
 
   if (reactionMood) {
+    const moodInfo = getMoodInfo(reactionMood);
     partner.mood = reactionMood;
+    partner.moodBadge = reaction?.moodBadge || moodInfo.badge;
+    partner.moodTitle = reaction?.moodTitle || moodInfo.title;
+    partner.moodHint = reaction?.moodHint || moodInfo.hint;
+    partner.lastRelation = reaction?.short || "";
   }
 
   if (newLevel > oldLevel) {
@@ -848,14 +997,20 @@ function getPartnerReaction(result) {
 
   const template = getPartnerTemplate(partner.id);
   const meta = relationMeta[result.relation] || relationMeta.balance;
-  const list = template.reactions[result.relation] || template.result;
+  const baseList = template.reactions[result.relation] || template.result;
+  const bonusList = reactionBonusLines[partner.id]?.[result.relation] || [];
+  const list = baseList.concat(bonusList);
   const seed = getHash(`${partner.id}-${result.code}-${result.relation}`);
   const text = list[seed % list.length];
+  const moodInfo = getMoodInfo(meta.mood);
 
   return {
     label: `${template.name}의 해석 · ${meta.label}`,
     text,
     mood: meta.mood,
+    moodBadge: moodInfo.badge,
+    moodTitle: meta.emotion || moodInfo.title,
+    moodHint: moodInfo.hint,
     short: meta.short
   };
 }
@@ -1101,6 +1256,7 @@ function buildHistoryRecord(profile, result, partnerReaction) {
     partnerName: template ? template.name : "파트너 없음",
     partnerLevel: partner ? getLevel(partner.exp || 0) : null,
     partnerStage: partner ? getStageName(getLevel(partner.exp || 0)) : null,
+    partnerMood: partnerReaction ? partnerReaction.moodBadge : null,
     partnerReaction: partnerReaction ? partnerReaction.text : "파트너 없이 저장된 운세입니다."
   };
 }
@@ -1161,7 +1317,7 @@ function renderFortuneHistory() {
 
           <div class="history-text-block">
             <span>파트너 해석</span>
-            <p>${escapeHtml(item.partnerName)}${item.partnerLevel ? ` Lv.${escapeHtml(item.partnerLevel)}` : ""}${item.partnerStage ? ` · ${escapeHtml(item.partnerStage)}` : ""}<br>${escapeHtml(item.partnerReaction)}</p>
+            <p>${escapeHtml(item.partnerName)}${item.partnerLevel ? ` Lv.${escapeHtml(item.partnerLevel)}` : ""}${item.partnerStage ? ` · ${escapeHtml(item.partnerStage)}` : ""}${item.partnerMood ? ` · ${escapeHtml(item.partnerMood)}` : ""}<br>${escapeHtml(item.partnerReaction)}</p>
           </div>
 
           <div class="history-lucky-row">
@@ -1256,7 +1412,7 @@ async function analyzeFortune(event) {
     }
 
     saveFortuneHistory(profile, result, reaction);
-    statusText.textContent = "오늘의 운세 분석이 완료되었습니다. 이전 운세 기록에도 저장되었습니다.";
+    statusText.textContent = "오늘의 운세 분석이 완료되었습니다. 파트너 반응과 이전 운세 기록도 저장되었습니다.";
   } catch (error) {
     console.error(error);
     statusText.textContent = "분석 중 오류가 생겼습니다. 파일을 새로 덮어씌운 뒤 Ctrl + F5로 새로고침해주세요.";
