@@ -47,9 +47,16 @@ const partnerInsightText = document.getElementById("partnerInsightText");
 const levelToast = document.getElementById("levelToast");
 const levelToastTitle = document.getElementById("levelToastTitle");
 const levelToastText = document.getElementById("levelToastText");
+const devVersionBadge = document.getElementById("devVersionBadge");
+const devChecklistItems = document.querySelectorAll("[data-check-id]");
+const devChecklistProgress = document.getElementById("devChecklistProgress");
+const devChecklistFill = document.getElementById("devChecklistFill");
+const resetChecklistBtn = document.getElementById("resetChecklistBtn");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
+const DEV_VERSION = "V2-3.1";
+const CHECKLIST_KEY = "fortune_dev_checklist_v231";
 
 const relationMeta = {
   support: {
@@ -852,6 +859,67 @@ async function analyzeFortune(event) {
   }
 }
 
+
+function loadChecklistState() {
+  try {
+    return JSON.parse(localStorage.getItem(CHECKLIST_KEY)) || {};
+  } catch (error) {
+    localStorage.removeItem(CHECKLIST_KEY);
+    return {};
+  }
+}
+
+function saveChecklistState(state) {
+  localStorage.setItem(CHECKLIST_KEY, JSON.stringify(state));
+}
+
+function updateChecklistProgress() {
+  if (!devChecklistItems.length || !devChecklistProgress || !devChecklistFill) return;
+
+  const total = devChecklistItems.length;
+  const checked = Array.from(devChecklistItems).filter((item) => item.checked).length;
+  const percent = total ? (checked / total) * 100 : 0;
+
+  devChecklistProgress.textContent = `${checked} / ${total} 확인 완료`;
+  devChecklistFill.style.width = `${percent}%`;
+}
+
+function initDevChecklist() {
+  if (devVersionBadge) {
+    devVersionBadge.textContent = DEV_VERSION;
+  }
+
+  if (!devChecklistItems.length) return;
+
+  const saved = loadChecklistState();
+
+  devChecklistItems.forEach((item) => {
+    const id = item.getAttribute("data-check-id");
+    item.checked = Boolean(saved[id]);
+
+    item.addEventListener("change", () => {
+      const nextState = loadChecklistState();
+      nextState[id] = item.checked;
+      saveChecklistState(nextState);
+      updateChecklistProgress();
+    });
+  });
+
+  updateChecklistProgress();
+}
+
+function resetDevChecklist() {
+  const ok = confirm("개발 점검표 체크 상태를 초기화할까요?");
+  if (!ok) return;
+
+  localStorage.removeItem(CHECKLIST_KEY);
+  devChecklistItems.forEach((item) => {
+    item.checked = false;
+  });
+  updateChecklistProgress();
+  statusText.textContent = "개발 점검표가 초기화되었습니다.";
+}
+
 if (form) {
   form.addEventListener("submit", analyzeFortune);
 }
@@ -875,6 +943,10 @@ if (changePartnerBtn) {
 
 if (resetPartnerBtn) {
   resetPartnerBtn.addEventListener("click", resetPartner);
+}
+
+if (resetChecklistBtn) {
+  resetChecklistBtn.addEventListener("click", resetDevChecklist);
 }
 
 const canvas = document.getElementById("matrix");
@@ -946,5 +1018,6 @@ if (canvas && ctx) {
 }
 
 clearOldCachesAndWorkers();
+initDevChecklist();
 claimDailyVisitExp();
 renderPartner();
