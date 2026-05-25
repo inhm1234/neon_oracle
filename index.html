@@ -18,7 +18,7 @@
   <title>오늘의 운세코드</title>
 
   <link rel="manifest" href="manifest.json"/>
-  <link rel="stylesheet" href="./style.css?v=20260525-v22"/>
+  <link rel="stylesheet" href="./style.css?v=20260525-v23"/>
 </head>
 
 <body>
@@ -45,7 +45,43 @@
         운세를 함께 봐주는 작은 파트너를 만나보세요.
         파트너는 운세를 볼 때마다 경험치를 얻고 성장합니다.
       </p>
-      <button id="meetPartnerBtn" type="button">랜덤 파트너 만나기</button>
+      <div class="partner-choice-area" aria-label="파트너 선택 영역">
+        <p class="partner-choice-title">첫 파트너를 선택하거나 랜덤으로 만나보세요.</p>
+
+        <div class="partner-choice-grid">
+          <button class="partner-choice choice-lumy" type="button" data-partner-id="lumy" aria-label="루미 선택하기">
+            <span class="choice-symbol">✦</span>
+            <strong>루미</strong>
+            <small>다정한 빛 · 관계운</small>
+          </button>
+
+          <button class="partner-choice choice-moko" type="button" data-partner-id="moko" aria-label="모코 선택하기">
+            <span class="choice-symbol">●</span>
+            <strong>모코</strong>
+            <small>말랑한 숲 · 건강운</small>
+          </button>
+
+          <button class="partner-choice choice-nova" type="button" data-partner-id="nova" aria-label="노바 선택하기">
+            <span class="choice-symbol">◆</span>
+            <strong>노바</strong>
+            <small>별빛 AI · 재물/일운</small>
+          </button>
+        </div>
+
+        <div class="partner-action-row">
+          <button id="meetPartnerBtn" type="button">랜덤 파트너 만나기</button>
+        </div>
+
+        <div id="partnerDrawStage" class="partner-draw-stage hidden">
+          <div class="draw-orbit">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <strong id="partnerDrawName">파트너 연결 중...</strong>
+          <small>오라클 신호를 동기화하고 있습니다.</small>
+        </div>
+      </div>
     </div>
 
     <div id="partnerActive" class="partner-active hidden">
@@ -84,7 +120,10 @@
             <span class="small-label">PARTNER ORACLE V2</span>
             <h2 id="partnerName">루미</h2>
           </div>
-          <button id="resetPartnerBtn" class="small-button" type="button">초기화</button>
+          <div class="partner-top-actions">
+            <button id="changePartnerBtn" class="small-button" type="button">교체</button>
+            <button id="resetPartnerBtn" class="small-button" type="button">초기화</button>
+          </div>
         </div>
 
         <p id="partnerType" class="partner-type">빛과 마음을 읽는 파트너</p>
@@ -243,7 +282,7 @@
   <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
 
-<script src="./app.js?v=20260525-v22"></script>
+<script src="./app.js?v=20260525-v23"></script>
 
 </body>
 </html>

@@ -25,6 +25,10 @@ const finalAdvice = document.getElementById("finalAdvice");
 
 const meetPartnerBtn = document.getElementById("meetPartnerBtn");
 const resetPartnerBtn = document.getElementById("resetPartnerBtn");
+const changePartnerBtn = document.getElementById("changePartnerBtn");
+const partnerChoiceButtons = document.querySelectorAll("[data-partner-id]");
+const partnerDrawStage = document.getElementById("partnerDrawStage");
+const partnerDrawName = document.getElementById("partnerDrawName");
 const partnerEmpty = document.getElementById("partnerEmpty");
 const partnerActive = document.getElementById("partnerActive");
 const partnerOrb = document.getElementById("partnerOrb");
@@ -445,10 +449,29 @@ function renderPartner() {
   partnerSpeech.textContent = partner.speech || randomItem(template.greetings);
 }
 
-function createRandomPartner() {
-  const template = randomItem(partnerTemplates);
+async function playPartnerDraw(template, isRandom = false) {
+  if (!partnerDrawStage || !partnerDrawName) return;
 
-  const partner = {
+  partnerDrawStage.classList.remove("hidden");
+  partnerDrawName.textContent = isRandom
+    ? "오라클 신호를 섞는 중..."
+    : `${template.name}와 연결하는 중...`;
+
+  statusText.textContent = isRandom
+    ? "랜덤 파트너 신호를 탐색하고 있습니다..."
+    : `${template.name}와 연결을 준비하고 있습니다...`;
+
+  await wait(420);
+
+  partnerDrawName.textContent = `${template.name} 발견!`;
+  statusText.textContent = `${template.name}의 운세코드가 응답했습니다.`;
+
+  await wait(520);
+  partnerDrawStage.classList.add("hidden");
+}
+
+function buildPartner(template) {
+  return {
     id: template.id,
     exp: 0,
     visits: 0,
@@ -457,12 +480,25 @@ function createRandomPartner() {
     mood: "calm",
     speech: `안녕, 나는 ${template.name}. 오늘부터 네 운세를 같이 봐줄게.`
   };
+}
 
+async function createPartnerById(id, isRandom = false) {
+  const template = getPartnerTemplate(id);
+
+  await playPartnerDraw(template, isRandom);
+
+  const partner = buildPartner(template);
   savePartner(partner);
   claimDailyVisitExp(true);
   renderPartner();
 
+  showLevelToast("PARTNER CONNECT", `${template.name}가 파트너로 연결되었습니다.`);
   statusText.textContent = `${template.name}가 파트너로 연결되었습니다.`;
+}
+
+async function createRandomPartner() {
+  const template = randomItem(partnerTemplates);
+  await createPartnerById(template.id, true);
 }
 
 function claimDailyVisitExp(isFirstMeet = false) {
@@ -530,7 +566,18 @@ function resetPartner() {
 
   localStorage.removeItem(PARTNER_KEY);
   renderPartner();
-  statusText.textContent = "파트너 기록이 초기화되었습니다.";
+  renderPartnerInsight(null);
+  statusText.textContent = "파트너 기록이 초기화되었습니다. 새 파트너를 선택할 수 있습니다.";
+}
+
+function changePartner() {
+  const ok = confirm("현재 파트너를 교체할까요? 레벨과 EXP 기록은 초기화됩니다.");
+  if (!ok) return;
+
+  localStorage.removeItem(PARTNER_KEY);
+  renderPartner();
+  renderPartnerInsight(null);
+  statusText.textContent = "새 파트너를 선택하거나 랜덤으로 만나보세요.";
 }
 
 function setPartnerSpeech(type) {
@@ -810,7 +857,20 @@ if (form) {
 }
 
 if (meetPartnerBtn) {
-  meetPartnerBtn.addEventListener("click", createRandomPartner);
+  meetPartnerBtn.addEventListener("click", () => {
+    createRandomPartner();
+  });
+}
+
+partnerChoiceButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const partnerId = button.getAttribute("data-partner-id");
+    createPartnerById(partnerId, false);
+  });
+});
+
+if (changePartnerBtn) {
+  changePartnerBtn.addEventListener("click", changePartner);
 }
 
 if (resetPartnerBtn) {
