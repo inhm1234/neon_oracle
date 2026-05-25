@@ -18,7 +18,7 @@
   <title>오늘의 운세코드</title>
 
   <link rel="manifest" href="manifest.json"/>
-  <link rel="stylesheet" href="./style.css?v=20260525-v28"/>
+  <link rel="stylesheet" href="./style.css?v=20260525-v29"/>
 </head>
 
 <body>
@@ -35,6 +35,55 @@
   <p class="subtitle">
     생년월일과 태어난 시간을 바탕으로 오늘의 운세 흐름을 분석합니다.
   </p>
+
+  <section id="profileCard" class="profile-card" aria-label="프로필 저장 구조">
+    <div class="profile-card-top">
+      <div>
+        <span class="small-label">PROFILE STORAGE</span>
+        <h2>프로필 저장 구조</h2>
+      </div>
+      <strong id="profileCurrentBadge" class="profile-current-badge">기본 프로필</strong>
+    </div>
+
+    <p class="profile-desc">
+      아직 진짜 로그인은 아니지만, 로그인처럼 프로필마다 파트너 / 출석 / 도감 / 이전 운세 기록을 따로 저장합니다.
+    </p>
+
+    <div class="profile-control-box">
+      <label class="profile-select-field">
+        <span>현재 프로필</span>
+        <select id="profileSelect"></select>
+      </label>
+      <button id="switchProfileBtn" class="small-button" type="button">프로필 전환</button>
+    </div>
+
+    <div class="profile-create-box">
+      <label class="profile-name-field">
+        <span>새 프로필 이름</span>
+        <input id="newProfileName" type="text" placeholder="예: 내 프로필, 아내 프로필, 테스트" maxlength="18" />
+      </label>
+      <button id="createProfileBtn" class="small-button" type="button">새 프로필 만들기</button>
+    </div>
+
+    <div class="profile-info-grid">
+      <div>
+        <span>프로필 수</span>
+        <strong id="profileCountText">1개</strong>
+      </div>
+      <div>
+        <span>현재 저장 방식</span>
+        <strong>프로필별 분리</strong>
+      </div>
+      <div>
+        <span>기존 데이터</span>
+        <strong id="profileMigrationState">자동 이전 완료</strong>
+      </div>
+    </div>
+
+    <div id="profileMessage" class="profile-message">
+      V2-8에서 쓰던 데이터는 첫 실행 시 기본 프로필로 자동 이전됩니다.
+    </div>
+  </section>
 
   <section class="partner-card">
 
@@ -375,10 +424,14 @@
     </div>
 
     <p class="data-manager-desc">
-      이 브라우저에 저장된 파트너, 출석, 도감, 이전 운세 기록을 백업 파일로 저장하거나 다시 불러올 수 있습니다.
+      현재 선택된 프로필의 파트너, 출석, 도감, 이전 운세 기록을 백업 파일로 저장하거나 다시 불러올 수 있습니다.
     </p>
 
     <div class="data-summary-grid">
+      <div>
+        <span>현재 프로필</span>
+        <strong id="dataProfileState">확인 중</strong>
+      </div>
       <div>
         <span>파트너</span>
         <strong id="dataPartnerState">확인 중</strong>
@@ -426,7 +479,7 @@
         <span class="small-label">DEVELOPMENT CHECKLIST</span>
         <h2>업데이트 점검표</h2>
       </div>
-      <strong id="devVersionBadge" class="version-badge">V2-8</strong>
+      <strong id="devVersionBadge" class="version-badge">V2-9</strong>
     </div>
 
     <p class="dev-check-desc">
@@ -442,52 +495,52 @@
 
     <div class="dev-check-list">
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v28-version-visible" />
-        <span>화면에 현재 버전 V2-8이 보인다.</span>
+        <input type="checkbox" data-check-id="v29-version-visible" />
+        <span>화면에 현재 버전 V2-9이 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v28-data-card" />
-        <span>데이터 관리 센터 카드가 화면에 보인다.</span>
+        <input type="checkbox" data-check-id="v29-profile-card" />
+        <span>프로필 저장 구조 카드가 화면에 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v28-data-summary" />
-        <span>파트너 / 운세 기록 / 도감 / 출석 / 점검표 상태가 보인다.</span>
+        <input type="checkbox" data-check-id="v29-profile-switch" />
+        <span>프로필 선택 목록과 현재 프로필 이름이 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v28-backup-download" />
+        <input type="checkbox" data-check-id="v29-profile-create" />
+        <span>새 프로필을 만들 수 있다.</span>
+      </label>
+
+      <label class="dev-check-item">
+        <input type="checkbox" data-check-id="v29-profile-separate" />
+        <span>프로필을 전환하면 파트너 / 출석 / 기록이 프로필별로 분리된다.</span>
+      </label>
+
+      <label class="dev-check-item">
+        <input type="checkbox" data-check-id="v29-data-current-profile" />
+        <span>데이터 관리 센터가 현재 프로필 기준으로 표시된다.</span>
+      </label>
+
+      <label class="dev-check-item">
+        <input type="checkbox" data-check-id="v29-backup-download" />
         <span>백업 파일 다운로드 버튼을 누르면 JSON 파일이 저장된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v28-import-file" />
-        <span>백업 파일 불러오기 버튼을 누르면 파일 선택창이 열린다.</span>
+        <input type="checkbox" data-check-id="v29-import-restore" />
+        <span>백업 파일을 불러오면 현재 프로필에 데이터가 복원된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v28-import-restore" />
-        <span>백업 파일을 불러오면 파트너 / 출석 / 기록 상태가 복원된다.</span>
+        <input type="checkbox" data-check-id="v29-v28-still-ok" />
+        <span>V2-8의 데이터 관리 센터와 기존 기능이 그대로 작동한다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v28-reset-all" />
-        <span>저장 데이터 전체 초기화 버튼이 확인 후 작동한다.</span>
-      </label>
-
-      <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v28-attendance-still-ok" />
-        <span>V2-7의 출석 보상 기능이 그대로 작동한다.</span>
-      </label>
-
-      <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v28-dex-history-still-ok" />
-        <span>파트너 도감과 이전 운세 다시보기가 그대로 작동한다.</span>
-      </label>
-
-      <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v28-check-save" />
+        <input type="checkbox" data-check-id="v29-check-save" />
         <span>새로고침해도 개발 점검 체크 상태가 유지된다.</span>
       </label>
     </div>
@@ -497,7 +550,7 @@
     </div>
   </section>
 
-  <div class="version-footer">오늘의 운세코드 V2-8 · 데이터 백업/복원 버전</div>
+  <div class="version-footer">오늘의 운세코드 V2-9 · 프로필별 저장 구조 버전</div>
 
 </main>
 
@@ -508,7 +561,7 @@
   <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
 
-<script src="./app.js?v=20260525-v28"></script>
+<script src="./app.js?v=20260525-v29"></script>
 
 </body>
 </html>

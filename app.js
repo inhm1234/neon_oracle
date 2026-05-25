@@ -80,10 +80,19 @@ const importDataBtn = document.getElementById("importDataBtn");
 const resetAllDataBtn = document.getElementById("resetAllDataBtn");
 const dataImportFile = document.getElementById("dataImportFile");
 const dataManagerMessage = document.getElementById("dataManagerMessage");
+const profileSelect = document.getElementById("profileSelect");
+const profileCurrentBadge = document.getElementById("profileCurrentBadge");
+const profileCountText = document.getElementById("profileCountText");
+const profileMigrationState = document.getElementById("profileMigrationState");
+const profileMessage = document.getElementById("profileMessage");
+const newProfileName = document.getElementById("newProfileName");
+const createProfileBtn = document.getElementById("createProfileBtn");
+const switchProfileBtn = document.getElementById("switchProfileBtn");
+const dataProfileState = document.getElementById("dataProfileState");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V2-8";
+const DEV_VERSION = "V2-9";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -98,6 +107,11 @@ const DATA_BACKUP_KEYS = [
   { key: ATTENDANCE_KEY, label: "출석" },
   { key: CHECKLIST_KEY, label: "개발 점검표" }
 ];
+const PROFILE_STORE_KEY = "fortune_profile_store_v1";
+const PROFILE_ACTIVE_KEY = "fortune_active_profile_v1";
+const PROFILE_DEFAULT_ID = "default";
+const PROFILE_DATA_KEYS = DATA_BACKUP_KEYS.map((item) => item.key);
+let isProfileSystemReady = false;
 
 const relationMeta = {
   support: {
@@ -542,6 +556,7 @@ function loadPartner() {
 
 function savePartner(partner) {
   localStorage.setItem(PARTNER_KEY, JSON.stringify(partner));
+  persistActiveProfileData();
 }
 
 function getPartnerTemplate(id) {
@@ -612,6 +627,7 @@ function loadPartnerDex() {
 function savePartnerDex(dex) {
   try {
     localStorage.setItem(DEX_KEY, JSON.stringify(dex));
+    persistActiveProfileData();
   } catch (error) {
     console.error("파트너 도감 저장 실패", error);
   }
@@ -770,6 +786,7 @@ function loadAttendance() {
 function saveAttendance(attendance) {
   try {
     localStorage.setItem(ATTENDANCE_KEY, JSON.stringify(attendance));
+    persistActiveProfileData();
   } catch (error) {
     console.error("출석 보상 저장 실패", error);
   }
@@ -959,6 +976,7 @@ function renderPartner() {
     renderPartnerMoodHint(null);
     renderPartnerDex();
     renderAttendance();
+    renderDataManager();
     return;
   }
 
@@ -996,6 +1014,7 @@ function renderPartner() {
   renderPartnerMoodHint(partner);
   renderPartnerDex();
   renderAttendance();
+  renderDataManager();
 }
 
 async function playPartnerDraw(template, isRandom = false) {
@@ -1183,6 +1202,7 @@ function resetPartner() {
   if (!ok) return;
 
   localStorage.removeItem(PARTNER_KEY);
+  persistActiveProfileData();
   renderPartner();
   renderPartnerInsight(null);
   renderAttendance();
@@ -1195,6 +1215,7 @@ function changePartner() {
   if (!ok) return;
 
   localStorage.removeItem(PARTNER_KEY);
+  persistActiveProfileData();
   renderPartner();
   renderPartnerInsight(null);
   renderAttendance();
@@ -1423,6 +1444,7 @@ function loadFortuneHistory() {
 function saveFortuneHistoryList(list) {
   try {
     localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+    persistActiveProfileData();
   } catch (error) {
     console.error("운세 기록 저장 실패", error);
   }
@@ -1579,6 +1601,7 @@ function clearFortuneHistory() {
   if (!ok) return;
 
   localStorage.removeItem(HISTORY_KEY);
+  persistActiveProfileData();
   renderFortuneHistory();
   renderDataManager();
   statusText.textContent = "이전 운세 기록을 모두 삭제했습니다.";
@@ -1696,6 +1719,7 @@ function getChecklistStateFromDom() {
 function saveChecklistState(state) {
   try {
     localStorage.setItem(CHECKLIST_KEY, JSON.stringify(state));
+    persistActiveProfileData();
   } catch (error) {
     console.error("체크리스트 저장 실패", error);
   }
@@ -1768,6 +1792,7 @@ function resetDevChecklist() {
 
   localStorage.removeItem(CHECKLIST_KEY);
   CHECKLIST_LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
+  persistActiveProfileData();
   devChecklistItems.forEach((item) => {
     item.checked = false;
   });
@@ -1776,7 +1801,256 @@ function resetDevChecklist() {
   statusText.textContent = "개발 점검표가 초기화되었습니다.";
 }
 
+
+function makeProfileId() {
+  if (window.crypto && window.crypto.randomUUID) {
+    return `profile-${window.crypto.randomUUID().slice(0, 8)}`;
+  }
+
+  return `profile-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+}
+
+function getDefaultProfileName() {
+  return "기본 프로필";
+}
+
+function readProfileStore() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PROFILE_STORE_KEY));
+
+    if (saved && saved.profiles && typeof saved.profiles === "object" && !Array.isArray(saved.profiles)) {
+      return saved;
+    }
+  } catch (error) {
+    console.error("프로필 저장소 읽기 실패", error);
+  }
+
+  return null;
+}
+
+function writeProfileStore(store) {
+  try {
+    localStorage.setItem(PROFILE_STORE_KEY, JSON.stringify(store));
+  } catch (error) {
+    console.error("프로필 저장소 저장 실패", error);
+  }
+}
+
+function getCurrentLegacyStorage() {
+  const storage = {};
+
+  PROFILE_DATA_KEYS.forEach((key) => {
+    const value = localStorage.getItem(key);
+    if (value !== null) {
+      storage[key] = value;
+    }
+  });
+
+  return storage;
+}
+
+function applyProfileStorage(storage) {
+  PROFILE_DATA_KEYS.forEach((key) => {
+    if (storage && Object.prototype.hasOwnProperty.call(storage, key)) {
+      localStorage.setItem(key, storage[key]);
+    } else {
+      localStorage.removeItem(key);
+    }
+  });
+}
+
+function getActiveProfileId() {
+  return localStorage.getItem(PROFILE_ACTIVE_KEY) || PROFILE_DEFAULT_ID;
+}
+
+function getActiveProfile() {
+  const store = readProfileStore();
+  if (!store) return null;
+
+  const activeId = getActiveProfileId();
+  return store.profiles[activeId] || Object.values(store.profiles)[0] || null;
+}
+
+function ensureProfileStore() {
+  let store = readProfileStore();
+  const now = new Date().toISOString();
+
+  if (!store) {
+    const legacyStorage = getCurrentLegacyStorage();
+    store = {
+      app: "today_fortune_code_profiles",
+      version: 1,
+      createdAt: now,
+      updatedAt: now,
+      migratedFrom: "V2-8",
+      profiles: {
+        [PROFILE_DEFAULT_ID]: {
+          id: PROFILE_DEFAULT_ID,
+          name: getDefaultProfileName(),
+          createdAt: now,
+          updatedAt: now,
+          storage: legacyStorage
+        }
+      }
+    };
+
+    writeProfileStore(store);
+    localStorage.setItem(PROFILE_ACTIVE_KEY, PROFILE_DEFAULT_ID);
+    return store;
+  }
+
+  if (!store.profiles[PROFILE_DEFAULT_ID] && Object.keys(store.profiles).length === 0) {
+    store.profiles[PROFILE_DEFAULT_ID] = {
+      id: PROFILE_DEFAULT_ID,
+      name: getDefaultProfileName(),
+      createdAt: now,
+      updatedAt: now,
+      storage: {}
+    };
+  }
+
+  store.updatedAt = now;
+  writeProfileStore(store);
+
+  const activeId = getActiveProfileId();
+  if (!store.profiles[activeId]) {
+    const firstId = Object.keys(store.profiles)[0] || PROFILE_DEFAULT_ID;
+    localStorage.setItem(PROFILE_ACTIVE_KEY, firstId);
+  }
+
+  return store;
+}
+
+function persistActiveProfileData() {
+  if (!isProfileSystemReady) return;
+
+  const store = ensureProfileStore();
+  const activeId = getActiveProfileId();
+  const active = store.profiles[activeId];
+
+  if (!active) return;
+
+  active.storage = getCurrentLegacyStorage();
+  active.updatedAt = new Date().toISOString();
+  store.updatedAt = active.updatedAt;
+  writeProfileStore(store);
+}
+
+function renderProfileManager() {
+  if (!profileSelect || !profileCurrentBadge || !profileCountText || !profileMigrationState) return;
+
+  const store = ensureProfileStore();
+  const activeId = getActiveProfileId();
+  const profiles = Object.values(store.profiles);
+  const active = store.profiles[activeId] || profiles[0];
+
+  profileSelect.innerHTML = profiles.map((profile) => `
+    <option value="${escapeHtml(profile.id)}" ${profile.id === active.id ? "selected" : ""}>${escapeHtml(profile.name)}</option>
+  `).join("");
+
+  profileCurrentBadge.textContent = active.name;
+  profileCountText.textContent = `${profiles.length}개`;
+  profileMigrationState.textContent = store.migratedFrom ? `${store.migratedFrom} 데이터 이전 완료` : "프로필 저장 중";
+}
+
+function setProfileMessage(message) {
+  if (profileMessage) {
+    profileMessage.textContent = message;
+  }
+}
+
+function initProfileSystem() {
+  const store = ensureProfileStore();
+  const activeId = getActiveProfileId();
+  const active = store.profiles[activeId] || Object.values(store.profiles)[0];
+
+  if (active) {
+    localStorage.setItem(PROFILE_ACTIVE_KEY, active.id);
+    applyProfileStorage(active.storage || {});
+  }
+
+  isProfileSystemReady = true;
+  renderProfileManager();
+}
+
+function createNewProfile() {
+  const name = newProfileName ? newProfileName.value.trim() : "";
+
+  if (!name) {
+    setProfileMessage("새 프로필 이름을 입력해주세요.");
+    statusText.textContent = "새 프로필 이름을 입력해주세요.";
+    return;
+  }
+
+  persistActiveProfileData();
+
+  const store = ensureProfileStore();
+  const duplicated = Object.values(store.profiles).some((profile) => profile.name === name);
+
+  if (duplicated) {
+    setProfileMessage("이미 같은 이름의 프로필이 있습니다.");
+    statusText.textContent = "이미 같은 이름의 프로필이 있습니다.";
+    return;
+  }
+
+  const now = new Date().toISOString();
+  const id = makeProfileId();
+
+  store.profiles[id] = {
+    id,
+    name,
+    createdAt: now,
+    updatedAt: now,
+    storage: {}
+  };
+  store.updatedAt = now;
+  writeProfileStore(store);
+  localStorage.setItem(PROFILE_ACTIVE_KEY, id);
+  applyProfileStorage({});
+
+  if (newProfileName) {
+    newProfileName.value = "";
+  }
+
+  refreshAllViewsAfterDataChange();
+  setProfileMessage(`${name} 프로필을 만들고 전환했습니다.`);
+  statusText.textContent = `${name} 프로필로 전환했습니다.`;
+}
+
+function switchProfile() {
+  if (!profileSelect) return;
+
+  const targetId = profileSelect.value;
+  const store = ensureProfileStore();
+  const target = store.profiles[targetId];
+
+  if (!target) {
+    setProfileMessage("선택한 프로필을 찾을 수 없습니다.");
+    statusText.textContent = "선택한 프로필을 찾을 수 없습니다.";
+    renderProfileManager();
+    return;
+  }
+
+  const currentId = getActiveProfileId();
+
+  if (currentId === targetId) {
+    setProfileMessage(`이미 ${target.name} 프로필을 사용 중입니다.`);
+    statusText.textContent = `이미 ${target.name} 프로필입니다.`;
+    return;
+  }
+
+  persistActiveProfileData();
+  localStorage.setItem(PROFILE_ACTIVE_KEY, targetId);
+  applyProfileStorage(target.storage || {});
+  refreshAllViewsAfterDataChange();
+  renderPartnerInsight(null);
+  setProfileMessage(`${target.name} 프로필로 전환했습니다.`);
+  statusText.textContent = `${target.name} 프로필로 전환했습니다.`;
+}
+
 function getKnownStorageSnapshot() {
+  persistActiveProfileData();
+
   const storage = {};
 
   DATA_BACKUP_KEYS.forEach((item) => {
@@ -1801,14 +2075,17 @@ function setDataManagerMessage(message) {
 }
 
 function renderDataManager() {
-  if (!dataManagerStatus || !dataPartnerState || !dataHistoryState || !dataDexState || !dataAttendanceState || !dataChecklistState) return;
+  if (!dataManagerStatus || !dataProfileState || !dataPartnerState || !dataHistoryState || !dataDexState || !dataAttendanceState || !dataChecklistState) return;
 
+  const activeProfile = getActiveProfile();
   const partner = loadPartner();
   const history = loadFortuneHistory();
   const dex = loadPartnerDex();
   const attendance = loadAttendance();
   const checklistChecked = getChecklistCheckedCount();
   const discoveredCount = partnerTemplates.filter((template) => dex[template.id]).length;
+
+  dataProfileState.textContent = activeProfile ? activeProfile.name : "기본 프로필";
 
   if (partner) {
     const template = getPartnerTemplate(partner.id);
@@ -1831,6 +2108,8 @@ function buildBackupData() {
     app: "today_fortune_code",
     version: DEV_VERSION,
     exportedAt: new Date().toISOString(),
+    activeProfile: getActiveProfile(),
+    profileStore: readProfileStore(),
     summary: {
       partner: dataPartnerState ? dataPartnerState.textContent : "",
       history: dataHistoryState ? dataHistoryState.textContent : "",
@@ -1848,7 +2127,9 @@ function downloadBackupData() {
   const blob = new Blob([json], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
-  const fileName = `fortune-code-backup-${getTodayKey()}.json`;
+  const activeProfile = getActiveProfile();
+  const safeProfileName = activeProfile ? activeProfile.name.replace(/[^가-힣a-zA-Z0-9_-]/g, "_") : "profile";
+  const fileName = `fortune-code-${safeProfileName}-backup-${getTodayKey()}.json`;
 
   link.href = url;
   link.download = fileName;
@@ -1863,6 +2144,10 @@ function downloadBackupData() {
 }
 
 function getBackupStorageFromFile(parsed) {
+  if (parsed && parsed.activeProfile && parsed.activeProfile.storage && typeof parsed.activeProfile.storage === "object" && !Array.isArray(parsed.activeProfile.storage)) {
+    return parsed.activeProfile.storage;
+  }
+
   if (parsed && parsed.storage && typeof parsed.storage === "object" && !Array.isArray(parsed.storage)) {
     return parsed.storage;
   }
@@ -1893,10 +2178,12 @@ function restoreKnownStorage(storage) {
     restoredCount += 1;
   });
 
+  persistActiveProfileData();
   return restoredCount;
 }
 
 function refreshAllViewsAfterDataChange() {
+  renderProfileManager();
   restoreChecklistState();
   renderPartner();
   renderFortuneHistory();
@@ -1951,7 +2238,9 @@ function importBackupFile(file) {
 }
 
 function resetAllStoredData() {
-  const firstOk = confirm("파트너, 출석, 도감, 이전 운세, 점검표 저장 데이터를 모두 삭제할까요?");
+  const activeProfile = getActiveProfile();
+  const profileName = activeProfile ? activeProfile.name : "현재 프로필";
+  const firstOk = confirm(`${profileName}의 파트너, 출석, 도감, 이전 운세, 점검표 저장 데이터를 모두 삭제할까요?`);
   if (!firstOk) return;
 
   const secondOk = confirm("정말 삭제합니다. 백업하지 않았다면 복구할 수 없습니다.");
@@ -1959,11 +2248,29 @@ function resetAllStoredData() {
 
   DATA_BACKUP_KEYS.forEach((item) => localStorage.removeItem(item.key));
   CHECKLIST_LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
+  persistActiveProfileData();
 
   refreshAllViewsAfterDataChange();
   renderPartnerInsight(null);
   setDataManagerMessage("저장 데이터를 모두 초기화했습니다.");
   statusText.textContent = "저장 데이터를 모두 초기화했습니다.";
+}
+
+if (createProfileBtn) {
+  createProfileBtn.addEventListener("click", createNewProfile);
+}
+
+if (switchProfileBtn) {
+  switchProfileBtn.addEventListener("click", switchProfile);
+}
+
+if (newProfileName) {
+  newProfileName.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      createNewProfile();
+    }
+  });
 }
 
 if (form) {
@@ -2103,6 +2410,7 @@ if (canvas && ctx) {
 }
 
 clearOldCachesAndWorkers();
+initProfileSystem();
 initDevChecklist();
 renderPartner();
 renderFortuneHistory();
