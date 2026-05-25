@@ -2251,7 +2251,7 @@ button:disabled {
 
 .attendance-stat-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 10px;
   margin-bottom: 12px;
 }
@@ -2392,7 +2392,7 @@ button:disabled {
 }
 
 
-/* V2-9 프로필 저장 구조 */
+/* V2-10 프로필 저장 구조 */
 .data-manager-card {
   margin-top: 24px;
   padding: 22px;
@@ -2550,7 +2550,7 @@ button:disabled {
 }
 
 
-/* V2-9 프로필 저장 구조 */
+/* V2-10 프로필 저장 구조 */
 .profile-card {
   margin-bottom: 18px;
   padding: 22px;
@@ -2603,7 +2603,8 @@ button:disabled {
 }
 
 .profile-control-box,
-.profile-create-box {
+.profile-create-box,
+.profile-manage-box {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 10px;
@@ -2621,6 +2622,17 @@ button:disabled {
 .profile-name-field span {
   color: rgba(225, 248, 255, 0.7);
   font-size: 0.78rem;
+}
+
+.profile-manage-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.profile-manage-actions .small-button {
+  white-space: nowrap;
 }
 
 .profile-info-grid {
@@ -2664,7 +2676,8 @@ button:disabled {
 @media (max-width: 680px) {
   .profile-card-top,
   .profile-control-box,
-  .profile-create-box {
+  .profile-create-box,
+  .profile-manage-box {
     grid-template-columns: 1fr;
   }
 
@@ -2673,8 +2686,13 @@ button:disabled {
   }
 
   .profile-control-box button,
-  .profile-create-box button {
+  .profile-create-box button,
+  .profile-manage-actions .small-button {
     width: 100%;
+  }
+
+  .profile-manage-actions {
+    justify-content: stretch;
   }
 
   .profile-info-grid {

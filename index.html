@@ -18,7 +18,7 @@
   <title>오늘의 운세코드</title>
 
   <link rel="manifest" href="manifest.json"/>
-  <link rel="stylesheet" href="./style.css?v=20260525-v29"/>
+  <link rel="stylesheet" href="./style.css?v=20260525-v210"/>
 </head>
 
 <body>
@@ -40,13 +40,13 @@
     <div class="profile-card-top">
       <div>
         <span class="small-label">PROFILE STORAGE</span>
-        <h2>프로필 저장 구조</h2>
+        <h2>프로필 저장 구조 / 관리</h2>
       </div>
       <strong id="profileCurrentBadge" class="profile-current-badge">기본 프로필</strong>
     </div>
 
     <p class="profile-desc">
-      아직 진짜 로그인은 아니지만, 로그인처럼 프로필마다 파트너 / 출석 / 도감 / 이전 운세 기록을 따로 저장합니다.
+      아직 진짜 로그인은 아니지만, 로그인처럼 프로필마다 파트너 / 출석 / 도감 / 이전 운세 기록을 따로 저장하고 관리합니다.
     </p>
 
     <div class="profile-control-box">
@@ -65,6 +65,18 @@
       <button id="createProfileBtn" class="small-button" type="button">새 프로필 만들기</button>
     </div>
 
+    <div class="profile-manage-box">
+      <label class="profile-name-field">
+        <span>현재 프로필 이름 변경</span>
+        <input id="renameProfileName" type="text" placeholder="바꿀 이름 입력" maxlength="18" />
+      </label>
+      <div class="profile-manage-actions">
+        <button id="renameProfileBtn" class="small-button" type="button">이름 변경</button>
+        <button id="duplicateProfileBtn" class="small-button" type="button">현재 프로필 복사</button>
+        <button id="deleteProfileBtn" class="small-button danger-button" type="button">현재 프로필 삭제</button>
+      </div>
+    </div>
+
     <div class="profile-info-grid">
       <div>
         <span>프로필 수</span>
@@ -78,10 +90,14 @@
         <span>기존 데이터</span>
         <strong id="profileMigrationState">자동 이전 완료</strong>
       </div>
+      <div>
+        <span>관리 기능</span>
+        <strong>이름 변경 / 복사 / 삭제</strong>
+      </div>
     </div>
 
     <div id="profileMessage" class="profile-message">
-      V2-8에서 쓰던 데이터는 첫 실행 시 기본 프로필로 자동 이전됩니다.
+      V2-8에서 쓰던 데이터는 첫 실행 시 기본 프로필로 자동 이전됩니다. V2-10부터 프로필 이름 변경, 복사, 삭제가 가능합니다.
     </div>
   </section>
 
@@ -479,7 +495,7 @@
         <span class="small-label">DEVELOPMENT CHECKLIST</span>
         <h2>업데이트 점검표</h2>
       </div>
-      <strong id="devVersionBadge" class="version-badge">V2-9</strong>
+      <strong id="devVersionBadge" class="version-badge">V2-10</strong>
     </div>
 
     <p class="dev-check-desc">
@@ -495,52 +511,52 @@
 
     <div class="dev-check-list">
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v29-version-visible" />
-        <span>화면에 현재 버전 V2-9이 보인다.</span>
+        <input type="checkbox" data-check-id="v210-version-visible" />
+        <span>화면에 현재 버전 V2-10이 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v29-profile-card" />
-        <span>프로필 저장 구조 카드가 화면에 보인다.</span>
+        <input type="checkbox" data-check-id="v210-profile-card" />
+        <span>프로필 저장 구조 / 관리 카드가 화면에 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v29-profile-switch" />
-        <span>프로필 선택 목록과 현재 프로필 이름이 보인다.</span>
+        <input type="checkbox" data-check-id="v210-profile-rename" />
+        <span>현재 프로필 이름을 변경할 수 있다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v29-profile-create" />
-        <span>새 프로필을 만들 수 있다.</span>
+        <input type="checkbox" data-check-id="v210-profile-copy" />
+        <span>현재 프로필을 복사하고 복사본으로 전환할 수 있다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v29-profile-separate" />
-        <span>프로필을 전환하면 파트너 / 출석 / 기록이 프로필별로 분리된다.</span>
+        <input type="checkbox" data-check-id="v210-profile-delete" />
+        <span>현재 프로필 삭제가 가능하고 마지막 1개는 삭제되지 않는다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v29-data-current-profile" />
+        <input type="checkbox" data-check-id="v210-profile-separate" />
+        <span>프로필 전환 시 파트너 / 출석 / 기록이 프로필별로 분리된다.</span>
+      </label>
+
+      <label class="dev-check-item">
+        <input type="checkbox" data-check-id="v210-data-current-profile" />
         <span>데이터 관리 센터가 현재 프로필 기준으로 표시된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v29-backup-download" />
-        <span>백업 파일 다운로드 버튼을 누르면 JSON 파일이 저장된다.</span>
+        <input type="checkbox" data-check-id="v210-backup-download" />
+        <span>백업 파일 다운로드와 백업 파일 불러오기가 그대로 작동한다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v29-import-restore" />
-        <span>백업 파일을 불러오면 현재 프로필에 데이터가 복원된다.</span>
+        <input type="checkbox" data-check-id="v210-v29-still-ok" />
+        <span>V2-9의 프로필별 저장 구조가 그대로 유지된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v29-v28-still-ok" />
-        <span>V2-8의 데이터 관리 센터와 기존 기능이 그대로 작동한다.</span>
-      </label>
-
-      <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v29-check-save" />
+        <input type="checkbox" data-check-id="v210-check-save" />
         <span>새로고침해도 개발 점검 체크 상태가 유지된다.</span>
       </label>
     </div>
@@ -550,7 +566,7 @@
     </div>
   </section>
 
-  <div class="version-footer">오늘의 운세코드 V2-9 · 프로필별 저장 구조 버전</div>
+  <div class="version-footer">오늘의 운세코드 V2-10 · 프로필 관리 강화 버전</div>
 
 </main>
 
@@ -561,7 +577,7 @@
   <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
 
-<script src="./app.js?v=20260525-v29"></script>
+<script src="./app.js?v=20260525-v210"></script>
 
 </body>
 </html>

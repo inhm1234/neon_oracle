@@ -89,10 +89,14 @@ const newProfileName = document.getElementById("newProfileName");
 const createProfileBtn = document.getElementById("createProfileBtn");
 const switchProfileBtn = document.getElementById("switchProfileBtn");
 const dataProfileState = document.getElementById("dataProfileState");
+const renameProfileName = document.getElementById("renameProfileName");
+const renameProfileBtn = document.getElementById("renameProfileBtn");
+const duplicateProfileBtn = document.getElementById("duplicateProfileBtn");
+const deleteProfileBtn = document.getElementById("deleteProfileBtn");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V2-9";
+const DEV_VERSION = "V2-10";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -1951,6 +1955,10 @@ function renderProfileManager() {
   profileCurrentBadge.textContent = active.name;
   profileCountText.textContent = `${profiles.length}개`;
   profileMigrationState.textContent = store.migratedFrom ? `${store.migratedFrom} 데이터 이전 완료` : "프로필 저장 중";
+
+  if (renameProfileName) {
+    renameProfileName.value = active.name;
+  }
 }
 
 function setProfileMessage(message) {
@@ -2015,6 +2023,145 @@ function createNewProfile() {
   refreshAllViewsAfterDataChange();
   setProfileMessage(`${name} 프로필을 만들고 전환했습니다.`);
   statusText.textContent = `${name} 프로필로 전환했습니다.`;
+}
+
+function makeUniqueProfileName(store, baseName) {
+  const names = Object.values(store.profiles).map((profile) => profile.name);
+  let name = baseName;
+  let count = 2;
+
+  while (names.includes(name)) {
+    name = `${baseName} ${count}`;
+    count += 1;
+  }
+
+  return name;
+}
+
+function isDuplicatedProfileName(store, name, ignoreId = "") {
+  return Object.values(store.profiles).some((profile) => profile.id !== ignoreId && profile.name === name);
+}
+
+function renameCurrentProfile() {
+  const name = renameProfileName ? renameProfileName.value.trim() : "";
+
+  if (!name) {
+    setProfileMessage("바꿀 프로필 이름을 입력해주세요.");
+    statusText.textContent = "바꿀 프로필 이름을 입력해주세요.";
+    return;
+  }
+
+  persistActiveProfileData();
+
+  const store = ensureProfileStore();
+  const activeId = getActiveProfileId();
+  const active = store.profiles[activeId];
+
+  if (!active) {
+    setProfileMessage("현재 프로필을 찾을 수 없습니다.");
+    statusText.textContent = "현재 프로필을 찾을 수 없습니다.";
+    renderProfileManager();
+    return;
+  }
+
+  if (active.name === name) {
+    setProfileMessage("이미 같은 이름을 사용 중입니다.");
+    statusText.textContent = "이미 같은 이름을 사용 중입니다.";
+    return;
+  }
+
+  if (isDuplicatedProfileName(store, name, activeId)) {
+    setProfileMessage("이미 같은 이름의 프로필이 있습니다.");
+    statusText.textContent = "이미 같은 이름의 프로필이 있습니다.";
+    return;
+  }
+
+  active.name = name;
+  active.updatedAt = new Date().toISOString();
+  store.updatedAt = active.updatedAt;
+  writeProfileStore(store);
+
+  renderProfileManager();
+  renderDataManager();
+  setProfileMessage(`${name}으로 프로필 이름을 변경했습니다.`);
+  statusText.textContent = `${name}으로 프로필 이름을 변경했습니다.`;
+}
+
+function duplicateCurrentProfile() {
+  persistActiveProfileData();
+
+  const store = ensureProfileStore();
+  const activeId = getActiveProfileId();
+  const active = store.profiles[activeId];
+
+  if (!active) {
+    setProfileMessage("복사할 현재 프로필을 찾을 수 없습니다.");
+    statusText.textContent = "복사할 현재 프로필을 찾을 수 없습니다.";
+    renderProfileManager();
+    return;
+  }
+
+  const now = new Date().toISOString();
+  const id = makeProfileId();
+  const name = makeUniqueProfileName(store, `${active.name} 복사`);
+  const clonedStorage = JSON.parse(JSON.stringify(active.storage || {}));
+
+  store.profiles[id] = {
+    id,
+    name,
+    createdAt: now,
+    updatedAt: now,
+    copiedFrom: active.id,
+    storage: clonedStorage
+  };
+
+  store.updatedAt = now;
+  writeProfileStore(store);
+  localStorage.setItem(PROFILE_ACTIVE_KEY, id);
+  applyProfileStorage(clonedStorage);
+
+  refreshAllViewsAfterDataChange();
+  renderPartnerInsight(null);
+  setProfileMessage(`${name} 프로필을 복사하고 전환했습니다.`);
+  statusText.textContent = `${name} 프로필을 복사하고 전환했습니다.`;
+}
+
+function deleteCurrentProfile() {
+  persistActiveProfileData();
+
+  const store = ensureProfileStore();
+  const activeId = getActiveProfileId();
+  const active = store.profiles[activeId];
+  const profiles = Object.values(store.profiles);
+
+  if (!active) {
+    setProfileMessage("삭제할 현재 프로필을 찾을 수 없습니다.");
+    statusText.textContent = "삭제할 현재 프로필을 찾을 수 없습니다.";
+    renderProfileManager();
+    return;
+  }
+
+  if (profiles.length <= 1) {
+    setProfileMessage("프로필은 최소 1개가 필요해서 마지막 프로필은 삭제할 수 없습니다.");
+    statusText.textContent = "마지막 프로필은 삭제할 수 없습니다.";
+    return;
+  }
+
+  const ok = confirm(`${active.name} 프로필을 삭제할까요? 이 프로필의 파트너, 출석, 기록도 함께 삭제됩니다.`);
+  if (!ok) return;
+
+  delete store.profiles[activeId];
+
+  const nextProfile = Object.values(store.profiles)[0];
+  store.updatedAt = new Date().toISOString();
+  writeProfileStore(store);
+  localStorage.setItem(PROFILE_ACTIVE_KEY, nextProfile.id);
+  applyProfileStorage(nextProfile.storage || {});
+
+  refreshAllViewsAfterDataChange();
+  renderPartnerInsight(null);
+  setProfileMessage(`${active.name} 프로필을 삭제하고 ${nextProfile.name} 프로필로 전환했습니다.`);
+  statusText.textContent = `${active.name} 프로필을 삭제했습니다.`;
 }
 
 function switchProfile() {
@@ -2271,6 +2418,27 @@ if (newProfileName) {
       createNewProfile();
     }
   });
+}
+
+if (renameProfileBtn) {
+  renameProfileBtn.addEventListener("click", renameCurrentProfile);
+}
+
+if (renameProfileName) {
+  renameProfileName.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      renameCurrentProfile();
+    }
+  });
+}
+
+if (duplicateProfileBtn) {
+  duplicateProfileBtn.addEventListener("click", duplicateCurrentProfile);
+}
+
+if (deleteProfileBtn) {
+  deleteProfileBtn.addEventListener("click", deleteCurrentProfile);
 }
 
 if (form) {
