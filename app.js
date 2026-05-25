@@ -69,10 +69,21 @@ const devChecklistFill = document.getElementById("devChecklistFill");
 const resetChecklistBtn = document.getElementById("resetChecklistBtn");
 const checklistJumpBtn = document.getElementById("checklistJumpBtn");
 const devCheckCard = document.getElementById("devCheckCard");
+const dataManagerStatus = document.getElementById("dataManagerStatus");
+const dataPartnerState = document.getElementById("dataPartnerState");
+const dataHistoryState = document.getElementById("dataHistoryState");
+const dataDexState = document.getElementById("dataDexState");
+const dataAttendanceState = document.getElementById("dataAttendanceState");
+const dataChecklistState = document.getElementById("dataChecklistState");
+const backupDataBtn = document.getElementById("backupDataBtn");
+const importDataBtn = document.getElementById("importDataBtn");
+const resetAllDataBtn = document.getElementById("resetAllDataBtn");
+const dataImportFile = document.getElementById("dataImportFile");
+const dataManagerMessage = document.getElementById("dataManagerMessage");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V2-7";
+const DEV_VERSION = "V2-8";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -80,6 +91,13 @@ const HISTORY_LIMIT = 20;
 const DEX_KEY = "fortune_partner_dex_guest_v1";
 const ATTENDANCE_KEY = "fortune_attendance_guest_v1";
 const ATTENDANCE_LOG_LIMIT = 10;
+const DATA_BACKUP_KEYS = [
+  { key: PARTNER_KEY, label: "파트너" },
+  { key: HISTORY_KEY, label: "이전 운세" },
+  { key: DEX_KEY, label: "파트너 도감" },
+  { key: ATTENDANCE_KEY, label: "출석" },
+  { key: CHECKLIST_KEY, label: "개발 점검표" }
+];
 
 const relationMeta = {
   support: {
@@ -1027,6 +1045,7 @@ async function createPartnerById(id, isRandom = false) {
   rememberPartnerDiscovery(template.id, true);
   claimDailyVisitExp(true);
   renderPartner();
+  renderDataManager();
 
   showLevelToast("PARTNER CONNECT", `${template.name}가 파트너로 연결되었습니다.`);
   statusText.textContent = `${template.name}가 파트너로 연결되었습니다.`;
@@ -1109,6 +1128,7 @@ function claimDailyVisitExp(isFirstMeet = false) {
     showLevelToast("ATTENDANCE REWARD", `${nextStreak}일차 출석 보상 EXP +${reward.totalExp}`);
   }
 
+  renderDataManager();
   statusText.textContent = `${nextStreak}일차 출석 보상을 받았습니다. EXP +${reward.totalExp}`;
 }
 
@@ -1151,6 +1171,7 @@ function addPartnerExp(amount, reaction) {
 
   savePartner(partner);
   renderPartner();
+  renderDataManager();
 
   const effectClass = newLevel > oldLevel ? "level-up" : "happy";
   partnerOrb.classList.add(effectClass);
@@ -1165,6 +1186,7 @@ function resetPartner() {
   renderPartner();
   renderPartnerInsight(null);
   renderAttendance();
+  renderDataManager();
   statusText.textContent = "파트너 기록이 초기화되었습니다. 새 파트너를 선택할 수 있습니다.";
 }
 
@@ -1176,6 +1198,7 @@ function changePartner() {
   renderPartner();
   renderPartnerInsight(null);
   renderAttendance();
+  renderDataManager();
   statusText.textContent = "새 파트너를 선택하거나 랜덤으로 만나보세요.";
 }
 
@@ -1474,6 +1497,7 @@ function saveFortuneHistory(profile, result, partnerReaction) {
 
   saveFortuneHistoryList(nextHistory);
   renderFortuneHistory();
+  renderDataManager();
 }
 
 function renderHistoryLucky(items) {
@@ -1546,6 +1570,7 @@ function deleteHistoryRecord(id) {
   const history = loadFortuneHistory().filter((item) => item.id !== id);
   saveFortuneHistoryList(history);
   renderFortuneHistory();
+  renderDataManager();
   statusText.textContent = "선택한 운세 기록을 삭제했습니다.";
 }
 
@@ -1555,6 +1580,7 @@ function clearFortuneHistory() {
 
   localStorage.removeItem(HISTORY_KEY);
   renderFortuneHistory();
+  renderDataManager();
   statusText.textContent = "이전 운세 기록을 모두 삭제했습니다.";
 }
 
@@ -1702,6 +1728,7 @@ function updateChecklistProgress() {
 
   devChecklistProgress.textContent = `${checked} / ${total} 확인 완료 · 자동 저장됨`;
   devChecklistFill.style.width = `${percent}%`;
+  renderDataManager();
 }
 
 function initDevChecklist() {
@@ -1745,7 +1772,198 @@ function resetDevChecklist() {
     item.checked = false;
   });
   updateChecklistProgress();
+  renderDataManager();
   statusText.textContent = "개발 점검표가 초기화되었습니다.";
+}
+
+function getKnownStorageSnapshot() {
+  const storage = {};
+
+  DATA_BACKUP_KEYS.forEach((item) => {
+    const value = localStorage.getItem(item.key);
+    if (value !== null) {
+      storage[item.key] = value;
+    }
+  });
+
+  return storage;
+}
+
+function getChecklistCheckedCount() {
+  const state = loadChecklistState();
+  return Object.values(state).filter(Boolean).length;
+}
+
+function setDataManagerMessage(message) {
+  if (dataManagerMessage) {
+    dataManagerMessage.textContent = message;
+  }
+}
+
+function renderDataManager() {
+  if (!dataManagerStatus || !dataPartnerState || !dataHistoryState || !dataDexState || !dataAttendanceState || !dataChecklistState) return;
+
+  const partner = loadPartner();
+  const history = loadFortuneHistory();
+  const dex = loadPartnerDex();
+  const attendance = loadAttendance();
+  const checklistChecked = getChecklistCheckedCount();
+  const discoveredCount = partnerTemplates.filter((template) => dex[template.id]).length;
+
+  if (partner) {
+    const template = getPartnerTemplate(partner.id);
+    dataPartnerState.textContent = `${template.name} Lv.${getLevel(partner.exp || 0)}`;
+  } else {
+    dataPartnerState.textContent = "없음";
+  }
+
+  dataHistoryState.textContent = `${history.length}개`;
+  dataDexState.textContent = `${discoveredCount} / ${partnerTemplates.length}`;
+  dataAttendanceState.textContent = `${attendance.totalClaims || 0}회 · ${attendance.currentStreak || 0}일 연속`;
+  dataChecklistState.textContent = `${checklistChecked}개 체크`;
+
+  const hasData = Boolean(partner) || history.length > 0 || discoveredCount > 0 || (attendance.totalClaims || 0) > 0 || checklistChecked > 0;
+  dataManagerStatus.textContent = hasData ? "저장 데이터 있음" : "저장 데이터 없음";
+}
+
+function buildBackupData() {
+  return {
+    app: "today_fortune_code",
+    version: DEV_VERSION,
+    exportedAt: new Date().toISOString(),
+    summary: {
+      partner: dataPartnerState ? dataPartnerState.textContent : "",
+      history: dataHistoryState ? dataHistoryState.textContent : "",
+      dex: dataDexState ? dataDexState.textContent : "",
+      attendance: dataAttendanceState ? dataAttendanceState.textContent : "",
+      checklist: dataChecklistState ? dataChecklistState.textContent : ""
+    },
+    storage: getKnownStorageSnapshot()
+  };
+}
+
+function downloadBackupData() {
+  const backup = buildBackupData();
+  const json = JSON.stringify(backup, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const fileName = `fortune-code-backup-${getTodayKey()}.json`;
+
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+
+  setDataManagerMessage(`${fileName} 백업 파일을 만들었습니다.`);
+  statusText.textContent = "저장 데이터를 백업 파일로 다운로드했습니다.";
+  renderDataManager();
+}
+
+function getBackupStorageFromFile(parsed) {
+  if (parsed && parsed.storage && typeof parsed.storage === "object" && !Array.isArray(parsed.storage)) {
+    return parsed.storage;
+  }
+
+  if (parsed && parsed.data && typeof parsed.data === "object" && !Array.isArray(parsed.data)) {
+    return parsed.data;
+  }
+
+  return null;
+}
+
+function restoreKnownStorage(storage) {
+  let restoredCount = 0;
+
+  DATA_BACKUP_KEYS.forEach((item) => {
+    if (!Object.prototype.hasOwnProperty.call(storage, item.key)) return;
+
+    const value = storage[item.key];
+
+    if (value === null || value === undefined || value === "") {
+      localStorage.removeItem(item.key);
+    } else if (typeof value === "string") {
+      localStorage.setItem(item.key, value);
+    } else {
+      localStorage.setItem(item.key, JSON.stringify(value));
+    }
+
+    restoredCount += 1;
+  });
+
+  return restoredCount;
+}
+
+function refreshAllViewsAfterDataChange() {
+  restoreChecklistState();
+  renderPartner();
+  renderFortuneHistory();
+  renderAttendance();
+  renderPartnerDex();
+  renderDataManager();
+}
+
+function importBackupFile(file) {
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result);
+      const storage = getBackupStorageFromFile(parsed);
+
+      if (!storage) {
+        setDataManagerMessage("백업 파일 형식이 맞지 않습니다.");
+        statusText.textContent = "백업 파일 형식이 맞지 않습니다.";
+        return;
+      }
+
+      const restoredCount = restoreKnownStorage(storage);
+
+      if (!restoredCount) {
+        setDataManagerMessage("복원할 수 있는 저장 데이터가 없습니다.");
+        statusText.textContent = "복원할 수 있는 저장 데이터가 없습니다.";
+        return;
+      }
+
+      refreshAllViewsAfterDataChange();
+      setDataManagerMessage(`${file.name} 파일에서 ${restoredCount}개 저장 항목을 복원했습니다.`);
+      statusText.textContent = "백업 파일을 불러와 저장 데이터를 복원했습니다.";
+    } catch (error) {
+      console.error(error);
+      setDataManagerMessage("백업 파일을 읽는 중 오류가 생겼습니다.");
+      statusText.textContent = "백업 파일을 읽는 중 오류가 생겼습니다.";
+    } finally {
+      dataImportFile.value = "";
+    }
+  };
+
+  reader.onerror = () => {
+    setDataManagerMessage("파일을 읽지 못했습니다. 다시 선택해주세요.");
+    statusText.textContent = "파일을 읽지 못했습니다.";
+    dataImportFile.value = "";
+  };
+
+  reader.readAsText(file, "utf-8");
+}
+
+function resetAllStoredData() {
+  const firstOk = confirm("파트너, 출석, 도감, 이전 운세, 점검표 저장 데이터를 모두 삭제할까요?");
+  if (!firstOk) return;
+
+  const secondOk = confirm("정말 삭제합니다. 백업하지 않았다면 복구할 수 없습니다.");
+  if (!secondOk) return;
+
+  DATA_BACKUP_KEYS.forEach((item) => localStorage.removeItem(item.key));
+  CHECKLIST_LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
+
+  refreshAllViewsAfterDataChange();
+  renderPartnerInsight(null);
+  setDataManagerMessage("저장 데이터를 모두 초기화했습니다.");
+  statusText.textContent = "저장 데이터를 모두 초기화했습니다.";
 }
 
 if (form) {
@@ -1783,6 +2001,24 @@ if (resetChecklistBtn) {
 
 if (clearHistoryBtn) {
   clearHistoryBtn.addEventListener("click", clearFortuneHistory);
+}
+
+if (backupDataBtn) {
+  backupDataBtn.addEventListener("click", downloadBackupData);
+}
+
+if (importDataBtn && dataImportFile) {
+  importDataBtn.addEventListener("click", () => dataImportFile.click());
+}
+
+if (dataImportFile) {
+  dataImportFile.addEventListener("change", (event) => {
+    importBackupFile(event.target.files[0]);
+  });
+}
+
+if (resetAllDataBtn) {
+  resetAllDataBtn.addEventListener("click", resetAllStoredData);
 }
 
 if (fortuneHistoryList) {
@@ -1871,3 +2107,4 @@ initDevChecklist();
 renderPartner();
 renderFortuneHistory();
 renderAttendance();
+renderDataManager();

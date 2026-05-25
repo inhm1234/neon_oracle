@@ -18,7 +18,7 @@
   <title>오늘의 운세코드</title>
 
   <link rel="manifest" href="manifest.json"/>
-  <link rel="stylesheet" href="./style.css?v=20260525-v27"/>
+  <link rel="stylesheet" href="./style.css?v=20260525-v28"/>
 </head>
 
 <body>
@@ -365,13 +365,68 @@
   </section>
 
 
+  <section id="dataManagerCard" class="data-manager-card" aria-label="데이터 관리 센터">
+    <div class="data-manager-top">
+      <div>
+        <span class="small-label">DATA MANAGER</span>
+        <h2>데이터 관리 센터</h2>
+      </div>
+      <strong id="dataManagerStatus" class="data-status-badge">확인 중</strong>
+    </div>
+
+    <p class="data-manager-desc">
+      이 브라우저에 저장된 파트너, 출석, 도감, 이전 운세 기록을 백업 파일로 저장하거나 다시 불러올 수 있습니다.
+    </p>
+
+    <div class="data-summary-grid">
+      <div>
+        <span>파트너</span>
+        <strong id="dataPartnerState">확인 중</strong>
+      </div>
+      <div>
+        <span>운세 기록</span>
+        <strong id="dataHistoryState">확인 중</strong>
+      </div>
+      <div>
+        <span>도감</span>
+        <strong id="dataDexState">확인 중</strong>
+      </div>
+      <div>
+        <span>출석</span>
+        <strong id="dataAttendanceState">확인 중</strong>
+      </div>
+      <div>
+        <span>점검표</span>
+        <strong id="dataChecklistState">확인 중</strong>
+      </div>
+    </div>
+
+    <div class="data-action-box">
+      <div>
+        <strong>백업 / 복원</strong>
+        <p>GitHub Pages를 다시 올리기 전이나 브라우저를 바꾸기 전에 백업을 받아두면 안전합니다.</p>
+      </div>
+      <div class="data-action-buttons">
+        <button id="backupDataBtn" class="small-button" type="button">백업 파일 다운로드</button>
+        <button id="importDataBtn" class="small-button" type="button">백업 파일 불러오기</button>
+        <button id="resetAllDataBtn" class="small-button danger-button" type="button">저장 데이터 전체 초기화</button>
+      </div>
+      <input id="dataImportFile" class="hidden" type="file" accept="application/json,.json" />
+    </div>
+
+    <div id="dataManagerMessage" class="data-manager-message">
+      아직 실행한 작업이 없습니다.
+    </div>
+  </section>
+
+
   <section id="devCheckCard" class="dev-check-card" aria-label="개발 점검 체크리스트">
     <div class="dev-check-top">
       <div>
         <span class="small-label">DEVELOPMENT CHECKLIST</span>
         <h2>업데이트 점검표</h2>
       </div>
-      <strong id="devVersionBadge" class="version-badge">V2-7</strong>
+      <strong id="devVersionBadge" class="version-badge">V2-8</strong>
     </div>
 
     <p class="dev-check-desc">
@@ -387,52 +442,52 @@
 
     <div class="dev-check-list">
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v27-version-visible" />
-        <span>화면에 현재 버전 V2-7이 보인다.</span>
+        <input type="checkbox" data-check-id="v28-version-visible" />
+        <span>화면에 현재 버전 V2-8이 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v27-attendance-card" />
-        <span>출석 보상 카드가 화면에 보인다.</span>
+        <input type="checkbox" data-check-id="v28-data-card" />
+        <span>데이터 관리 센터 카드가 화면에 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v27-attendance-stats" />
-        <span>현재 연속 / 최고 연속 / 누적 출석 숫자가 보인다.</span>
+        <input type="checkbox" data-check-id="v28-data-summary" />
+        <span>파트너 / 운세 기록 / 도감 / 출석 / 점검표 상태가 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v27-claim-button" />
-        <span>오늘 출석 보상 받기 버튼 또는 완료 상태가 보인다.</span>
+        <input type="checkbox" data-check-id="v28-backup-download" />
+        <span>백업 파일 다운로드 버튼을 누르면 JSON 파일이 저장된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v27-claim-once" />
-        <span>오늘 보상을 받은 뒤에는 중복으로 다시 받을 수 없다.</span>
+        <input type="checkbox" data-check-id="v28-import-file" />
+        <span>백업 파일 불러오기 버튼을 누르면 파일 선택창이 열린다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v27-attendance-log" />
-        <span>출석 보상을 받으면 최근 보상 기록에 남는다.</span>
+        <input type="checkbox" data-check-id="v28-import-restore" />
+        <span>백업 파일을 불러오면 파트너 / 출석 / 기록 상태가 복원된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v27-emotion-still-ok" />
-        <span>V2-6의 파트너 감정 반응 기능이 그대로 작동한다.</span>
+        <input type="checkbox" data-check-id="v28-reset-all" />
+        <span>저장 데이터 전체 초기화 버튼이 확인 후 작동한다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v27-dex-still-ok" />
-        <span>V2-5의 파트너 도감 / 프로필 화면이 그대로 작동한다.</span>
+        <input type="checkbox" data-check-id="v28-attendance-still-ok" />
+        <span>V2-7의 출석 보상 기능이 그대로 작동한다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v27-history-still-ok" />
-        <span>V2-4의 이전 운세 다시보기 기능이 그대로 작동한다.</span>
+        <input type="checkbox" data-check-id="v28-dex-history-still-ok" />
+        <span>파트너 도감과 이전 운세 다시보기가 그대로 작동한다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v27-check-save" />
+        <input type="checkbox" data-check-id="v28-check-save" />
         <span>새로고침해도 개발 점검 체크 상태가 유지된다.</span>
       </label>
     </div>
@@ -442,7 +497,7 @@
     </div>
   </section>
 
-  <div class="version-footer">오늘의 운세코드 V2-7 · 출석 보상 강화 버전</div>
+  <div class="version-footer">오늘의 운세코드 V2-8 · 데이터 백업/복원 버전</div>
 
 </main>
 
@@ -453,7 +508,7 @@
   <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
 
-<script src="./app.js?v=20260525-v27"></script>
+<script src="./app.js?v=20260525-v28"></script>
 
 </body>
 </html>
