@@ -93,10 +93,24 @@ const renameProfileName = document.getElementById("renameProfileName");
 const renameProfileBtn = document.getElementById("renameProfileBtn");
 const duplicateProfileBtn = document.getElementById("duplicateProfileBtn");
 const deleteProfileBtn = document.getElementById("deleteProfileBtn");
+const loginReadyBadge = document.getElementById("loginReadyBadge");
+const loginActiveProfileName = document.getElementById("loginActiveProfileName");
+const loginSchemaVersionText = document.getElementById("loginSchemaVersionText");
+const loginDataBundleState = document.getElementById("loginDataBundleState");
+const loginStorageModeText = document.getElementById("loginStorageModeText");
+const loginPartnerKeyState = document.getElementById("loginPartnerKeyState");
+const loginHistoryKeyState = document.getElementById("loginHistoryKeyState");
+const loginDexKeyState = document.getElementById("loginDexKeyState");
+const loginAttendanceKeyState = document.getElementById("loginAttendanceKeyState");
+const loginChecklistKeyState = document.getElementById("loginChecklistKeyState");
+const loginSchemaPreview = document.getElementById("loginSchemaPreview");
+const refreshLoginSchemaBtn = document.getElementById("refreshLoginSchemaBtn");
+const copyLoginSchemaBtn = document.getElementById("copyLoginSchemaBtn");
+const loginInspectorMessage = document.getElementById("loginInspectorMessage");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V2-10";
+const DEV_VERSION = "V2-11";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -115,6 +129,7 @@ const PROFILE_STORE_KEY = "fortune_profile_store_v1";
 const PROFILE_ACTIVE_KEY = "fortune_active_profile_v1";
 const PROFILE_DEFAULT_ID = "default";
 const PROFILE_DATA_KEYS = DATA_BACKUP_KEYS.map((item) => item.key);
+const LOGIN_SCHEMA_VERSION = "profile_bundle_v1";
 let isProfileSystemReady = false;
 
 const relationMeta = {
@@ -2215,6 +2230,172 @@ function getChecklistCheckedCount() {
   return Object.values(state).filter(Boolean).length;
 }
 
+function getStorageSizeText(value) {
+  if (value === null || value === undefined) return "없음";
+  const bytes = new Blob([String(value)]).size;
+
+  if (bytes >= 1024) {
+    return `${(bytes / 1024).toFixed(1)}KB`;
+  }
+
+  return `${bytes}B`;
+}
+
+function getStorageKeyState(key) {
+  const value = localStorage.getItem(key);
+  return {
+    hasData: value !== null,
+    size: getStorageSizeText(value)
+  };
+}
+
+function getCurrentDataSummary() {
+  const partner = loadPartner();
+  const history = loadFortuneHistory();
+  const dex = loadPartnerDex();
+  const attendance = loadAttendance();
+  const checklistChecked = getChecklistCheckedCount();
+  const discoveredCount = partnerTemplates.filter((template) => dex[template.id]).length;
+  const partnerName = partner ? getPartnerTemplate(partner.id).name : "없음";
+
+  return {
+    partner: partner ? `${partnerName} Lv.${getLevel(partner.exp || 0)}` : "없음",
+    historyCount: history.length,
+    dexCount: `${discoveredCount} / ${partnerTemplates.length}`,
+    attendance: `${attendance.totalClaims || 0}회 · ${attendance.currentStreak || 0}일 연속`,
+    checklistChecked
+  };
+}
+
+function buildLoginReadyDataBundle() {
+  const storage = getKnownStorageSnapshot();
+  const activeProfile = getActiveProfile();
+  const profileStore = readProfileStore();
+  const summary = getCurrentDataSummary();
+
+  return {
+    app: "today_fortune_code",
+    version: DEV_VERSION,
+    schemaVersion: LOGIN_SCHEMA_VERSION,
+    exportedAt: new Date().toISOString(),
+    storageMode: "localStorage_profile_bundle",
+    futureLoginShape: {
+      userId: "future_login_user_id",
+      activeProfileId: activeProfile ? activeProfile.id : PROFILE_DEFAULT_ID,
+      profiles: "profileStore.profiles",
+      currentProfileStorage: "profiles[activeProfileId].storage"
+    },
+    activeProfile,
+    profileCount: Object.keys(profileStore.profiles || {}).length,
+    dataKeys: DATA_BACKUP_KEYS.map((item) => ({
+      key: item.key,
+      label: item.label,
+      hasData: Object.prototype.hasOwnProperty.call(storage, item.key),
+      size: getStorageSizeText(storage[item.key])
+    })),
+    summary
+  };
+}
+
+function buildLoginSchemaPreview() {
+  const bundle = buildLoginReadyDataBundle();
+  const activeProfile = bundle.activeProfile || { id: PROFILE_DEFAULT_ID, name: "기본 프로필" };
+
+  return {
+    app: bundle.app,
+    version: bundle.version,
+    schemaVersion: bundle.schemaVersion,
+    loginStorageExample: {
+      userId: "로그인_사용자_ID",
+      activeProfileId: activeProfile.id,
+      profiles: {
+        [activeProfile.id]: {
+          id: activeProfile.id,
+          name: activeProfile.name,
+          storage: {
+            [PARTNER_KEY]: "파트너 데이터",
+            [HISTORY_KEY]: "이전 운세 기록",
+            [DEX_KEY]: "파트너 도감 데이터",
+            [ATTENDANCE_KEY]: "출석 데이터",
+            [CHECKLIST_KEY]: "개발 점검표 데이터"
+          }
+        }
+      }
+    },
+    currentProfileSummary: bundle.summary,
+    dataKeys: bundle.dataKeys
+  };
+}
+
+function setLoginInspectorMessage(message) {
+  if (loginInspectorMessage) {
+    loginInspectorMessage.textContent = message;
+  }
+}
+
+function renderLoginStorageInspector() {
+  if (!loginReadyBadge || !loginActiveProfileName || !loginSchemaVersionText || !loginDataBundleState || !loginStorageModeText || !loginSchemaPreview) return;
+
+  const activeProfile = getActiveProfile();
+  const bundle = buildLoginReadyDataBundle();
+  const filledCount = bundle.dataKeys.filter((item) => item.hasData).length;
+  const states = {
+    [PARTNER_KEY]: loginPartnerKeyState,
+    [HISTORY_KEY]: loginHistoryKeyState,
+    [DEX_KEY]: loginDexKeyState,
+    [ATTENDANCE_KEY]: loginAttendanceKeyState,
+    [CHECKLIST_KEY]: loginChecklistKeyState
+  };
+
+  loginReadyBadge.textContent = `${filledCount} / ${DATA_BACKUP_KEYS.length} 항목 준비`;
+  loginActiveProfileName.textContent = activeProfile ? activeProfile.name : "기본 프로필";
+  loginSchemaVersionText.textContent = LOGIN_SCHEMA_VERSION;
+  loginDataBundleState.textContent = filledCount ? `${filledCount}개 저장 항목 있음` : "아직 저장 항목 없음";
+  loginStorageModeText.textContent = "localStorage → 로그인 계정 저장 예정";
+
+  DATA_BACKUP_KEYS.forEach((item) => {
+    const state = getStorageKeyState(item.key);
+    const target = states[item.key];
+    if (target) {
+      target.textContent = state.hasData ? `있음 · ${state.size}` : "없음";
+    }
+  });
+
+  loginSchemaPreview.textContent = JSON.stringify(buildLoginSchemaPreview(), null, 2);
+}
+
+function copyLoginSchemaPreview() {
+  if (!loginSchemaPreview) return;
+
+  const text = loginSchemaPreview.textContent || "";
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      setLoginInspectorMessage("로그인 저장용 데이터 미리보기를 복사했습니다.");
+      statusText.textContent = "로그인 저장용 데이터 미리보기를 복사했습니다.";
+    }).catch(() => {
+      fallbackCopyLoginSchema(text);
+    });
+    return;
+  }
+
+  fallbackCopyLoginSchema(text);
+}
+
+function fallbackCopyLoginSchema(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "readonly");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  textarea.remove();
+  setLoginInspectorMessage("로그인 저장용 데이터 미리보기를 복사했습니다.");
+  statusText.textContent = "로그인 저장용 데이터 미리보기를 복사했습니다.";
+}
+
 function setDataManagerMessage(message) {
   if (dataManagerMessage) {
     dataManagerMessage.textContent = message;
@@ -2254,7 +2435,9 @@ function buildBackupData() {
   return {
     app: "today_fortune_code",
     version: DEV_VERSION,
+    schemaVersion: LOGIN_SCHEMA_VERSION,
     exportedAt: new Date().toISOString(),
+    loginReadyData: buildLoginReadyDataBundle(),
     activeProfile: getActiveProfile(),
     profileStore: readProfileStore(),
     summary: {
@@ -2288,6 +2471,7 @@ function downloadBackupData() {
   setDataManagerMessage(`${fileName} 백업 파일을 만들었습니다.`);
   statusText.textContent = "저장 데이터를 백업 파일로 다운로드했습니다.";
   renderDataManager();
+  renderLoginStorageInspector();
 }
 
 function getBackupStorageFromFile(parsed) {
@@ -2337,6 +2521,7 @@ function refreshAllViewsAfterDataChange() {
   renderAttendance();
   renderPartnerDex();
   renderDataManager();
+  renderLoginStorageInspector();
 }
 
 function importBackupFile(file) {
@@ -2496,6 +2681,18 @@ if (resetAllDataBtn) {
   resetAllDataBtn.addEventListener("click", resetAllStoredData);
 }
 
+if (refreshLoginSchemaBtn) {
+  refreshLoginSchemaBtn.addEventListener("click", () => {
+    renderLoginStorageInspector();
+    setLoginInspectorMessage("로그인 저장 구조를 새로고침했습니다.");
+    statusText.textContent = "로그인 저장 구조를 새로고침했습니다.";
+  });
+}
+
+if (copyLoginSchemaBtn) {
+  copyLoginSchemaBtn.addEventListener("click", copyLoginSchemaPreview);
+}
+
 if (fortuneHistoryList) {
   fortuneHistoryList.addEventListener("click", (event) => {
     const deleteButton = event.target.closest("[data-history-delete]");
@@ -2584,3 +2781,4 @@ renderPartner();
 renderFortuneHistory();
 renderAttendance();
 renderDataManager();
+renderLoginStorageInspector();

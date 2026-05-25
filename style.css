@@ -126,6 +126,7 @@ body.scanning .title::after {
 .partner-card,
 .partner-dex-card,
 .data-manager-card,
+.login-check-card,
 .input-card,
 .result-card {
   padding: 22px;
@@ -1308,6 +1309,7 @@ button:disabled {
   .partner-card,
   .partner-dex-card,
   .data-manager-card,
+  .login-check-card,
   .input-card,
   .result-card {
     padding: 18px 14px;
@@ -2696,6 +2698,191 @@ button:disabled {
   }
 
   .profile-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* V2-11 로그인 저장 구조 점검 */
+.login-check-card {
+  margin-top: 24px;
+  padding: 22px;
+  border: 1px solid rgba(184, 147, 255, 0.3);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top left, rgba(184, 147, 255, 0.13), transparent 56%),
+    linear-gradient(180deg, rgba(142, 245, 255, 0.05), rgba(0, 0, 0, 0.2));
+  box-shadow:
+    0 0 18px rgba(184, 147, 255, 0.09),
+    inset 0 0 18px rgba(184, 147, 255, 0.04);
+  text-align: left;
+}
+
+.login-check-top,
+.login-schema-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.login-check-top h2 {
+  color: #dfdeff;
+  font-size: 1.1rem;
+  text-shadow: 0 0 10px rgba(184, 147, 255, 0.26);
+}
+
+.login-ready-badge {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border: 1px solid rgba(184, 147, 255, 0.38);
+  border-radius: 999px;
+  color: #dfdeff;
+  background: rgba(184, 147, 255, 0.09);
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  box-shadow: 0 0 12px rgba(184, 147, 255, 0.14);
+}
+
+.login-check-desc {
+  margin-bottom: 14px;
+  color: rgba(239, 252, 255, 0.66);
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.login-summary-grid,
+.login-key-grid,
+.login-flow-box {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 13px;
+}
+
+.login-summary-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.login-key-grid {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.login-flow-box {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.login-summary-grid div,
+.login-key-grid div,
+.login-flow-box article {
+  padding: 12px 9px;
+  border: 1px solid rgba(142, 245, 255, 0.14);
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.18);
+  text-align: center;
+}
+
+.login-flow-box article {
+  text-align: left;
+}
+
+.login-summary-grid span,
+.login-key-grid span,
+.login-flow-box span,
+.login-schema-top span {
+  display: block;
+  margin-bottom: 6px;
+  color: rgba(225, 248, 255, 0.48);
+  font-size: 0.68rem;
+}
+
+.login-summary-grid strong,
+.login-key-grid strong,
+.login-flow-box strong {
+  color: rgba(239, 252, 255, 0.9);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.login-flow-box strong {
+  color: #fff1b8;
+}
+
+.login-flow-box p,
+.login-schema-top p {
+  color: rgba(239, 252, 255, 0.62);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.login-schema-box {
+  padding: 14px;
+  border: 1px solid rgba(184, 147, 255, 0.22);
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.login-schema-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+#loginSchemaPreview {
+  max-height: 320px;
+  overflow: auto;
+  margin-top: 12px;
+  padding: 13px;
+  border: 1px solid rgba(142, 245, 255, 0.14);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.24);
+  color: rgba(239, 252, 255, 0.84);
+  font-size: 0.74rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.login-inspector-message {
+  margin-top: 12px;
+  padding: 11px 13px;
+  border: 1px dashed rgba(184, 147, 255, 0.24);
+  border-radius: 15px;
+  color: rgba(239, 252, 255, 0.72);
+  background: rgba(0, 0, 0, 0.13);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+  .login-summary-grid,
+  .login-key-grid,
+  .login-flow-box {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .login-schema-top {
+    flex-direction: column;
+  }
+
+  .login-schema-actions {
+    justify-content: stretch;
+  }
+
+  .login-schema-actions .small-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .login-check-top {
+    flex-direction: column;
+  }
+
+  .login-summary-grid,
+  .login-key-grid,
+  .login-flow-box {
     grid-template-columns: 1fr;
   }
 }
