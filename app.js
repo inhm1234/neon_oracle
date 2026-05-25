@@ -57,8 +57,9 @@ const devCheckCard = document.getElementById("devCheckCard");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V2-3.2";
-const CHECKLIST_KEY = "fortune_dev_checklist_v232";
+const DEV_VERSION = "V2-3.3";
+const CHECKLIST_KEY = "fortune_dev_checklist_state";
+const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 
 const relationMeta = {
   support: {
@@ -862,17 +863,67 @@ async function analyzeFortune(event) {
 }
 
 
-function loadChecklistState() {
+function readJsonFromStorage(key) {
   try {
-    return JSON.parse(localStorage.getItem(CHECKLIST_KEY)) || {};
+    return JSON.parse(localStorage.getItem(key)) || {};
   } catch (error) {
-    localStorage.removeItem(CHECKLIST_KEY);
+    localStorage.removeItem(key);
     return {};
   }
 }
 
+function loadChecklistState() {
+  const stableState = readJsonFromStorage(CHECKLIST_KEY);
+
+  CHECKLIST_LEGACY_KEYS.forEach((key) => {
+    const legacyState = readJsonFromStorage(key);
+    Object.keys(legacyState).forEach((id) => {
+      if (stableState[id] === undefined) {
+        stableState[id] = legacyState[id];
+      }
+    });
+  });
+
+  return stableState;
+}
+
+function getChecklistStateFromDom() {
+  const state = {};
+
+  devChecklistItems.forEach((item) => {
+    const id = item.getAttribute("data-check-id");
+    if (id) {
+      state[id] = item.checked;
+    }
+  });
+
+  return state;
+}
+
 function saveChecklistState(state) {
-  localStorage.setItem(CHECKLIST_KEY, JSON.stringify(state));
+  try {
+    localStorage.setItem(CHECKLIST_KEY, JSON.stringify(state));
+  } catch (error) {
+    console.error("체크리스트 저장 실패", error);
+  }
+}
+
+function restoreChecklistState() {
+  if (!devChecklistItems.length) return;
+
+  const saved = loadChecklistState();
+
+  devChecklistItems.forEach((item) => {
+    const id = item.getAttribute("data-check-id");
+    item.checked = Boolean(saved[id]);
+  });
+
+  updateChecklistProgress();
+}
+
+function persistChecklistState() {
+  saveChecklistState(getChecklistStateFromDom());
+  updateChecklistProgress();
 }
 
 function updateChecklistProgress() {
@@ -882,7 +933,7 @@ function updateChecklistProgress() {
   const checked = Array.from(devChecklistItems).filter((item) => item.checked).length;
   const percent = total ? (checked / total) * 100 : 0;
 
-  devChecklistProgress.textContent = `${checked} / ${total} 확인 완료`;
+  devChecklistProgress.textContent = `${checked} / ${total} 확인 완료 · 자동 저장됨`;
   devChecklistFill.style.width = `${percent}%`;
 }
 
@@ -893,21 +944,14 @@ function initDevChecklist() {
 
   if (!devChecklistItems.length) return;
 
-  const saved = loadChecklistState();
+  restoreChecklistState();
 
   devChecklistItems.forEach((item) => {
-    const id = item.getAttribute("data-check-id");
-    item.checked = Boolean(saved[id]);
-
-    item.addEventListener("change", () => {
-      const nextState = loadChecklistState();
-      nextState[id] = item.checked;
-      saveChecklistState(nextState);
-      updateChecklistProgress();
-    });
+    item.addEventListener("change", persistChecklistState);
+    item.addEventListener("input", persistChecklistState);
   });
 
-  updateChecklistProgress();
+  window.addEventListener("pageshow", restoreChecklistState);
 }
 
 function jumpToDevChecklist() {
@@ -929,6 +973,7 @@ function resetDevChecklist() {
   if (!ok) return;
 
   localStorage.removeItem(CHECKLIST_KEY);
+  CHECKLIST_LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
   devChecklistItems.forEach((item) => {
     item.checked = false;
   });
