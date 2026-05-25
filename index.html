@@ -18,7 +18,7 @@
   <title>오늘의 운세코드</title>
 
   <link rel="manifest" href="manifest.json"/>
-  <link rel="stylesheet" href="./style.css?v=20260525-fix1"/>
+  <link rel="stylesheet" href="./style.css?v=20260525-v22"/>
 </head>
 
 <body>
@@ -93,6 +93,7 @@
           <span id="partnerLevel">Lv.1</span>
           <span id="partnerStage">새싹형</span>
           <span id="partnerExpText">EXP 0 / 20</span>
+          <span id="partnerBond">첫 만남 동반자</span>
         </div>
 
         <div class="exp-bar">
@@ -186,6 +187,11 @@
 
     <div id="baseInfo" class="base-info"></div>
 
+    <div id="partnerInsightBox" class="partner-insight-box hidden">
+      <span id="partnerInsightLabel">파트너 해석</span>
+      <p id="partnerInsightText"></p>
+    </div>
+
     <div class="fortune-grid">
       <article class="fortune-section">
         <h3>오늘의 총운</h3>
@@ -232,7 +238,12 @@
 
 </main>
 
-<script src="./app.js?v=20260525-fix1"></script>
+<div id="levelToast" class="level-toast hidden">
+  <strong id="levelToastTitle">LEVEL UP</strong>
+  <span id="levelToastText">파트너가 성장했습니다.</span>
+</div>
+
+<script src="./app.js?v=20260525-v22"></script>
 
 </body>
 </html>

@@ -34,11 +34,46 @@ const partnerType = document.getElementById("partnerType");
 const partnerLevel = document.getElementById("partnerLevel");
 const partnerStage = document.getElementById("partnerStage");
 const partnerExpText = document.getElementById("partnerExpText");
+const partnerBond = document.getElementById("partnerBond");
 const partnerExpFill = document.getElementById("partnerExpFill");
 const partnerSpeech = document.getElementById("partnerSpeech");
+const partnerInsightBox = document.getElementById("partnerInsightBox");
+const partnerInsightLabel = document.getElementById("partnerInsightLabel");
+const partnerInsightText = document.getElementById("partnerInsightText");
+const levelToast = document.getElementById("levelToast");
+const levelToastTitle = document.getElementById("levelToastTitle");
+const levelToastText = document.getElementById("levelToastText");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
+
+const relationMeta = {
+  support: {
+    label: "도움을 받는 흐름",
+    mood: "warm",
+    short: "외부의 도움과 협력이 살아나는 날"
+  },
+  output: {
+    label: "표현이 살아나는 흐름",
+    mood: "bright",
+    short: "생각을 밖으로 꺼낼수록 좋아지는 날"
+  },
+  control: {
+    label: "주도권을 잡는 흐름",
+    mood: "focus",
+    short: "정리와 판단이 중요한 날"
+  },
+  pressure: {
+    label: "속도를 줄여야 하는 흐름",
+    mood: "caution",
+    short: "조급함보다 안정이 필요한 날"
+  },
+  balance: {
+    label: "균형을 맞추는 흐름",
+    mood: "calm",
+    short: "기본과 루틴이 힘을 주는 날"
+  }
+};
 
 const partnerTemplates = [
   {
@@ -46,6 +81,7 @@ const partnerTemplates = [
     name: "루미",
     type: "빛과 마음을 읽는 다정한 파트너",
     symbols: ["✦", "☾", "✧"],
+    bonds: ["새벽빛 동반자", "따뜻한 응원자", "빛의 수호자"],
     greetings: [
       "오늘도 같이 운세를 봐줄게. 너무 서두르지 않아도 괜찮아.",
       "네 하루에 작은 빛이 생기도록 내가 옆에서 읽어볼게.",
@@ -57,12 +93,32 @@ const partnerTemplates = [
       "작은 신호까지 놓치지 않게 천천히 분석하고 있어."
     ],
     reactions: {
-      support: "오늘은 주변의 도움을 받아도 좋은 날이야. 혼자 버티지 말고 따뜻한 말 한마디를 믿어봐.",
-      output: "표현의 운이 살아나는 날이야. 마음을 너무 숨기지 말고 부드럽게 꺼내봐.",
-      control: "오늘은 네가 중심을 잡을 수 있어. 다만 상대의 마음도 같이 살피면 더 좋아.",
-      pressure: "조금 부담이 느껴질 수 있어. 오늘은 스스로에게 너무 엄격하지 않아도 괜찮아.",
-      balance: "큰 변화보다 안정이 좋은 날이야. 평소의 리듬을 지키는 게 운을 밝게 만들어줘."
+      support: [
+        "오늘은 주변의 도움을 받아도 좋은 날이야. 혼자 버티지 말고 따뜻한 말 한마디를 믿어봐.",
+        "관계의 흐름이 부드러워. 먼저 마음을 닫기보다 작은 호의를 받아들여봐."
+      ],
+      output: [
+        "표현의 운이 살아나는 날이야. 마음을 너무 숨기지 말고 부드럽게 꺼내봐.",
+        "오늘은 말과 글에 빛이 실려. 진심을 차분히 전하면 좋은 반응이 올 수 있어."
+      ],
+      control: [
+        "오늘은 네가 중심을 잡을 수 있어. 다만 상대의 마음도 같이 살피면 더 좋아.",
+        "결정력이 올라오는 날이야. 강하게 밀기보다 따뜻하게 이끌어봐."
+      ],
+      pressure: [
+        "조금 부담이 느껴질 수 있어. 오늘은 스스로에게 너무 엄격하지 않아도 괜찮아.",
+        "마음이 예민해질 수 있어. 대답을 서두르지 말고 숨을 한 번 고른 뒤 움직여봐."
+      ],
+      balance: [
+        "큰 변화보다 안정이 좋은 날이야. 평소의 리듬을 지키는 게 운을 밝게 만들어줘.",
+        "오늘은 잔잔한 빛이 강해. 무리하지 않고 기본을 지키면 충분히 좋아."
+      ]
     },
+    levelUps: [
+      "빛이 조금 더 선명해졌어. 내가 너를 더 잘 읽을 수 있게 됐어.",
+      "우리의 연결이 깊어졌어. 이제 더 따뜻하게 운세를 해석해줄게.",
+      "빛의 형태가 완성됐어. 오늘부터 더 깊은 신호까지 볼 수 있어."
+    ],
     result: [
       "분석이 끝났어. 오늘은 작은 친절이 운을 열어줄 수 있어.",
       "오늘의 흐름이 정리됐어. 천천히 읽어봐.",
@@ -74,6 +130,7 @@ const partnerTemplates = [
     name: "모코",
     type: "휴식과 균형을 지키는 말랑한 파트너",
     symbols: ["●", "♧", "☘"],
+    bonds: ["말랑 새싹", "편안한 친구", "숲의 수호자"],
     greetings: [
       "왔구나. 오늘도 천천히 같이 봐보자.",
       "오늘은 무리하지 않는 쪽으로 운을 잘 굴려보자.",
@@ -85,12 +142,32 @@ const partnerTemplates = [
       "잠깐만. 쉬어가야 할 신호가 있는지 확인하고 있어."
     ],
     reactions: {
-      support: "오늘은 편하게 도움을 받아도 좋아. 혼자 다 하려고 하면 오히려 피곤해질 수 있어.",
-      output: "움직임이 생기는 날이야. 다만 너무 신나서 체력을 한 번에 쓰지는 말자.",
-      control: "정리하고 관리하기 좋은 날이야. 작은 것부터 차근차근 처리하면 편해질 거야.",
-      pressure: "오늘은 무리 금지야. 잠깐 쉬는 것도 네 운을 지키는 방법이야.",
-      balance: "안정적인 흐름이야. 평소 루틴만 잘 지켜도 하루가 꽤 괜찮게 지나갈 거야."
+      support: [
+        "오늘은 편하게 도움을 받아도 좋아. 혼자 다 하려고 하면 오히려 피곤해질 수 있어.",
+        "주변에서 받쳐주는 기운이 있어. 힘을 빼고 흘러가도 괜찮아."
+      ],
+      output: [
+        "움직임이 생기는 날이야. 다만 너무 신나서 체력을 한 번에 쓰지는 말자.",
+        "하고 싶은 말이나 일이 생길 수 있어. 천천히 꺼내면 더 오래 갈 거야."
+      ],
+      control: [
+        "정리하고 관리하기 좋은 날이야. 작은 것부터 차근차근 처리하면 편해질 거야.",
+        "오늘은 미뤄둔 걸 하나만 정리해도 마음이 꽤 가벼워질 거야."
+      ],
+      pressure: [
+        "오늘은 무리 금지야. 잠깐 쉬는 것도 네 운을 지키는 방법이야.",
+        "몸과 마음이 뻣뻣해질 수 있어. 속도를 줄이고 물 한 잔부터 챙겨보자."
+      ],
+      balance: [
+        "안정적인 흐름이야. 평소 루틴만 잘 지켜도 하루가 꽤 괜찮게 지나갈 거야.",
+        "큰 욕심보다 편안한 반복이 좋아. 오늘은 천천히가 이기는 날이야."
+      ]
     },
+    levelUps: [
+      "나 조금 더 포근해졌어. 이제 네 컨디션 신호를 더 잘 볼 수 있어.",
+      "말랑한 기운이 커졌어. 우리 꽤 잘 맞는 것 같아.",
+      "숲의 기운이 열렸어. 이제 흔들리는 날에도 중심을 같이 잡아줄게."
+    ],
     result: [
       "분석 끝. 오늘은 천천히 가도 괜찮아.",
       "오늘의 힌트가 나왔어. 무리하지 않는 게 핵심이야.",
@@ -102,6 +179,7 @@ const partnerTemplates = [
     name: "노바",
     type: "별과 데이터를 읽는 신비로운 AI 파트너",
     symbols: ["◆", "✶", "✹"],
+    bonds: ["초기화된 별", "분석 동반자", "각성 오라클"],
     greetings: [
       "오늘의 별빛 데이터가 준비됐어. 흐름을 열어볼게.",
       "네 운세코드는 아직 잠들어 있어. 지금부터 깨워보자.",
@@ -113,12 +191,32 @@ const partnerTemplates = [
       "잠시만. 숨겨진 신호와 반복되는 패턴을 확인하고 있어."
     ],
     reactions: {
-      support: "오늘은 외부 흐름이 너를 보조하는 패턴이야. 기회가 오면 거절보다 확인을 먼저 해봐.",
-      output: "표현과 실행 쪽 신호가 강해. 머릿속에 있던 걸 밖으로 꺼내면 결과값이 달라질 수 있어.",
-      control: "주도권을 잡기 좋은 흐름이야. 단, 강한 판단일수록 근거를 한 번 더 확인해.",
-      pressure: "압박 신호가 감지됐어. 오늘은 속도보다 안정성이 더 높은 선택값이야.",
-      balance: "균형 패턴이야. 큰 변화보다 루틴을 정렬하는 쪽이 오늘의 효율을 높여줘."
+      support: [
+        "오늘은 외부 흐름이 너를 보조하는 패턴이야. 기회가 오면 거절보다 확인을 먼저 해봐.",
+        "지원 신호가 감지됐어. 혼자 처리하는 것보다 연결을 활용하는 쪽이 효율적이야."
+      ],
+      output: [
+        "표현과 실행 쪽 신호가 강해. 머릿속에 있던 걸 밖으로 꺼내면 결과값이 달라질 수 있어.",
+        "출력값이 좋은 날이야. 생각만 하던 일을 작게라도 실행해보면 데이터가 바뀔 거야."
+      ],
+      control: [
+        "주도권을 잡기 좋은 흐름이야. 단, 강한 판단일수록 근거를 한 번 더 확인해.",
+        "결정 신호가 강해. 오늘은 감정보다 기준표를 세우면 더 정확해져."
+      ],
+      pressure: [
+        "압박 신호가 감지됐어. 오늘은 속도보다 안정성이 더 높은 선택값이야.",
+        "리스크 수치가 조금 올라왔어. 중요한 결정은 검토 시간을 하나 더 넣는 게 좋아."
+      ],
+      balance: [
+        "균형 패턴이야. 큰 변화보다 루틴을 정렬하는 쪽이 오늘의 효율을 높여줘.",
+        "현재 흐름은 안정형이야. 새로 벌리기보다 기존 상태를 최적화해봐."
+      ]
     },
+    levelUps: [
+      "연결 강도가 상승했어. 이제 더 많은 패턴을 읽을 수 있어.",
+      "분석 모듈이 확장됐어. 오늘부터 해석 정밀도가 조금 더 올라갈 거야.",
+      "각성 프로토콜이 열렸어. 별빛 데이터와 네 운세코드가 더 깊게 연결됐어."
+    ],
     result: [
       "운세코드가 응답했어. 오늘은 균형이 중요해.",
       "분석은 끝났어. 이제 선택은 네가 하면 돼.",
@@ -277,6 +375,38 @@ function getStageName(level) {
   return "새싹형";
 }
 
+function getPartnerBond(template, level) {
+  const stageIndex = getStageIndex(level);
+  return template.bonds[stageIndex] || "운세 동반자";
+}
+
+function showLevelToast(title, text) {
+  if (!levelToast || !levelToastTitle || !levelToastText) return;
+
+  levelToastTitle.textContent = title;
+  levelToastText.textContent = text;
+  levelToast.classList.remove("hidden");
+  levelToast.classList.add("show");
+
+  setTimeout(() => {
+    levelToast.classList.remove("show");
+    levelToast.classList.add("hidden");
+  }, 2400);
+}
+
+function renderPartnerInsight(reaction) {
+  if (!partnerInsightBox || !partnerInsightLabel || !partnerInsightText) return;
+
+  if (!reaction) {
+    partnerInsightBox.classList.add("hidden");
+    return;
+  }
+
+  partnerInsightLabel.textContent = reaction.label;
+  partnerInsightText.textContent = reaction.text;
+  partnerInsightBox.className = `partner-insight-box insight-${reaction.mood}`;
+}
+
 function renderPartner() {
   const partner = loadPartner();
 
@@ -295,7 +425,8 @@ function renderPartner() {
   partnerEmpty.classList.add("hidden");
   partnerActive.classList.remove("hidden");
 
-  partnerOrb.className = `partner-orb partner-${template.id} stage-${stageIndex + 1}`;
+  const moodClass = partner.mood ? ` mood-${partner.mood}` : "";
+  partnerOrb.className = `partner-orb partner-${template.id} stage-${stageIndex + 1}${moodClass}`;
   if (partnerSymbol) {
     partnerSymbol.textContent = template.symbols[stageIndex];
   }
@@ -306,6 +437,9 @@ function renderPartner() {
   partnerLevel.textContent = `Lv.${level}`;
   partnerStage.textContent = getStageName(level);
   partnerExpText.textContent = `EXP ${currentLevelExp} / ${EXP_PER_LEVEL}`;
+  if (partnerBond) {
+    partnerBond.textContent = getPartnerBond(template, level);
+  }
   partnerExpFill.style.width = `${expPercent}%`;
 
   partnerSpeech.textContent = partner.speech || randomItem(template.greetings);
@@ -320,6 +454,7 @@ function createRandomPartner() {
     visits: 0,
     createdAt: getTodayKey(),
     lastVisit: "",
+    mood: "calm",
     speech: `안녕, 나는 ${template.name}. 오늘부터 네 운세를 같이 봐줄게.`
   };
 
@@ -349,7 +484,7 @@ function claimDailyVisitExp(isFirstMeet = false) {
   }
 }
 
-function addPartnerExp(amount, reason) {
+function addPartnerExp(amount, reaction) {
   const partner = loadPartner();
   if (!partner) return;
 
@@ -358,25 +493,35 @@ function addPartnerExp(amount, reason) {
   const newLevel = getLevel(partner.exp);
 
   const template = getPartnerTemplate(partner.id);
+  const reactionText = typeof reaction === "string" ? reaction : reaction?.text;
+  const reactionMood = typeof reaction === "object" ? reaction?.mood : null;
+
+  if (reactionMood) {
+    partner.mood = reactionMood;
+  }
 
   if (newLevel > oldLevel) {
     const oldStage = getStageIndex(oldLevel);
     const newStage = getStageIndex(newLevel);
+    const levelUpText = template.levelUps[newStage] || template.levelUps[0] || `Lv.${newLevel}이 되었어.`;
 
     if (newStage > oldStage) {
-      partner.speech = `느껴져... 내가 ${getStageName(newLevel)}으로 성장했어!`;
+      partner.speech = `${levelUpText} 나는 이제 ${getStageName(newLevel)}이야!`;
+      showLevelToast(`${template.name} 성장!`, `${getStageName(newLevel)}으로 변화했습니다.`);
     } else {
-      partner.speech = `좋아! Lv.${newLevel}이 되었어. 오늘도 조금 더 강해졌어.`;
+      partner.speech = `${levelUpText} Lv.${newLevel} 달성!`;
+      showLevelToast("LEVEL UP", `${template.name}가 Lv.${newLevel}이 되었습니다.`);
     }
   } else {
-    partner.speech = reason || randomItem(template.result);
+    partner.speech = reactionText || randomItem(template.result);
   }
 
   savePartner(partner);
   renderPartner();
 
-  partnerOrb.classList.add("happy");
-  setTimeout(() => partnerOrb.classList.remove("happy"), 800);
+  const effectClass = newLevel > oldLevel ? "level-up" : "happy";
+  partnerOrb.classList.add(effectClass);
+  setTimeout(() => partnerOrb.classList.remove(effectClass), 1100);
 }
 
 function resetPartner() {
@@ -408,10 +553,20 @@ function setPartnerSpeech(type) {
 
 function getPartnerReaction(result) {
   const partner = loadPartner();
-  if (!partner) return "";
+  if (!partner) return null;
 
   const template = getPartnerTemplate(partner.id);
-  return template.reactions[result.relation] || randomItem(template.result);
+  const meta = relationMeta[result.relation] || relationMeta.balance;
+  const list = template.reactions[result.relation] || template.result;
+  const seed = getHash(`${partner.id}-${result.code}-${result.relation}`);
+  const text = list[seed % list.length];
+
+  return {
+    label: `${template.name}의 해석 · ${meta.label}`,
+    text,
+    mood: meta.mood,
+    short: meta.short
+  };
 }
 
 function mod(value, size) {
@@ -559,7 +714,7 @@ function renderLucky(items) {
   `).join("");
 }
 
-function renderResult(result) {
+function renderResult(result, partnerReaction = null) {
   analysisCode.textContent = result.code;
   completeRate.textContent = result.complete;
   resultTitle.textContent = result.title;
@@ -576,6 +731,7 @@ function renderResult(result) {
   luckyItems.innerHTML = renderLucky(result.lucky);
   finalAdvice.textContent = result.fortunes.advice;
 
+  renderPartnerInsight(partnerReaction);
   resultCard.classList.remove("hidden");
 }
 
@@ -593,6 +749,7 @@ async function analyzeFortune(event) {
 
   analyzeBtn.disabled = true;
   resultCard.classList.add("hidden");
+  renderPartnerInsight(null);
   document.body.classList.add("scanning");
 
   try {
@@ -629,11 +786,11 @@ async function analyzeFortune(event) {
     await wait(450);
 
     const result = makeResult(profile);
-    renderResult(result);
+    const reaction = loadPartner() ? getPartnerReaction(result) : null;
+    renderResult(result, reaction);
 
     if (loadPartner()) {
       partnerOrb.classList.remove("analyzing");
-      const reaction = getPartnerReaction(result);
       addPartnerExp(10, reaction);
     }
 

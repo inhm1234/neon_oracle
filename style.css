@@ -869,6 +869,177 @@ button:disabled {
   line-height: 1.65;
 }
 
+.partner-status #partnerBond {
+  border-color: color-mix(in srgb, var(--p-accent) 42%, transparent);
+  color: #fff7d6;
+  background: color-mix(in srgb, var(--p-accent) 12%, rgba(0, 0, 0, 0.2));
+}
+
+.mood-warm .character-mouth,
+.mood-bright .character-mouth {
+  width: 22px;
+  height: 10px;
+  border-bottom-width: 3px;
+}
+
+.mood-bright .character-eye {
+  height: 16px;
+  box-shadow:
+    inset 2px 3px 0 rgba(255, 255, 255, 0.82),
+    0 0 10px var(--p-glow);
+}
+
+.mood-focus .character-eye {
+  height: 11px;
+  border-radius: 8px;
+}
+
+.mood-caution .character-mouth {
+  width: 15px;
+  height: 6px;
+  border-bottom-width: 2px;
+  opacity: 0.85;
+}
+
+.mood-caution .partner-ring {
+  border-color: rgba(255, 225, 132, 0.55);
+  box-shadow:
+    0 0 20px rgba(255, 225, 132, 0.16),
+    inset 0 0 18px rgba(255, 225, 132, 0.08);
+}
+
+.partner-orb.level-up .partner-character {
+  animation: partnerLevelUp 1s ease-in-out;
+}
+
+.partner-orb.level-up .partner-aura {
+  animation: auraLevelUp 1s ease-in-out;
+}
+
+@keyframes partnerLevelUp {
+  0% { transform: scale(1) rotate(0deg); }
+  24% { transform: scale(1.2) rotate(-8deg); }
+  48% { transform: scale(0.94) rotate(7deg); }
+  72% { transform: scale(1.12) rotate(0deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes auraLevelUp {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  45% { transform: scale(1.42); opacity: 1; }
+  100% { transform: scale(0.96); opacity: 0.8; }
+}
+
+.partner-insight-box {
+  margin: -2px 0 18px;
+  padding: 15px 16px;
+  border-radius: 18px;
+  text-align: left;
+  border: 1px solid rgba(142, 245, 255, 0.2);
+  background:
+    radial-gradient(circle at top left, rgba(142, 245, 255, 0.1), transparent 56%),
+    rgba(0, 0, 0, 0.18);
+  animation: reveal 0.55s ease;
+}
+
+.partner-insight-box span {
+  display: block;
+  margin-bottom: 7px;
+  color: rgba(255, 241, 184, 0.78);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+}
+
+.partner-insight-box p {
+  color: rgba(239, 252, 255, 0.86);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.partner-insight-box.insight-warm {
+  border-color: rgba(255, 161, 224, 0.28);
+  background:
+    radial-gradient(circle at top left, rgba(255, 161, 224, 0.14), transparent 56%),
+    rgba(0, 0, 0, 0.18);
+}
+
+.partner-insight-box.insight-bright {
+  border-color: rgba(142, 245, 255, 0.3);
+  background:
+    radial-gradient(circle at top left, rgba(142, 245, 255, 0.15), transparent 56%),
+    rgba(0, 0, 0, 0.18);
+}
+
+.partner-insight-box.insight-focus {
+  border-color: rgba(255, 225, 132, 0.3);
+  background:
+    radial-gradient(circle at top left, rgba(255, 225, 132, 0.13), transparent 56%),
+    rgba(0, 0, 0, 0.18);
+}
+
+.partner-insight-box.insight-caution {
+  border-color: rgba(255, 147, 119, 0.34);
+  background:
+    radial-gradient(circle at top left, rgba(255, 147, 119, 0.14), transparent 56%),
+    rgba(0, 0, 0, 0.18);
+}
+
+.partner-insight-box.insight-calm {
+  border-color: rgba(114, 240, 180, 0.28);
+  background:
+    radial-gradient(circle at top left, rgba(114, 240, 180, 0.12), transparent 56%),
+    rgba(0, 0, 0, 0.18);
+}
+
+.level-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  z-index: 30;
+  width: min(360px, calc(100% - 32px));
+  padding: 14px 16px;
+  transform: translate(-50%, 18px);
+  border: 1px solid rgba(255, 225, 132, 0.4);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 225, 132, 0.18), transparent 55%),
+    rgba(5, 11, 24, 0.92);
+  box-shadow:
+    0 0 22px rgba(255, 225, 132, 0.18),
+    inset 0 0 18px rgba(255, 225, 132, 0.06);
+  backdrop-filter: blur(9px);
+  opacity: 0;
+  pointer-events: none;
+  text-align: left;
+}
+
+.level-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  animation: toastPop 2.4s ease forwards;
+}
+
+.level-toast strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #fff1b8;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+}
+
+.level-toast span {
+  color: rgba(239, 252, 255, 0.88);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+@keyframes toastPop {
+  0% { opacity: 0; transform: translate(-50%, 18px) scale(0.96); }
+  14% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  82% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, 12px) scale(0.98); }
+}
+
 .hidden {
   display: none !important;
 }
