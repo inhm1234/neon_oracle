@@ -1197,6 +1197,35 @@ button:disabled {
   100% { opacity: 0; transform: translate(-50%, 12px) scale(0.98); }
 }
 
+.checklist-jump {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 40;
+  width: auto;
+  padding: 12px 16px;
+  border-color: rgba(255, 225, 132, 0.72);
+  background:
+    radial-gradient(circle at top left, rgba(255, 225, 132, 0.18), transparent 55%),
+    rgba(5, 11, 24, 0.9);
+  color: #fff1b8;
+  box-shadow:
+    0 0 18px rgba(255, 225, 132, 0.2),
+    inset 0 0 12px rgba(255, 225, 132, 0.08);
+  backdrop-filter: blur(8px);
+  letter-spacing: 0.04em;
+}
+
+.dev-check-highlight {
+  animation: devCheckHighlight 1.6s ease;
+}
+
+@keyframes devCheckHighlight {
+  0% { box-shadow: 0 0 0 rgba(255, 225, 132, 0), inset 0 0 18px rgba(255, 225, 132, 0.04); }
+  35% { box-shadow: 0 0 34px rgba(255, 225, 132, 0.34), inset 0 0 24px rgba(255, 225, 132, 0.12); }
+  100% { box-shadow: 0 0 18px rgba(255, 225, 132, 0.12), inset 0 0 18px rgba(255, 225, 132, 0.04); }
+}
+
 .hidden {
   display: none !important;
 }
@@ -1245,6 +1274,13 @@ button:disabled {
 }
 
 @media (max-width: 480px) {
+  .checklist-jump {
+    right: 12px;
+    bottom: 12px;
+    padding: 11px 13px;
+    font-size: 0.76rem;
+  }
+
   body {
     padding-top: 24px;
     padding-bottom: 24px;

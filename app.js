@@ -52,11 +52,13 @@ const devChecklistItems = document.querySelectorAll("[data-check-id]");
 const devChecklistProgress = document.getElementById("devChecklistProgress");
 const devChecklistFill = document.getElementById("devChecklistFill");
 const resetChecklistBtn = document.getElementById("resetChecklistBtn");
+const checklistJumpBtn = document.getElementById("checklistJumpBtn");
+const devCheckCard = document.getElementById("devCheckCard");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V2-3.1";
-const CHECKLIST_KEY = "fortune_dev_checklist_v231";
+const DEV_VERSION = "V2-3.2";
+const CHECKLIST_KEY = "fortune_dev_checklist_v232";
 
 const relationMeta = {
   support: {
@@ -908,6 +910,20 @@ function initDevChecklist() {
   updateChecklistProgress();
 }
 
+function jumpToDevChecklist() {
+  if (!devCheckCard) return;
+
+  devCheckCard.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+
+  devCheckCard.classList.add("dev-check-highlight");
+  setTimeout(() => {
+    devCheckCard.classList.remove("dev-check-highlight");
+  }, 1600);
+}
+
 function resetDevChecklist() {
   const ok = confirm("개발 점검표 체크 상태를 초기화할까요?");
   if (!ok) return;
@@ -947,6 +963,10 @@ if (resetPartnerBtn) {
 
 if (resetChecklistBtn) {
   resetChecklistBtn.addEventListener("click", resetDevChecklist);
+}
+
+if (checklistJumpBtn) {
+  checklistJumpBtn.addEventListener("click", jumpToDevChecklist);
 }
 
 const canvas = document.getElementById("matrix");
