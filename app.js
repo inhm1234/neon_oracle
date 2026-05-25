@@ -28,7 +28,7 @@ const resetPartnerBtn = document.getElementById("resetPartnerBtn");
 const partnerEmpty = document.getElementById("partnerEmpty");
 const partnerActive = document.getElementById("partnerActive");
 const partnerOrb = document.getElementById("partnerOrb");
-const partnerSymbol = document.getElementById("partnerSymbol");
+const partnerSymbol = document.getElementById("partnerSymbol") || document.getElementById("partnerEmoji");
 const partnerName = document.getElementById("partnerName");
 const partnerType = document.getElementById("partnerType");
 const partnerLevel = document.getElementById("partnerLevel");
@@ -296,7 +296,9 @@ function renderPartner() {
   partnerActive.classList.remove("hidden");
 
   partnerOrb.className = `partner-orb partner-${template.id} stage-${stageIndex + 1}`;
-  partnerSymbol.textContent = template.symbols[stageIndex];
+  if (partnerSymbol) {
+    partnerSymbol.textContent = template.symbols[stageIndex];
+  }
 
   partnerName.textContent = template.name;
   partnerType.textContent = template.type;
@@ -589,59 +591,74 @@ async function analyzeFortune(event) {
     return;
   }
 
-  const date = parseDate(birthDateEl.value);
-
-  const profile = {
-    name: userNameEl.value.trim(),
-    gender: genderEl.value,
-    date: birthDateEl.value,
-    year: date.year,
-    month: date.month,
-    day: date.day,
-    time: birthTimeEl.value
-  };
-
   analyzeBtn.disabled = true;
   resultCard.classList.add("hidden");
   document.body.classList.add("scanning");
 
-  if (loadPartner()) {
-    setPartnerSpeech("analyzing");
-    partnerOrb.classList.add("analyzing");
-  }
+  try {
+    const date = parseDate(birthDateEl.value);
 
-  statusText.textContent = "출생 정보를 읽는 중...";
-  await wait(450);
+    const profile = {
+      name: userNameEl.value.trim(),
+      gender: genderEl.value,
+      date: birthDateEl.value,
+      year: date.year,
+      month: date.month,
+      day: date.day,
+      time: birthTimeEl.value
+    };
 
-  statusText.textContent = "파트너 오라클과 연결하는 중...";
-  await wait(450);
+    if (loadPartner()) {
+      setPartnerSpeech("analyzing");
+      partnerOrb.classList.add("analyzing");
+    }
 
-  statusText.textContent = "천간·지지 흐름을 계산하는 중...";
-  await wait(550);
+    statusText.textContent = "출생 정보를 읽는 중...";
+    await wait(450);
 
-  statusText.textContent = "오늘의 오행 균형을 분석하는 중...";
-  await wait(550);
+    statusText.textContent = "파트너 오라클과 연결하는 중...";
+    await wait(450);
 
-  statusText.textContent = "AI 운세 리포트를 생성하는 중...";
-  await wait(450);
+    statusText.textContent = "천간·지지 흐름을 계산하는 중...";
+    await wait(550);
 
-  const result = makeResult(profile);
-  renderResult(result);
+    statusText.textContent = "오늘의 오행 균형을 분석하는 중...";
+    await wait(550);
 
-  if (loadPartner()) {
+    statusText.textContent = "AI 운세 리포트를 생성하는 중...";
+    await wait(450);
+
+    const result = makeResult(profile);
+    renderResult(result);
+
+    if (loadPartner()) {
+      partnerOrb.classList.remove("analyzing");
+      const reaction = getPartnerReaction(result);
+      addPartnerExp(10, reaction);
+    }
+
+    statusText.textContent = "오늘의 운세 분석이 완료되었습니다.";
+  } catch (error) {
+    console.error(error);
+    statusText.textContent = "분석 중 오류가 생겼습니다. 파일을 새로 덮어씌운 뒤 Ctrl + F5로 새로고침해주세요.";
+  } finally {
+    document.body.classList.remove("scanning");
     partnerOrb.classList.remove("analyzing");
-    const reaction = getPartnerReaction(result);
-    addPartnerExp(10, reaction);
+    analyzeBtn.disabled = false;
   }
-
-  statusText.textContent = "오늘의 운세 분석이 완료되었습니다.";
-  document.body.classList.remove("scanning");
-  analyzeBtn.disabled = false;
 }
 
-form.addEventListener("submit", analyzeFortune);
-meetPartnerBtn.addEventListener("click", createRandomPartner);
-resetPartnerBtn.addEventListener("click", resetPartner);
+if (form) {
+  form.addEventListener("submit", analyzeFortune);
+}
+
+if (meetPartnerBtn) {
+  meetPartnerBtn.addEventListener("click", createRandomPartner);
+}
+
+if (resetPartnerBtn) {
+  resetPartnerBtn.addEventListener("click", resetPartner);
+}
 
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
@@ -705,10 +722,12 @@ function clearOldCachesAndWorkers() {
   }
 }
 
-resize();
-drawMatrix();
+if (canvas && ctx) {
+  resize();
+  drawMatrix();
+  window.addEventListener("resize", resize);
+}
+
 clearOldCachesAndWorkers();
 claimDailyVisitExp();
 renderPartner();
-
-window.addEventListener("resize", resize);
