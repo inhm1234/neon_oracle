@@ -119,10 +119,20 @@ const firebaseUserEmail = document.getElementById("firebaseUserEmail");
 const firebaseSignInBtn = document.getElementById("firebaseSignInBtn");
 const firebaseSignOutBtn = document.getElementById("firebaseSignOutBtn");
 const firebaseLoginMessage = document.getElementById("firebaseLoginMessage");
+const cloudSaveStatus = document.getElementById("cloudSaveStatus");
+const cloudSaveUser = document.getElementById("cloudSaveUser");
+const cloudSaveProfile = document.getElementById("cloudSaveProfile");
+const cloudSaveLocalState = document.getElementById("cloudSaveLocalState");
+const cloudSaveServerState = document.getElementById("cloudSaveServerState");
+const cloudLastSaved = document.getElementById("cloudLastSaved");
+const cloudSaveBtn = document.getElementById("cloudSaveBtn");
+const cloudLoadBtn = document.getElementById("cloudLoadBtn");
+const cloudRefreshBtn = document.getElementById("cloudRefreshBtn");
+const cloudSaveMessage = document.getElementById("cloudSaveMessage");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-0.1";
+const DEV_VERSION = "V3-1";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -157,6 +167,11 @@ let firebaseAuth = null;
 let firebaseProvider = null;
 let firebaseSignInWithPopup = null;
 let firebaseSignOut = null;
+let firebaseDb = null;
+let firebaseDoc = null;
+let firebaseGetDoc = null;
+let firebaseSetDoc = null;
+let firebaseServerTimestamp = null;
 let firebaseLoginReady = false;
 let isProfileSystemReady = false;
 
@@ -170,6 +185,231 @@ function setFirebaseLoginMessage(message) {
 function setFirebaseLoginStatus(text) {
   if (firebaseLoginStatus) {
     firebaseLoginStatus.textContent = text;
+  }
+}
+
+function setCloudSaveMessage(message) {
+  if (cloudSaveMessage) {
+    cloudSaveMessage.textContent = message;
+  }
+}
+
+function formatCloudSavedAt(value) {
+  if (!value) return "기록 없음";
+
+  if (value && typeof value.toDate === "function") {
+    return formatSavedAt(value.toDate().toISOString());
+  }
+
+  if (typeof value === "string") {
+    return formatSavedAt(value);
+  }
+
+  return "기록 있음";
+}
+
+function getCloudLocalSummaryText() {
+  const summary = getCurrentDataSummary();
+  return `${summary.partner} · 기록 ${summary.historyCount}개 · 출석 ${summary.attendance}`;
+}
+
+function setCloudButtonsEnabled(enabled) {
+  [cloudSaveBtn, cloudLoadBtn, cloudRefreshBtn].forEach((button) => {
+    if (button) button.disabled = !enabled;
+  });
+}
+
+function getCloudUserDocRef() {
+  const user = firebaseAuth ? firebaseAuth.currentUser : null;
+
+  if (!user || !firebaseDb || !firebaseDoc) {
+    return null;
+  }
+
+  return firebaseDoc(firebaseDb, "users", user.uid);
+}
+
+function renderCloudSaveState() {
+  if (!cloudSaveStatus || !cloudSaveUser || !cloudSaveProfile || !cloudSaveLocalState) return;
+
+  const user = firebaseAuth ? firebaseAuth.currentUser : null;
+  const activeProfile = getActiveProfile();
+
+  cloudSaveProfile.textContent = activeProfile ? activeProfile.name : "기본 프로필";
+  cloudSaveLocalState.textContent = getCloudLocalSummaryText();
+
+  if (!firebaseDb) {
+    cloudSaveStatus.textContent = "Firestore 준비 중";
+    cloudSaveUser.textContent = "연결 대기";
+    setCloudButtonsEnabled(false);
+    return;
+  }
+
+  if (!user) {
+    cloudSaveStatus.textContent = "로그인 필요";
+    cloudSaveUser.textContent = "로그인 전";
+    setCloudButtonsEnabled(false);
+    return;
+  }
+
+  cloudSaveStatus.textContent = "저장 가능";
+  cloudSaveUser.textContent = user.email || user.displayName || "Google 사용자";
+  setCloudButtonsEnabled(true);
+}
+
+function buildCloudSaveDocument(user) {
+  persistActiveProfileData();
+
+  const profileStore = ensureProfileStore();
+  const activeProfile = getActiveProfile();
+  const savedAt = new Date().toISOString();
+
+  return {
+    app: "today_fortune_code",
+    version: DEV_VERSION,
+    schemaVersion: LOGIN_SCHEMA_VERSION,
+    savedAt,
+    serverSavedAt: firebaseServerTimestamp ? firebaseServerTimestamp() : savedAt,
+    storageMode: "firebase_firestore_user_document",
+    user: {
+      uid: user.uid,
+      email: user.email || "",
+      displayName: user.displayName || ""
+    },
+    activeProfileId: getActiveProfileId(),
+    activeProfileName: activeProfile ? activeProfile.name : "기본 프로필",
+    profileStore,
+    currentStorage: getCurrentLegacyStorage(),
+    summary: getCurrentDataSummary(),
+    loginReadyData: buildLoginReadyDataBundle()
+  };
+}
+
+function restoreProfileStoreFromCloud(data) {
+  if (!data || !data.profileStore || !data.profileStore.profiles || typeof data.profileStore.profiles !== "object") {
+    throw new Error("서버 데이터 안에 profileStore가 없습니다.");
+  }
+
+  const profileStore = data.profileStore;
+  const profileIds = Object.keys(profileStore.profiles);
+
+  if (!profileIds.length) {
+    throw new Error("서버 프로필 데이터가 비어 있습니다.");
+  }
+
+  const targetProfileId = data.activeProfileId && profileStore.profiles[data.activeProfileId]
+    ? data.activeProfileId
+    : profileIds[0];
+
+  localStorage.setItem(PROFILE_STORE_KEY, JSON.stringify(profileStore));
+  localStorage.setItem(PROFILE_ACTIVE_KEY, targetProfileId);
+  applyProfileStorage(profileStore.profiles[targetProfileId].storage || {});
+}
+
+async function refreshCloudServerState() {
+  renderCloudSaveState();
+
+  const ref = getCloudUserDocRef();
+
+  if (!ref || !firebaseGetDoc) {
+    if (cloudSaveServerState) cloudSaveServerState.textContent = "로그인 필요";
+    if (cloudLastSaved) cloudLastSaved.textContent = "기록 없음";
+    return;
+  }
+
+  try {
+    if (cloudSaveServerState) cloudSaveServerState.textContent = "확인 중";
+    const snapshot = await firebaseGetDoc(ref);
+
+    if (!snapshot.exists()) {
+      if (cloudSaveServerState) cloudSaveServerState.textContent = "아직 없음";
+      if (cloudLastSaved) cloudLastSaved.textContent = "기록 없음";
+      setCloudSaveMessage("아직 서버에 저장된 운세 데이터가 없습니다. 먼저 ‘현재 데이터를 서버에 저장’을 눌러주세요.");
+      return;
+    }
+
+    const data = snapshot.data();
+    const profileCount = data.profileStore && data.profileStore.profiles ? Object.keys(data.profileStore.profiles).length : 0;
+    if (cloudSaveServerState) cloudSaveServerState.textContent = `있음 · 프로필 ${profileCount}개`;
+    if (cloudLastSaved) cloudLastSaved.textContent = formatCloudSavedAt(data.serverSavedAt || data.savedAt);
+    setCloudSaveMessage("서버 저장 데이터를 확인했습니다. 필요하면 서버에서 불러올 수 있습니다.");
+  } catch (error) {
+    console.error("서버 데이터 확인 실패", error);
+    if (cloudSaveServerState) cloudSaveServerState.textContent = "확인 실패";
+    setCloudSaveMessage(`서버 데이터 확인 중 오류가 생겼습니다. ${error.message || error.code || "알 수 없음"}`);
+  }
+}
+
+async function saveCurrentDataToCloud() {
+  const user = firebaseAuth ? firebaseAuth.currentUser : null;
+  const ref = getCloudUserDocRef();
+
+  if (!user || !ref || !firebaseSetDoc) {
+    setCloudSaveMessage("먼저 Google 로그인을 완료해주세요.");
+    return;
+  }
+
+  try {
+    if (cloudSaveBtn) cloudSaveBtn.disabled = true;
+    if (cloudSaveStatus) cloudSaveStatus.textContent = "저장 중";
+    setCloudSaveMessage("현재 브라우저의 프로필 데이터를 서버에 저장하는 중입니다.");
+
+    await firebaseSetDoc(ref, buildCloudSaveDocument(user), { merge: true });
+
+    if (cloudSaveStatus) cloudSaveStatus.textContent = "저장 완료";
+    if (cloudSaveServerState) cloudSaveServerState.textContent = "있음 · 방금 저장";
+    if (cloudLastSaved) cloudLastSaved.textContent = formatSavedAt(new Date().toISOString());
+    setCloudSaveMessage("현재 프로필 데이터가 로그인 계정에 저장되었습니다.");
+    statusText.textContent = "로그인 계정에 현재 데이터를 저장했습니다.";
+  } catch (error) {
+    console.error("서버 저장 실패", error);
+    if (cloudSaveStatus) cloudSaveStatus.textContent = "저장 실패";
+    setCloudSaveMessage(`서버 저장 중 오류가 생겼습니다. ${error.message || error.code || "알 수 없음"}`);
+  } finally {
+    renderCloudSaveState();
+  }
+}
+
+async function loadCurrentDataFromCloud() {
+  const ref = getCloudUserDocRef();
+
+  if (!ref || !firebaseGetDoc) {
+    setCloudSaveMessage("먼저 Google 로그인을 완료해주세요.");
+    return;
+  }
+
+  const ok = confirm("서버에 저장된 데이터로 현재 브라우저 데이터를 교체할까요? 필요하면 먼저 백업 파일을 받아두세요.");
+  if (!ok) return;
+
+  try {
+    if (cloudLoadBtn) cloudLoadBtn.disabled = true;
+    if (cloudSaveStatus) cloudSaveStatus.textContent = "불러오는 중";
+    setCloudSaveMessage("서버에 저장된 데이터를 불러오는 중입니다.");
+
+    const snapshot = await firebaseGetDoc(ref);
+
+    if (!snapshot.exists()) {
+      if (cloudSaveStatus) cloudSaveStatus.textContent = "저장 데이터 없음";
+      setCloudSaveMessage("서버에 저장된 데이터가 없습니다. 먼저 현재 데이터를 서버에 저장해주세요.");
+      return;
+    }
+
+    const data = snapshot.data();
+    restoreProfileStoreFromCloud(data);
+    refreshAllViewsAfterDataChange();
+    renderCloudSaveState();
+
+    if (cloudSaveServerState) cloudSaveServerState.textContent = "있음 · 불러오기 완료";
+    if (cloudLastSaved) cloudLastSaved.textContent = formatCloudSavedAt(data.serverSavedAt || data.savedAt);
+    if (cloudSaveStatus) cloudSaveStatus.textContent = "불러오기 완료";
+    setCloudSaveMessage("서버 데이터를 이 브라우저로 불러왔습니다.");
+    statusText.textContent = "로그인 계정의 데이터를 불러왔습니다.";
+  } catch (error) {
+    console.error("서버 불러오기 실패", error);
+    if (cloudSaveStatus) cloudSaveStatus.textContent = "불러오기 실패";
+    setCloudSaveMessage(`서버 데이터 불러오기 중 오류가 생겼습니다. ${error.message || error.code || "알 수 없음"}`);
+  } finally {
+    renderCloudSaveState();
   }
 }
 
@@ -244,13 +484,19 @@ async function initFirebaseLoginTest() {
   setFirebaseLoginMessage("Firebase SDK를 불러오는 중입니다. 잠시만 기다려주세요.");
 
   try {
-    const [appModule, authModule] = await Promise.all([
+    const [appModule, authModule, firestoreModule] = await Promise.all([
       import(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-app.js`),
-      import(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-auth.js`)
+      import(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-auth.js`),
+      import(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-firestore.js`)
     ]);
 
     const firebaseApp = appModule.initializeApp(FIREBASE_CONFIG);
     firebaseAuth = authModule.getAuth(firebaseApp);
+    firebaseDb = firestoreModule.getFirestore(firebaseApp);
+    firebaseDoc = firestoreModule.doc;
+    firebaseGetDoc = firestoreModule.getDoc;
+    firebaseSetDoc = firestoreModule.setDoc;
+    firebaseServerTimestamp = firestoreModule.serverTimestamp;
     firebaseProvider = new authModule.GoogleAuthProvider();
     firebaseSignInWithPopup = authModule.signInWithPopup;
     firebaseSignOut = authModule.signOut;
@@ -269,20 +515,24 @@ async function initFirebaseLoginTest() {
     }
 
     if (firebaseFirestoreState) {
-      firebaseFirestoreState.textContent = "준비 완료 · 저장은 다음 단계";
+      firebaseFirestoreState.textContent = "준비 완료 · 저장 테스트 가능";
     }
 
     setFirebaseLoginStatus("준비 완료");
-    setFirebaseLoginMessage("Firebase 연결 준비 완료. Google 로그인 테스트 버튼을 눌러 확인하세요.");
+    setFirebaseLoginMessage("Firebase 연결 준비 완료. Google 로그인 후 서버 저장 테스트를 진행하세요.");
+    renderCloudSaveState();
 
     authModule.onAuthStateChanged(firebaseAuth, (user) => {
       if (user) {
         renderFirebaseSignedIn(user);
         setFirebaseLoginStatus("로그인 완료");
-        setFirebaseLoginMessage("Google 로그인 연결이 정상 작동합니다. 운세 데이터 서버 저장은 다음 단계에서 진행합니다.");
+        setFirebaseLoginMessage("Google 로그인 연결이 정상 작동합니다. 이제 서버 저장 테스트를 진행할 수 있습니다.");
+        renderCloudSaveState();
+        refreshCloudServerState();
       } else {
         renderFirebaseSignedOut();
         setFirebaseLoginStatus("준비 완료");
+        renderCloudSaveState();
       }
     });
 
@@ -310,7 +560,9 @@ async function handleFirebaseSignIn() {
     const result = await firebaseSignInWithPopup(firebaseAuth, firebaseProvider);
     renderFirebaseSignedIn(result.user);
     setFirebaseLoginStatus("로그인 완료");
-    setFirebaseLoginMessage("Google 로그인 테스트가 완료되었습니다. 아직 운세 데이터는 서버에 저장하지 않습니다.");
+    setFirebaseLoginMessage("Google 로그인 테스트가 완료되었습니다. 이제 현재 데이터를 서버에 저장할 수 있습니다.");
+    renderCloudSaveState();
+    refreshCloudServerState();
   } catch (error) {
     console.error("Google 로그인 실패", error);
     const code = error.code || "알 수 없는 오류";
@@ -343,7 +595,8 @@ async function handleFirebaseSignOut() {
     await firebaseSignOut(firebaseAuth);
     renderFirebaseSignedOut();
     setFirebaseLoginStatus("준비 완료");
-    setFirebaseLoginMessage("로그아웃했습니다. 다시 Google 로그인 테스트를 할 수 있습니다.");
+    setFirebaseLoginMessage("로그아웃했습니다. 서버 저장 테스트를 하려면 다시 로그인해주세요.");
+    renderCloudSaveState();
   } catch (error) {
     console.error("로그아웃 실패", error);
     setFirebaseLoginMessage(`로그아웃 중 오류가 생겼습니다. ${error.message || error.code || "알 수 없음"}`);
@@ -2692,6 +2945,7 @@ function downloadBackupData() {
   statusText.textContent = "저장 데이터를 백업 파일로 다운로드했습니다.";
   renderDataManager();
   renderLoginStorageInspector();
+  renderCloudSaveState();
 }
 
 function getBackupStorageFromFile(parsed) {
@@ -2921,6 +3175,18 @@ if (firebaseSignOutBtn) {
   firebaseSignOutBtn.addEventListener("click", handleFirebaseSignOut);
 }
 
+if (cloudSaveBtn) {
+  cloudSaveBtn.addEventListener("click", saveCurrentDataToCloud);
+}
+
+if (cloudLoadBtn) {
+  cloudLoadBtn.addEventListener("click", loadCurrentDataFromCloud);
+}
+
+if (cloudRefreshBtn) {
+  cloudRefreshBtn.addEventListener("click", refreshCloudServerState);
+}
+
 if (fortuneHistoryList) {
   fortuneHistoryList.addEventListener("click", (event) => {
     const deleteButton = event.target.closest("[data-history-delete]");
@@ -3010,4 +3276,5 @@ renderFortuneHistory();
 renderAttendance();
 renderDataManager();
 renderLoginStorageInspector();
+renderCloudSaveState();
 initFirebaseLoginTest();

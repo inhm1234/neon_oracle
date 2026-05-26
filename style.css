@@ -128,6 +128,7 @@ body.scanning .title::after {
 .data-manager-card,
 .login-check-card,
 .firebase-login-card,
+.cloud-save-card,
 .input-card,
 .result-card {
   padding: 22px;
@@ -1312,6 +1313,7 @@ button:disabled {
   .data-manager-card,
   .login-check-card,
   .firebase-login-card,
+  .cloud-save-card,
   .input-card,
   .result-card {
     padding: 18px 14px;
@@ -3096,5 +3098,153 @@ button:disabled {
   .firebase-user-box {
     text-align: center;
     justify-items: center;
+  }
+}
+
+
+/* V3-1 Firestore 계정 저장 테스트 */
+.cloud-save-card {
+  margin-bottom: 18px;
+  padding: 22px;
+  border: 1px solid rgba(114, 240, 180, 0.28);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top left, rgba(114, 240, 180, 0.12), transparent 56%),
+    linear-gradient(180deg, rgba(142, 245, 255, 0.05), rgba(0, 0, 0, 0.2));
+  box-shadow:
+    0 0 18px rgba(114, 240, 180, 0.08),
+    inset 0 0 18px rgba(114, 240, 180, 0.04);
+  text-align: left;
+}
+
+.cloud-save-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.cloud-save-top h2 {
+  color: #dcfff0;
+  font-size: 1.1rem;
+  text-shadow: 0 0 10px rgba(114, 240, 180, 0.24);
+}
+
+.cloud-save-badge {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border: 1px solid rgba(114, 240, 180, 0.34);
+  border-radius: 999px;
+  color: #dcfff0;
+  background: rgba(114, 240, 180, 0.08);
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  box-shadow: 0 0 12px rgba(114, 240, 180, 0.12);
+}
+
+.cloud-save-desc {
+  margin-bottom: 14px;
+  color: rgba(239, 252, 255, 0.66);
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.cloud-save-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 13px;
+}
+
+.cloud-save-grid div {
+  padding: 12px 9px;
+  border: 1px solid rgba(114, 240, 180, 0.15);
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.18);
+  text-align: center;
+}
+
+.cloud-save-grid span {
+  display: block;
+  margin-bottom: 6px;
+  color: rgba(225, 248, 255, 0.48);
+  font-size: 0.68rem;
+}
+
+.cloud-save-grid strong {
+  color: rgba(239, 252, 255, 0.9);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.cloud-save-action-box {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid rgba(114, 240, 180, 0.22);
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.cloud-save-action-box strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #dcfff0;
+  font-size: 0.9rem;
+}
+
+.cloud-save-action-box p {
+  color: rgba(239, 252, 255, 0.66);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.cloud-save-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.cloud-save-message {
+  margin-top: 12px;
+  padding: 11px 13px;
+  border: 1px dashed rgba(114, 240, 180, 0.24);
+  border-radius: 15px;
+  color: rgba(239, 252, 255, 0.74);
+  background: rgba(0, 0, 0, 0.13);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+  .cloud-save-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .cloud-save-action-box {
+    grid-template-columns: 1fr;
+  }
+
+  .cloud-save-buttons {
+    justify-content: stretch;
+  }
+
+  .cloud-save-buttons .small-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .cloud-save-top {
+    flex-direction: column;
+  }
+
+  .cloud-save-grid {
+    grid-template-columns: 1fr;
   }
 }
