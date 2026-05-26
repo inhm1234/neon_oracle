@@ -127,6 +127,7 @@ body.scanning .title::after {
 .partner-dex-card,
 .data-manager-card,
 .login-check-card,
+.firebase-login-card,
 .input-card,
 .result-card {
   padding: 22px;
@@ -1310,6 +1311,7 @@ button:disabled {
   .partner-dex-card,
   .data-manager-card,
   .login-check-card,
+  .firebase-login-card,
   .input-card,
   .result-card {
     padding: 18px 14px;
@@ -2884,5 +2886,215 @@ button:disabled {
   .login-key-grid,
   .login-flow-box {
     grid-template-columns: 1fr;
+  }
+}
+
+
+/* V3-0 Firebase 로그인 연결 테스트 */
+.firebase-login-card {
+  margin-bottom: 18px;
+  padding: 22px;
+  border: 1px solid rgba(142, 245, 255, 0.28);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top left, rgba(142, 245, 255, 0.13), transparent 56%),
+    linear-gradient(180deg, rgba(216, 195, 255, 0.05), rgba(0, 0, 0, 0.2));
+  box-shadow:
+    0 0 18px rgba(142, 245, 255, 0.09),
+    inset 0 0 18px rgba(142, 245, 255, 0.04);
+  text-align: left;
+}
+
+.firebase-login-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.firebase-login-top h2 {
+  color: #dffcff;
+  font-size: 1.1rem;
+  text-shadow: 0 0 10px rgba(142, 245, 255, 0.26);
+}
+
+.firebase-status-badge {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border: 1px solid rgba(142, 245, 255, 0.34);
+  border-radius: 999px;
+  color: #dffcff;
+  background: rgba(142, 245, 255, 0.08);
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  box-shadow: 0 0 12px rgba(142, 245, 255, 0.12);
+}
+
+.firebase-login-desc {
+  margin-bottom: 14px;
+  color: rgba(239, 252, 255, 0.66);
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.firebase-state-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 13px;
+}
+
+.firebase-state-grid div {
+  padding: 12px 9px;
+  border: 1px solid rgba(142, 245, 255, 0.14);
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.18);
+  text-align: center;
+}
+
+.firebase-state-grid span {
+  display: block;
+  margin-bottom: 6px;
+  color: rgba(225, 248, 255, 0.48);
+  font-size: 0.68rem;
+}
+
+.firebase-state-grid strong {
+  color: rgba(239, 252, 255, 0.9);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.firebase-user-box {
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 13px;
+  padding: 14px;
+  border: 1px solid rgba(216, 195, 255, 0.22);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(216, 195, 255, 0.11), transparent 58%),
+    rgba(0, 0, 0, 0.17);
+}
+
+.firebase-user-photo {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(142, 245, 255, 0.28);
+  border-radius: 50%;
+  color: #dffcff;
+  background: rgba(142, 245, 255, 0.08);
+  font-weight: bold;
+  box-shadow: 0 0 14px rgba(142, 245, 255, 0.12);
+}
+
+.firebase-user-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.firebase-user-info span {
+  display: block;
+  margin-bottom: 4px;
+  color: rgba(225, 248, 255, 0.46);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+}
+
+.firebase-user-info strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #ffffff;
+  font-size: 0.96rem;
+}
+
+.firebase-user-info p {
+  color: rgba(239, 252, 255, 0.66);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.firebase-action-box {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid rgba(142, 245, 255, 0.2);
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.firebase-action-box strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #dffcff;
+  font-size: 0.9rem;
+}
+
+.firebase-action-box p {
+  color: rgba(239, 252, 255, 0.66);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.firebase-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.firebase-login-message {
+  margin-top: 12px;
+  padding: 11px 13px;
+  border: 1px dashed rgba(142, 245, 255, 0.22);
+  border-radius: 15px;
+  color: rgba(239, 252, 255, 0.74);
+  background: rgba(0, 0, 0, 0.13);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+  .firebase-state-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .firebase-action-box {
+    grid-template-columns: 1fr;
+  }
+
+  .firebase-action-buttons {
+    justify-content: stretch;
+  }
+
+  .firebase-action-buttons .small-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .firebase-login-top {
+    flex-direction: column;
+  }
+
+  .firebase-state-grid,
+  .firebase-user-box {
+    grid-template-columns: 1fr;
+  }
+
+  .firebase-user-box {
+    text-align: center;
+    justify-items: center;
   }
 }

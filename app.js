@@ -107,10 +107,22 @@ const loginSchemaPreview = document.getElementById("loginSchemaPreview");
 const refreshLoginSchemaBtn = document.getElementById("refreshLoginSchemaBtn");
 const copyLoginSchemaBtn = document.getElementById("copyLoginSchemaBtn");
 const loginInspectorMessage = document.getElementById("loginInspectorMessage");
+const firebaseLoginStatus = document.getElementById("firebaseLoginStatus");
+const firebaseProjectState = document.getElementById("firebaseProjectState");
+const firebaseDomainState = document.getElementById("firebaseDomainState");
+const firebaseProviderState = document.getElementById("firebaseProviderState");
+const firebaseFirestoreState = document.getElementById("firebaseFirestoreState");
+const firebaseUserBox = document.getElementById("firebaseUserBox");
+const firebaseUserPhoto = document.getElementById("firebaseUserPhoto");
+const firebaseUserName = document.getElementById("firebaseUserName");
+const firebaseUserEmail = document.getElementById("firebaseUserEmail");
+const firebaseSignInBtn = document.getElementById("firebaseSignInBtn");
+const firebaseSignOutBtn = document.getElementById("firebaseSignOutBtn");
+const firebaseLoginMessage = document.getElementById("firebaseLoginMessage");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V2-11";
+const DEV_VERSION = "V3-0";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -130,6 +142,22 @@ const PROFILE_ACTIVE_KEY = "fortune_active_profile_v1";
 const PROFILE_DEFAULT_ID = "default";
 const PROFILE_DATA_KEYS = DATA_BACKUP_KEYS.map((item) => item.key);
 const LOGIN_SCHEMA_VERSION = "profile_bundle_v1";
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAFtB38nYFrqFMN5f7Wx4m8YVTnmpCpgXc",
+  authDomain: "today-fortune-code.firebaseapp.com",
+  projectId: "today-fortune-code",
+  storageBucket: "today-fortune-code.firebasestorage.app",
+  messagingSenderId: "129903053075",
+  appId: "1:129903053075:web:3f6b8d16e8408039eb72e6",
+  measurementId: "G-9VXED2HZC2"
+};
+const FIREBASE_SDK_VERSION = "10.12.5";
+const FIREBASE_ALLOWED_DOMAIN = "inhm1234.github.io";
+let firebaseAuth = null;
+let firebaseProvider = null;
+let firebaseSignInWithPopup = null;
+let firebaseSignOut = null;
+let firebaseLoginReady = false;
 let isProfileSystemReady = false;
 
 const relationMeta = {
@@ -2693,6 +2721,14 @@ if (copyLoginSchemaBtn) {
   copyLoginSchemaBtn.addEventListener("click", copyLoginSchemaPreview);
 }
 
+if (firebaseSignInBtn) {
+  firebaseSignInBtn.addEventListener("click", handleFirebaseSignIn);
+}
+
+if (firebaseSignOutBtn) {
+  firebaseSignOutBtn.addEventListener("click", handleFirebaseSignOut);
+}
+
 if (fortuneHistoryList) {
   fortuneHistoryList.addEventListener("click", (event) => {
     const deleteButton = event.target.closest("[data-history-delete]");
@@ -2782,3 +2818,4 @@ renderFortuneHistory();
 renderAttendance();
 renderDataManager();
 renderLoginStorageInspector();
+initFirebaseLoginTest();

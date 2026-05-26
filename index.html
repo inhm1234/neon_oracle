@@ -18,7 +18,7 @@
   <title>오늘의 운세코드</title>
 
   <link rel="manifest" href="manifest.json"/>
-  <link rel="stylesheet" href="./style.css?v=20260525-v211"/>
+  <link rel="stylesheet" href="./style.css?v=20260526-v30"/>
 </head>
 
 <body>
@@ -98,6 +98,63 @@
 
     <div id="profileMessage" class="profile-message">
       V2-8에서 쓰던 데이터는 첫 실행 시 기본 프로필로 자동 이전됩니다. V2-10부터 프로필 이름 변경, 복사, 삭제가 가능하고, V2-11에서는 로그인 저장 구조를 점검합니다.
+    </div>
+  </section>
+
+  <section id="firebaseLoginCard" class="firebase-login-card" aria-label="Firebase 로그인 연결 테스트">
+    <div class="firebase-login-top">
+      <div>
+        <span class="small-label">FIREBASE LOGIN TEST</span>
+        <h2>Firebase 로그인 연결 테스트</h2>
+      </div>
+      <strong id="firebaseLoginStatus" class="firebase-status-badge">연결 확인 중</strong>
+    </div>
+
+    <p class="firebase-login-desc">
+      V3-0에서는 먼저 Google 로그인이 정상 연결되는지만 확인합니다. 운세 데이터 서버 저장은 다음 단계에서 진행합니다.
+    </p>
+
+    <div class="firebase-state-grid">
+      <div>
+        <span>Firebase 프로젝트</span>
+        <strong id="firebaseProjectState">today-fortune-code</strong>
+      </div>
+      <div>
+        <span>승인 도메인</span>
+        <strong id="firebaseDomainState">inhm1234.github.io</strong>
+      </div>
+      <div>
+        <span>로그인 제공업체</span>
+        <strong id="firebaseProviderState">Google</strong>
+      </div>
+      <div>
+        <span>Firestore</span>
+        <strong id="firebaseFirestoreState">준비 완료 · 저장은 다음 단계</strong>
+      </div>
+    </div>
+
+    <div id="firebaseUserBox" class="firebase-user-box">
+      <div id="firebaseUserPhoto" class="firebase-user-photo">?</div>
+      <div class="firebase-user-info">
+        <span>현재 로그인 사용자</span>
+        <strong id="firebaseUserName">로그인 전</strong>
+        <p id="firebaseUserEmail">Google 로그인 버튼을 눌러 연결을 확인하세요.</p>
+      </div>
+    </div>
+
+    <div class="firebase-action-box">
+      <div>
+        <strong>로그인 테스트</strong>
+        <p>로그인 성공 후에는 이름과 이메일만 화면에 표시합니다. 아직 운세 데이터는 서버에 저장하지 않습니다.</p>
+      </div>
+      <div class="firebase-action-buttons">
+        <button id="firebaseSignInBtn" class="small-button" type="button">Google 로그인 테스트</button>
+        <button id="firebaseSignOutBtn" class="small-button danger-button hidden" type="button">로그아웃</button>
+      </div>
+    </div>
+
+    <div id="firebaseLoginMessage" class="firebase-login-message">
+      Firebase SDK를 불러오는 중입니다. 버튼이 활성화되면 Google 로그인을 테스트하세요.
     </div>
   </section>
 
@@ -573,7 +630,7 @@
         <span class="small-label">DEVELOPMENT CHECKLIST</span>
         <h2>업데이트 점검표</h2>
       </div>
-      <strong id="devVersionBadge" class="version-badge">V2-11</strong>
+      <strong id="devVersionBadge" class="version-badge">V3-0</strong>
     </div>
 
     <p class="dev-check-desc">
@@ -589,52 +646,52 @@
 
     <div class="dev-check-list">
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v211-version-visible" />
-        <span>화면에 현재 버전 V2-11이 보인다.</span>
+        <input type="checkbox" data-check-id="v30-version-visible" />
+        <span>화면에 현재 버전 V3-0이 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v211-login-card" />
-        <span>로그인 저장 구조 점검 카드가 화면에 보인다.</span>
+        <input type="checkbox" data-check-id="v30-firebase-card" />
+        <span>Firebase 로그인 연결 테스트 카드가 화면에 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v211-current-profile" />
-        <span>점검 카드에 현재 프로필 이름이 표시된다.</span>
+        <input type="checkbox" data-check-id="v30-sdk-ready" />
+        <span>Firebase 연결 상태가 준비 완료로 표시된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v211-data-bundle" />
-        <span>파트너 / 운세 기록 / 도감 / 출석 / 점검표 데이터 묶음 상태가 보인다.</span>
+        <input type="checkbox" data-check-id="v30-google-login" />
+        <span>Google 로그인 테스트 버튼을 누르면 로그인 창이 열린다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v211-key-status" />
-        <span>로그인 저장에 필요한 저장 키 상태가 확인된다.</span>
+        <input type="checkbox" data-check-id="v30-user-visible" />
+        <span>로그인 후 사용자 이름과 이메일이 표시된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v211-schema-preview" />
-        <span>로그인 저장용 데이터 미리보기 JSON이 보인다.</span>
+        <input type="checkbox" data-check-id="v30-logout" />
+        <span>로그아웃 버튼이 정상 작동한다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v211-copy-preview" />
-        <span>미리보기 복사 버튼이 작동한다.</span>
+        <input type="checkbox" data-check-id="v30-v211-still-ok" />
+        <span>V2-11의 로그인 저장 구조 점검 카드가 그대로 작동한다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v211-backup-still-ok" />
+        <input type="checkbox" data-check-id="v30-backup-still-ok" />
         <span>백업 파일 다운로드와 백업 파일 불러오기가 그대로 작동한다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v211-v210-still-ok" />
-        <span>V2-10의 프로필 이름 변경 / 복사 / 삭제 기능이 그대로 작동한다.</span>
+        <input type="checkbox" data-check-id="v30-profile-still-ok" />
+        <span>프로필 이름 변경 / 복사 / 삭제 기능이 그대로 작동한다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v211-check-save" />
+        <input type="checkbox" data-check-id="v30-check-save" />
         <span>새로고침해도 개발 점검 체크 상태가 유지된다.</span>
       </label>
     </div>
@@ -644,7 +701,7 @@
     </div>
   </section>
 
-  <div class="version-footer">오늘의 운세코드 V2-11 · 로그인 저장 구조 점검 버전</div>
+  <div class="version-footer">오늘의 운세코드 V3-0 · Firebase 로그인 연결 테스트 버전</div>
 
 </main>
 
@@ -655,7 +712,7 @@
   <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
 
-<script src="./app.js?v=20260525-v211"></script>
+<script src="./app.js?v=20260526-v30"></script>
 
 </body>
 </html>
