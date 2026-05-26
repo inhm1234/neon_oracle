@@ -3498,7 +3498,7 @@ button:disabled {
   }
 }
 
-/* V3-5 선택값 저장 및 동기화 설정 유지 */
+/* V3-6 브라우저/서버 우선 추천 실행 강화 */
 .sync-choice-card {
   margin-bottom: 18px;
   padding: 22px;
@@ -3515,7 +3515,8 @@ button:disabled {
 
 .sync-choice-top,
 .sync-mode-box,
-.sync-action-box {
+.sync-action-box,
+.sync-primary-box {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -3559,7 +3560,8 @@ button:disabled {
 }
 
 .sync-choice-grid div,
-.sync-recommendation-box {
+.sync-recommendation-box,
+.sync-primary-box {
   padding: 12px 9px;
   border: 1px solid rgba(216, 195, 255, 0.16);
   border-radius: 16px;
@@ -3571,7 +3573,8 @@ button:disabled {
 }
 
 .sync-choice-grid span,
-.sync-recommendation-box span {
+.sync-recommendation-box span,
+.sync-primary-box span {
   display: block;
   margin-bottom: 6px;
   color: rgba(225, 248, 255, 0.48);
@@ -3579,14 +3582,16 @@ button:disabled {
 }
 
 .sync-choice-grid strong,
-.sync-recommendation-box strong {
+.sync-recommendation-box strong,
+.sync-primary-box strong {
   color: rgba(239, 252, 255, 0.92);
   font-size: 0.82rem;
   line-height: 1.35;
 }
 
 .sync-mode-box,
-.sync-action-box {
+.sync-action-box,
+.sync-primary-box {
   margin-top: 12px;
   padding: 14px;
   border: 1px solid rgba(216, 195, 255, 0.2);
@@ -3595,7 +3600,8 @@ button:disabled {
 }
 
 .sync-mode-box strong,
-.sync-action-box strong {
+.sync-action-box strong,
+.sync-primary-box strong {
   display: block;
   margin-bottom: 5px;
   color: #f1e8ff;
@@ -3604,7 +3610,8 @@ button:disabled {
 
 .sync-mode-box p,
 .sync-action-box p,
-.sync-recommendation-box p {
+.sync-recommendation-box p,
+.sync-primary-box p {
   color: rgba(239, 252, 255, 0.66);
   font-size: 0.8rem;
   line-height: 1.55;
@@ -3638,6 +3645,32 @@ button:disabled {
   color: #fff1b8;
 }
 
+.sync-primary-box {
+  margin-top: 12px;
+  border-color: rgba(255, 225, 132, 0.26);
+  background:
+    radial-gradient(circle at top left, rgba(255, 225, 132, 0.1), transparent 58%),
+    rgba(0, 0, 0, 0.16);
+}
+
+.sync-primary-side {
+  min-width: 170px;
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+  text-align: right;
+}
+
+.primary-sync-button {
+  border-color: rgba(255, 225, 132, 0.62);
+  color: #fff1b8;
+  background: rgba(255, 225, 132, 0.11);
+}
+
+.primary-sync-button:disabled {
+  opacity: 0.58;
+}
+
 .sync-choice-message {
   margin-top: 12px;
   padding: 11px 13px;
@@ -3655,18 +3688,21 @@ button:disabled {
   }
 
   .sync-mode-box,
-  .sync-action-box {
+  .sync-action-box,
+  .sync-primary-box {
     flex-direction: column;
   }
 
   .sync-mode-buttons,
-  .sync-action-buttons {
+  .sync-action-buttons,
+  .sync-primary-side {
     justify-content: stretch;
     width: 100%;
   }
 
   .sync-mode-buttons .small-button,
-  .sync-action-buttons .small-button {
+  .sync-action-buttons .small-button,
+  .sync-primary-side .small-button {
     width: 100%;
   }
 }

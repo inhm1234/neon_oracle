@@ -161,10 +161,14 @@ const syncChoiceCompareBtn = document.getElementById("syncChoiceCompareBtn");
 const syncChoiceSaveBtn = document.getElementById("syncChoiceSaveBtn");
 const syncChoiceLoadBtn = document.getElementById("syncChoiceLoadBtn");
 const syncChoiceResetBtn = document.getElementById("syncChoiceResetBtn");
+const syncChoicePrimaryMode = document.getElementById("syncChoicePrimaryMode");
+const syncChoicePrimaryAction = document.getElementById("syncChoicePrimaryAction");
+const syncChoicePrimaryReason = document.getElementById("syncChoicePrimaryReason");
+const syncChoiceRunBtn = document.getElementById("syncChoiceRunBtn");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-5";
+const DEV_VERSION = "V3-6";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -208,6 +212,7 @@ let firebaseSetDoc = null;
 let firebaseServerTimestamp = null;
 let firebaseLoginReady = false;
 let isProfileSystemReady = false;
+let lastSyncDecision = null;
 
 
 function setFirebaseLoginMessage(message) {
@@ -541,6 +546,14 @@ function saveSyncChoiceMode(mode) {
   localStorage.setItem(SYNC_OPTION_KEY, nextMode);
   localStorage.setItem(SYNC_OPTION_UPDATED_KEY, updatedAt);
   updateSyncChoiceOptionUI();
+
+  if (lastSyncDecision) {
+    updateSyncPrimaryActionUI();
+    if (syncChoiceRecommendation) syncChoiceRecommendation.textContent = getSyncRecommendationText(lastSyncDecision);
+    setSyncChoiceMessage(`동기화 선택 방식을 ${getSyncModeInfo(nextMode).label}(으)로 저장했습니다. 현재 비교 결과 기준의 추천 실행도 함께 갱신했습니다.`);
+    return;
+  }
+
   renderSyncChoiceWaiting(`동기화 선택 방식을 ${getSyncModeInfo(nextMode).label}(으)로 저장했습니다. 새로고침해도 이 설정이 유지됩니다.`);
 }
 
@@ -551,6 +564,14 @@ function resetSyncChoiceMode() {
   localStorage.setItem(SYNC_OPTION_KEY, "ask");
   localStorage.setItem(SYNC_OPTION_UPDATED_KEY, new Date().toISOString());
   updateSyncChoiceOptionUI();
+
+  if (lastSyncDecision) {
+    updateSyncPrimaryActionUI();
+    if (syncChoiceRecommendation) syncChoiceRecommendation.textContent = getSyncRecommendationText(lastSyncDecision);
+    setSyncChoiceMessage("동기화 선택 방식을 추천만 보기로 초기화했습니다. 현재 비교 결과 기준의 추천 실행도 갱신했습니다.");
+    return;
+  }
+
   renderSyncChoiceWaiting("동기화 선택 방식을 추천만 보기로 초기화했습니다.");
 }
 
@@ -580,6 +601,133 @@ function setSyncChoiceButtonsEnabled(enabled) {
   [syncChoiceCompareBtn, syncChoiceSaveBtn, syncChoiceLoadBtn].forEach((button) => {
     if (button) button.disabled = !enabled;
   });
+  updateSyncPrimaryActionUI();
+}
+
+function getSyncPrimaryAction(decision = lastSyncDecision) {
+  const mode = loadSyncChoiceMode();
+
+  if (!decision) {
+    return {
+      action: "compare",
+      label: "먼저 비교 필요",
+      reason: "서버와 브라우저 데이터를 먼저 비교해야 추천 실행을 정할 수 있습니다.",
+      enabled: Boolean(firebaseAuth && firebaseAuth.currentUser && firebaseDb)
+    };
+  }
+
+  if (decision.action === "none") {
+    return {
+      action: "none",
+      label: "실행 필요 낮음",
+      reason: "서버와 브라우저의 주요 데이터가 거의 같아서 지금은 저장/불러오기를 하지 않아도 괜찮습니다.",
+      enabled: false
+    };
+  }
+
+  if (mode === "manual") {
+    return {
+      action: "manual",
+      label: "직접 선택",
+      reason: "항상 수동 모드입니다. 아래의 저장 또는 불러오기 버튼을 직접 선택하세요.",
+      enabled: false
+    };
+  }
+
+  if (mode === "local") {
+    return {
+      action: "save",
+      label: "브라우저 우선 · 서버 저장",
+      reason: decision.type === "first-save"
+        ? "서버 데이터가 아직 없어서 현재 브라우저 데이터를 첫 서버 데이터로 저장하는 것을 추천합니다."
+        : "브라우저 우선 모드라 현재 브라우저 데이터를 기준으로 서버 저장을 추천합니다.",
+      enabled: Boolean(firebaseAuth && firebaseAuth.currentUser && firebaseDb)
+    };
+  }
+
+  if (mode === "server") {
+    if (decision.type === "first-save") {
+      return {
+        action: "save",
+        label: "서버 데이터 없음 · 첫 저장",
+        reason: "서버 우선 모드지만 아직 서버 데이터가 없어서 현재 브라우저 데이터를 먼저 서버에 저장해야 합니다.",
+        enabled: Boolean(firebaseAuth && firebaseAuth.currentUser && firebaseDb)
+      };
+    }
+
+    return {
+      action: "load",
+      label: "서버 우선 · 서버 불러오기",
+      reason: "서버 우선 모드라 서버 데이터를 기준으로 불러오기를 추천합니다. 불러오기 전 백업을 권장합니다.",
+      enabled: Boolean(firebaseAuth && firebaseAuth.currentUser && firebaseDb)
+    };
+  }
+
+  if (decision.action === "save") {
+    return {
+      action: "save",
+      label: "추천 실행 · 서버 저장",
+      reason: "비교 결과상 현재 브라우저 데이터를 서버에 저장하는 쪽을 추천합니다.",
+      enabled: Boolean(firebaseAuth && firebaseAuth.currentUser && firebaseDb)
+    };
+  }
+
+  if (decision.action === "load") {
+    return {
+      action: "load",
+      label: "추천 실행 · 서버 불러오기",
+      reason: "비교 결과상 서버 데이터를 브라우저로 불러오는 쪽을 추천합니다. 불러오기 전 백업을 권장합니다.",
+      enabled: Boolean(firebaseAuth && firebaseAuth.currentUser && firebaseDb)
+    };
+  }
+
+  return {
+    action: "manual",
+    label: "직접 선택 필요",
+    reason: "자동으로 하나를 고르기 애매합니다. 비교 내용을 보고 직접 저장 또는 불러오기를 선택하세요.",
+    enabled: false
+  };
+}
+
+function updateSyncPrimaryActionUI() {
+  const modeInfo = getSyncModeInfo(loadSyncChoiceMode());
+  const primary = getSyncPrimaryAction();
+
+  if (syncChoicePrimaryMode) syncChoicePrimaryMode.textContent = modeInfo.label;
+  if (syncChoicePrimaryAction) syncChoicePrimaryAction.textContent = primary.label;
+  if (syncChoicePrimaryReason) syncChoicePrimaryReason.textContent = primary.reason;
+
+  if (syncChoiceRunBtn) {
+    syncChoiceRunBtn.disabled = !primary.enabled || primary.action === "none" || primary.action === "manual";
+    syncChoiceRunBtn.textContent = primary.action === "save"
+      ? "추천대로 서버 저장"
+      : primary.action === "load"
+        ? "추천대로 서버 불러오기"
+        : primary.action === "compare"
+          ? "먼저 비교하기"
+          : "추천 실행 대기";
+  }
+}
+
+async function runSyncPrimaryAction() {
+  const primary = getSyncPrimaryAction();
+
+  if (primary.action === "compare") {
+    await compareCloudAndLocalData();
+    return;
+  }
+
+  if (primary.action === "save") {
+    await saveCurrentDataToCloud();
+    return;
+  }
+
+  if (primary.action === "load") {
+    await loadCurrentDataFromCloud();
+    return;
+  }
+
+  setSyncChoiceMessage(primary.reason);
 }
 
 function getSyncDecision(serverData) {
@@ -666,7 +814,9 @@ function getSyncRecommendationText(decision) {
 function renderSyncChoiceWaiting(message = "로그인 후 서버 상태를 확인하면 동기화 추천이 표시됩니다.") {
   const user = firebaseAuth ? firebaseAuth.currentUser : null;
 
+  lastSyncDecision = null;
   updateSyncChoiceOptionUI();
+  updateSyncPrimaryActionUI();
   if (syncChoiceStatus) syncChoiceStatus.textContent = user ? "추천 대기" : "로그인 대기";
   if (syncChoiceUser) syncChoiceUser.textContent = user ? (user.email || user.displayName || "Google 사용자") : "로그인 전";
   if (syncChoiceLast) syncChoiceLast.textContent = "아직 없음";
@@ -681,7 +831,9 @@ function renderSyncChoiceFromServerData(serverData, source = "auto") {
   const decision = getSyncDecision(serverData);
   const checkedAt = new Date().toISOString();
 
+  lastSyncDecision = decision;
   updateSyncChoiceOptionUI();
+  updateSyncPrimaryActionUI();
   if (syncChoiceStatus) syncChoiceStatus.textContent = "추천 완료";
   if (syncChoiceUser) syncChoiceUser.textContent = user ? (user.email || user.displayName || "Google 사용자") : "로그인 전";
   if (syncChoiceLast) syncChoiceLast.textContent = formatSavedAt(checkedAt);
@@ -3722,6 +3874,10 @@ if (syncChoiceLoadBtn) {
 
 if (syncChoiceResetBtn) {
   syncChoiceResetBtn.addEventListener("click", resetSyncChoiceMode);
+}
+
+if (syncChoiceRunBtn) {
+  syncChoiceRunBtn.addEventListener("click", runSyncPrimaryAction);
 }
 
 if (fortuneHistoryList) {

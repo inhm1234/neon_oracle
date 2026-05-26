@@ -18,7 +18,7 @@
   <title>오늘의 운세코드</title>
 
   <link rel="manifest" href="manifest.json"/>
-  <link rel="stylesheet" href="./style.css?v=20260526-v35"/>
+  <link rel="stylesheet" href="./style.css?v=20260526-v36"/>
 </head>
 
 <body>
@@ -111,7 +111,7 @@
     </div>
 
     <p class="firebase-login-desc">
-      V3-5에서는 서버 상태 자동 확인 후, 사용자가 선택한 동기화 방식을 저장하고 새로고침 후에도 유지합니다.
+      V3-6에서는 서버 상태 자동 확인 후, 사용자가 선택한 동기화 방식을 저장하고 새로고침 후에도 유지합니다.
     </p>
 
     <div class="firebase-state-grid">
@@ -168,7 +168,7 @@
     </div>
 
     <p class="cloud-save-desc">
-      V3-5에서는 서버/브라우저 비교 결과와 저장된 동기화 선택값을 함께 보여줍니다. 자동 저장은 아직 하지 않습니다.
+      V3-6에서는 서버/브라우저 비교 결과와 저장된 동기화 선택값을 함께 보여줍니다. 자동 저장은 아직 하지 않습니다.
     </p>
 
     <div class="cloud-save-grid">
@@ -254,7 +254,7 @@
     </div>
 
     <p class="cloud-auto-check-desc">
-      V3-5에서는 Google 로그인 상태가 확인되면 서버 데이터가 있는지 자동으로 확인하고, 저장된 동기화 설정을 기준으로 다음 행동을 추천합니다.
+      V3-6에서는 Google 로그인 상태가 확인되면 서버 데이터가 있는지 자동으로 확인하고, 저장된 동기화 설정을 기준으로 다음 행동을 추천합니다.
     </p>
 
     <div class="auto-check-grid">
@@ -292,14 +292,14 @@
   <section id="syncChoiceCard" class="sync-choice-card" aria-label="선택값 저장 및 동기화 설정 유지">
     <div class="sync-choice-top">
       <div>
-        <span class="small-label">SYNC SETTING KEEP</span>
-        <h2>선택값 저장 및 동기화 설정 유지</h2>
+        <span class="small-label">SYNC ACTION GUIDE</span>
+        <h2>브라우저/서버 우선 추천 실행 강화</h2>
       </div>
       <strong id="syncChoiceStatus" class="sync-choice-badge">로그인 대기</strong>
     </div>
 
     <p class="sync-choice-desc">
-      자동으로 저장하거나 불러오지는 않습니다. 선택한 동기화 방식을 브라우저에 저장해두고, 새로고침 후에도 같은 기준으로 추천을 보여줍니다.
+      자동 저장/자동 불러오기는 아직 하지 않습니다. 대신 선택한 동기화 방식에 따라 가장 안전한 실행 버튼을 더 크게 추천해줍니다.
     </p>
 
     <div class="sync-choice-grid">
@@ -349,10 +349,23 @@
       <p>서버 상태를 확인하면 추천 문구가 여기에 표시됩니다.</p>
     </div>
 
+    <div class="sync-primary-box">
+      <div>
+        <span>추천 실행</span>
+        <strong id="syncChoicePrimaryAction">먼저 비교 필요</strong>
+        <p id="syncChoicePrimaryReason">서버와 브라우저 데이터를 비교하면 선택한 방식 기준으로 추천 실행 버튼이 준비됩니다.</p>
+      </div>
+      <div class="sync-primary-side">
+        <span>현재 기준</span>
+        <strong id="syncChoicePrimaryMode">추천만 보기</strong>
+        <button id="syncChoiceRunBtn" class="small-button primary-sync-button" type="button" disabled>먼저 비교하기</button>
+      </div>
+    </div>
+
     <div class="sync-action-box">
       <div>
         <strong>선택형 실행</strong>
-        <p>추천을 확인한 뒤 직접 버튼을 누르세요. 저장된 선택 방식은 추천 기준으로만 쓰이며, 기존 확인창이 다시 나옵니다.</p>
+        <p>추천 실행 버튼이 가장 안전해 보이는 행동을 먼저 제안합니다. 그래도 실제 저장/불러오기는 기존 확인창을 다시 거칩니다.</p>
       </div>
       <div class="sync-action-buttons">
         <button id="syncChoiceCompareBtn" class="small-button" type="button">다시 비교하고 추천 보기</button>
@@ -839,7 +852,7 @@
         <span class="small-label">DEVELOPMENT CHECKLIST</span>
         <h2>업데이트 점검표</h2>
       </div>
-      <strong id="devVersionBadge" class="version-badge">V3-5</strong>
+      <strong id="devVersionBadge" class="version-badge">V3-6</strong>
     </div>
 
     <p class="dev-check-desc">
@@ -855,52 +868,52 @@
 
     <div class="dev-check-list">
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v35-version-visible" />
-        <span>화면에 현재 버전 V3-5가 보인다.</span>
+        <input type="checkbox" data-check-id="v36-version-visible" />
+        <span>화면에 현재 버전 V3-6이 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v35-firebase-card" />
+        <input type="checkbox" data-check-id="v36-firebase-card" />
         <span>Firebase 로그인 연결 테스트 카드가 화면에 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v35-sdk-ready" />
+        <input type="checkbox" data-check-id="v36-sdk-ready" />
         <span>Firebase 연결 상태가 준비 완료로 표시된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v35-google-login" />
+        <input type="checkbox" data-check-id="v36-google-login" />
         <span>Google 로그인 테스트 버튼을 누르면 로그인 창이 열린다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v35-user-visible" />
+        <input type="checkbox" data-check-id="v36-user-visible" />
         <span>로그인 후 사용자 이름과 이메일이 표시된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v35-auto-card" />
+        <input type="checkbox" data-check-id="v36-auto-card" />
         <span>로그인 후 서버 상태 자동 확인 카드가 그대로 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v35-sync-card" />
-        <span>선택값 저장 및 동기화 설정 유지 카드가 보인다.</span>
+        <input type="checkbox" data-check-id="v36-sync-card" />
+        <span>브라우저/서버 우선 추천 실행 강화 카드가 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v35-sync-mode" />
-        <span>동기화 선택 방식 버튼을 누르면 선택 상태가 바뀌고 저장된다.</span>
+        <input type="checkbox" data-check-id="v36-sync-mode" />
+        <span>동기화 선택 방식 버튼을 누르면 추천 실행 내용도 함께 바뀐다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v35-recommendation" />
+        <input type="checkbox" data-check-id="v36-recommendation" />
         <span>새로고침 후에도 마지막 동기화 선택 방식이 유지된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v35-check-save" />
+        <input type="checkbox" data-check-id="v36-check-save" />
         <span>설정 초기화 버튼을 누르면 추천만 보기로 돌아간다.</span>
       </label>
     </div>
@@ -910,7 +923,7 @@
     </div>
   </section>
 
-  <div class="version-footer">오늘의 운세코드 V3-5 · 선택값 저장 및 동기화 설정 유지 버전</div>
+  <div class="version-footer">오늘의 운세코드 V3-6 · 브라우저/서버 우선 추천 실행 강화 버전</div>
 
 </main>
 
@@ -921,7 +934,7 @@
   <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
 
-<script src="./app.js?v=20260526-v35"></script>
+<script src="./app.js?v=20260526-v36"></script>
 
 </body>
 </html>
