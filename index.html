@@ -1,9 +1,9 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
-
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-N04YSQWXDE"></script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-N04YSQWXDE"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -11,930 +11,763 @@
 
   gtag('config', 'G-N04YSQWXDE');
 </script>
-
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-  <title>오늘의 운세코드</title>
-
-  <link rel="manifest" href="manifest.json"/>
-  <link rel="stylesheet" href="./style.css?v=20260526-v36"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>오늘의 운세코드</title>
+<link href="manifest.json" rel="manifest"/>
+<link href="./style.css?v=20260526-v37" rel="stylesheet"/>
 </head>
-
 <body>
-
 <canvas id="matrix"></canvas>
 <div class="background-glow"></div>
-
 <main class="container">
 
-  <div class="brand-label">AI ORACLE FORTUNE SYSTEM</div>
 
-  <h1 class="title" data-text="오늘의 운세코드">오늘의 운세코드</h1>
 
-  <p class="subtitle">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="brand-label">AI ORACLE FORTUNE SYSTEM</div><h1 class="title" data-text="오늘의 운세코드">오늘의 운세코드</h1><p class="subtitle">
     생년월일과 태어난 시간을 바탕으로 오늘의 운세 흐름을 분석합니다.
-  </p>
-
-  <section id="profileCard" class="profile-card" aria-label="프로필 저장 구조">
-    <div class="profile-card-top">
-      <div>
-        <span class="small-label">PROFILE STORAGE</span>
-        <h2>프로필 저장 구조 / 관리</h2>
-      </div>
-      <strong id="profileCurrentBadge" class="profile-current-badge">기본 프로필</strong>
-    </div>
-
-    <p class="profile-desc">
-      아직 진짜 로그인은 아니지만, 로그인처럼 프로필마다 파트너 / 출석 / 도감 / 이전 운세 기록을 따로 저장하고 관리합니다.
+  </p><section aria-label="Google 계정 저장 상태" class="firebase-login-card user-account-card" id="firebaseLoginCard">
+<div class="firebase-login-top">
+<div>
+<span class="small-label">ACCOUNT SAVE</span>
+<h2>Google 계정 저장</h2>
+</div>
+<strong class="firebase-status-badge" id="firebaseLoginStatus">연결 확인 중</strong>
+</div>
+<p class="firebase-login-desc user-simple-desc">
+      로그인하면 운세 기록과 파트너 데이터를 계정에 저장할 수 있습니다. 기본 화면에서는 운세 보기만 편하게 사용할 수 있어요.
     </p>
-
-    <div class="profile-control-box">
-      <label class="profile-select-field">
-        <span>현재 프로필</span>
-        <select id="profileSelect"></select>
-      </label>
-      <button id="switchProfileBtn" class="small-button" type="button">프로필 전환</button>
+<div class="firebase-user-box compact-user-box" id="firebaseUserBox">
+<div class="firebase-user-photo" id="firebaseUserPhoto">?</div>
+<div class="firebase-user-info">
+<span>계정 상태</span>
+<strong id="firebaseUserName">로그인 전</strong>
+<p id="firebaseUserEmail">Google로 로그인하면 내 데이터 저장을 사용할 수 있습니다.</p>
+</div>
+</div>
+<div class="firebase-action-box compact-action-box">
+<div>
+<strong>간편 저장 준비</strong>
+<p>서버 저장/불러오기 같은 관리 기능은 아래 고급 설정 안에 정리했습니다.</p>
+</div>
+<div class="firebase-action-buttons">
+<button class="small-button" id="firebaseSignInBtn" type="button">Google로 로그인</button>
+<button class="small-button danger-button hidden" id="firebaseSignOutBtn" type="button">로그아웃</button>
+</div>
+</div>
+<div aria-hidden="true" class="firebase-state-grid firebase-system-state hidden">
+<div><span>Firebase 프로젝트</span><strong id="firebaseProjectState">today-fortune-code</strong></div>
+<div><span>승인 도메인</span><strong id="firebaseDomainState">inhm1234.github.io</strong></div>
+<div><span>로그인 제공업체</span><strong id="firebaseProviderState">Google</strong></div>
+<div><span>Firestore</span><strong id="firebaseFirestoreState">준비 완료 · 저장 테스트 가능</strong></div>
+</div>
+<div class="firebase-login-message" id="firebaseLoginMessage">
+      Firebase 연결을 확인하는 중입니다. 준비가 끝나면 Google 로그인을 사용할 수 있습니다.
     </div>
-
-    <div class="profile-create-box">
-      <label class="profile-name-field">
-        <span>새 프로필 이름</span>
-        <input id="newProfileName" type="text" placeholder="예: 내 프로필, 아내 프로필, 테스트" maxlength="18" />
-      </label>
-      <button id="createProfileBtn" class="small-button" type="button">새 프로필 만들기</button>
-    </div>
-
-    <div class="profile-manage-box">
-      <label class="profile-name-field">
-        <span>현재 프로필 이름 변경</span>
-        <input id="renameProfileName" type="text" placeholder="바꿀 이름 입력" maxlength="18" />
-      </label>
-      <div class="profile-manage-actions">
-        <button id="renameProfileBtn" class="small-button" type="button">이름 변경</button>
-        <button id="duplicateProfileBtn" class="small-button" type="button">현재 프로필 복사</button>
-        <button id="deleteProfileBtn" class="small-button danger-button" type="button">현재 프로필 삭제</button>
-      </div>
-    </div>
-
-    <div class="profile-info-grid">
-      <div>
-        <span>프로필 수</span>
-        <strong id="profileCountText">1개</strong>
-      </div>
-      <div>
-        <span>현재 저장 방식</span>
-        <strong>프로필별 분리</strong>
-      </div>
-      <div>
-        <span>기존 데이터</span>
-        <strong id="profileMigrationState">자동 이전 완료</strong>
-      </div>
-      <div>
-        <span>관리 기능</span>
-        <strong>이름 변경 / 복사 / 삭제</strong>
-      </div>
-    </div>
-
-    <div id="profileMessage" class="profile-message">
-      V2-8에서 쓰던 데이터는 첫 실행 시 기본 프로필로 자동 이전됩니다. V2-10부터 프로필 이름 변경, 복사, 삭제가 가능하고, V2-11에서는 로그인 저장 구조를 점검합니다.
-    </div>
-  </section>
-
-  <section id="firebaseLoginCard" class="firebase-login-card" aria-label="Firebase 로그인 연결 테스트">
-    <div class="firebase-login-top">
-      <div>
-        <span class="small-label">FIREBASE LOGIN TEST</span>
-        <h2>Firebase 로그인 연결 테스트</h2>
-      </div>
-      <strong id="firebaseLoginStatus" class="firebase-status-badge">연결 확인 중</strong>
-    </div>
-
-    <p class="firebase-login-desc">
-      V3-6에서는 서버 상태 자동 확인 후, 사용자가 선택한 동기화 방식을 저장하고 새로고침 후에도 유지합니다.
-    </p>
-
-    <div class="firebase-state-grid">
-      <div>
-        <span>Firebase 프로젝트</span>
-        <strong id="firebaseProjectState">today-fortune-code</strong>
-      </div>
-      <div>
-        <span>승인 도메인</span>
-        <strong id="firebaseDomainState">inhm1234.github.io</strong>
-      </div>
-      <div>
-        <span>로그인 제공업체</span>
-        <strong id="firebaseProviderState">Google</strong>
-      </div>
-      <div>
-        <span>Firestore</span>
-        <strong id="firebaseFirestoreState">준비 완료 · 저장 테스트 가능</strong>
-      </div>
-    </div>
-
-    <div id="firebaseUserBox" class="firebase-user-box">
-      <div id="firebaseUserPhoto" class="firebase-user-photo">?</div>
-      <div class="firebase-user-info">
-        <span>현재 로그인 사용자</span>
-        <strong id="firebaseUserName">로그인 전</strong>
-        <p id="firebaseUserEmail">Google 로그인 버튼을 눌러 연결을 확인하세요.</p>
-      </div>
-    </div>
-
-    <div class="firebase-action-box">
-      <div>
-        <strong>로그인 테스트</strong>
-        <p>로그인 성공 후에는 서버 저장 테스트 카드에서 현재 프로필 데이터를 Firestore에 저장하고 다시 불러올 수 있습니다.</p>
-      </div>
-      <div class="firebase-action-buttons">
-        <button id="firebaseSignInBtn" class="small-button" type="button">Google 로그인 테스트</button>
-        <button id="firebaseSignOutBtn" class="small-button danger-button hidden" type="button">로그아웃</button>
-      </div>
-    </div>
-
-    <div id="firebaseLoginMessage" class="firebase-login-message">
-      Firebase SDK를 불러오는 중입니다. 버튼이 활성화되면 Google 로그인과 서버 저장 테스트를 진행하세요.
-    </div>
-  </section>
-
-  <section id="cloudSaveCard" class="cloud-save-card" aria-label="Firebase 계정 저장 테스트">
-    <div class="cloud-save-top">
-      <div>
-        <span class="small-label">FIRESTORE SAVE TEST</span>
-        <h2>로그인 계정 저장 테스트</h2>
-      </div>
-      <strong id="cloudSaveStatus" class="cloud-save-badge">로그인 대기</strong>
-    </div>
-
-    <p class="cloud-save-desc">
-      V3-6에서는 서버/브라우저 비교 결과와 저장된 동기화 선택값을 함께 보여줍니다. 자동 저장은 아직 하지 않습니다.
-    </p>
-
-    <div class="cloud-save-grid">
-      <div>
-        <span>로그인 사용자</span>
-        <strong id="cloudSaveUser">로그인 필요</strong>
-      </div>
-      <div>
-        <span>저장할 프로필</span>
-        <strong id="cloudSaveProfile">확인 중</strong>
-      </div>
-      <div>
-        <span>브라우저 데이터</span>
-        <strong id="cloudSaveLocalState">확인 중</strong>
-      </div>
-      <div>
-        <span>서버 데이터</span>
-        <strong id="cloudSaveServerState">확인 전</strong>
-      </div>
-      <div>
-        <span>최근 서버 저장</span>
-        <strong id="cloudLastSaved">기록 없음</strong>
-      </div>
-    </div>
-
-    <div class="cloud-compare-box">
-      <div class="cloud-compare-top">
-        <div>
-          <span>서버 / 브라우저 데이터 비교</span>
-          <p>자동 동기화 전에 어느 쪽 데이터가 있는지 먼저 확인합니다.</p>
-        </div>
-        <strong id="cloudCompareStatus">비교 대기</strong>
-      </div>
-
-      <div class="cloud-compare-grid">
-        <div class="cloud-compare-column">
-          <h3>현재 브라우저</h3>
-          <p><span>프로필</span><strong id="cloudLocalProfileCount">확인 중</strong></p>
-          <p><span>운세 기록</span><strong id="cloudLocalHistoryCount">확인 중</strong></p>
-          <p><span>출석</span><strong id="cloudLocalAttendanceState">확인 중</strong></p>
-          <p><span>파트너</span><strong id="cloudLocalPartnerState">확인 중</strong></p>
-        </div>
-
-        <div class="cloud-compare-column">
-          <h3>Firestore 서버</h3>
-          <p><span>프로필</span><strong id="cloudServerProfileCount">확인 전</strong></p>
-          <p><span>운세 기록</span><strong id="cloudServerHistoryCount">확인 전</strong></p>
-          <p><span>출석</span><strong id="cloudServerAttendanceState">확인 전</strong></p>
-          <p><span>파트너</span><strong id="cloudServerPartnerState">확인 전</strong></p>
-        </div>
-      </div>
-
-      <div id="cloudDataDirectionHint" class="cloud-direction-hint">
-        Google 로그인 후 서버/브라우저 데이터를 비교할 수 있습니다.
-      </div>
-    </div>
-
-    <div class="cloud-save-action-box">
-      <div>
-        <strong>수동 저장 / 불러오기</strong>
-        <p>먼저 ‘서버/브라우저 비교’를 눌러 상태를 확인하세요. 저장은 서버를 현재 브라우저 데이터로 갱신하고, 불러오기는 브라우저 데이터를 서버 데이터로 교체합니다.</p>
-      </div>
-      <div class="cloud-save-buttons">
-        <button id="cloudCompareBtn" class="small-button" type="button">서버/브라우저 비교</button>
-        <button id="cloudSaveBtn" class="small-button" type="button">현재 데이터를 서버에 저장</button>
-        <button id="cloudLoadBtn" class="small-button" type="button">서버에서 불러오기</button>
-        <button id="cloudRefreshBtn" class="small-button" type="button">서버 상태 확인</button>
-      </div>
-    </div>
-
-    <div id="cloudSaveMessage" class="cloud-save-message">
-      Google 로그인 후 서버/브라우저 비교를 먼저 진행할 수 있습니다. 저장 전에는 백업 파일을 받아두면 더 안전합니다.
-    </div>
-  </section>
-
-  <section id="autoCheckCard" class="cloud-auto-check-card" aria-label="로그인 후 서버 상태 자동 확인">
-    <div class="cloud-auto-check-top">
-      <div>
-        <span class="small-label">AUTO SERVER CHECK</span>
-        <h2>로그인 후 서버 상태 자동 확인</h2>
-      </div>
-      <strong id="autoCheckStatus" class="auto-check-badge">로그인 대기</strong>
-    </div>
-
-    <p class="cloud-auto-check-desc">
-      V3-6에서는 Google 로그인 상태가 확인되면 서버 데이터가 있는지 자동으로 확인하고, 저장된 동기화 설정을 기준으로 다음 행동을 추천합니다.
-    </p>
-
-    <div class="auto-check-grid">
-      <div>
-        <span>확인 사용자</span>
-        <strong id="autoCheckUser">로그인 전</strong>
-      </div>
-      <div>
-        <span>마지막 자동 확인</span>
-        <strong id="autoCheckLast">아직 없음</strong>
-      </div>
-      <div>
-        <span>확인 결과</span>
-        <strong id="autoCheckResult">로그인 필요</strong>
-      </div>
-      <div>
-        <span>동기화 방식</span>
-        <strong id="autoCheckMode">읽기 전용</strong>
-      </div>
-    </div>
-
-    <div class="auto-check-action-box">
-      <div>
-        <strong>자동 확인만 진행</strong>
-        <p>서버에 저장된 데이터가 있는지 확인만 합니다. 저장/불러오기는 사용자가 버튼을 눌러야만 진행됩니다.</p>
-      </div>
-      <button id="autoCheckBtn" class="small-button" type="button">자동 확인 다시 실행</button>
-    </div>
-
-    <div id="autoCheckMessage" class="auto-check-message">
-      Google 로그인 후 서버 상태를 자동으로 확인합니다.
-    </div>
-  </section>
-
-  <section id="syncChoiceCard" class="sync-choice-card" aria-label="선택값 저장 및 동기화 설정 유지">
-    <div class="sync-choice-top">
-      <div>
-        <span class="small-label">SYNC ACTION GUIDE</span>
-        <h2>브라우저/서버 우선 추천 실행 강화</h2>
-      </div>
-      <strong id="syncChoiceStatus" class="sync-choice-badge">로그인 대기</strong>
-    </div>
-
-    <p class="sync-choice-desc">
-      자동 저장/자동 불러오기는 아직 하지 않습니다. 대신 선택한 동기화 방식에 따라 가장 안전한 실행 버튼을 더 크게 추천해줍니다.
-    </p>
-
-    <div class="sync-choice-grid">
-      <div>
-        <span>로그인 사용자</span>
-        <strong id="syncChoiceUser">로그인 전</strong>
-      </div>
-      <div>
-        <span>선택 방식</span>
-        <strong id="syncChoiceMode">추천만 보기</strong>
-      </div>
-      <div>
-        <span>마지막 확인</span>
-        <strong id="syncChoiceLast">아직 없음</strong>
-      </div>
-      <div>
-        <span>판단 결과</span>
-        <strong id="syncChoiceResult">로그인 필요</strong>
-      </div>
-      <div>
-        <span>설정 저장 상태</span>
-        <strong id="syncChoiceSaved">저장 대기</strong>
-      </div>
-      <div>
-        <span>설정 변경 시간</span>
-        <strong id="syncChoiceUpdated">아직 없음</strong>
-      </div>
-    </div>
-
-    <div class="sync-mode-box">
-      <div>
-        <strong>동기화 선택 방식</strong>
-        <p>선택한 방식은 자동 저장됩니다. 새로고침하거나 다시 접속해도 마지막 선택값이 유지됩니다.</p>
-      </div>
-      <div class="sync-mode-buttons">
-        <button class="small-button" type="button" data-sync-mode="manual">항상 수동</button>
-        <button class="small-button" type="button" data-sync-mode="ask">추천만 보기</button>
-        <button class="small-button" type="button" data-sync-mode="local">브라우저 우선</button>
-        <button class="small-button" type="button" data-sync-mode="server">서버 우선</button>
-        <button id="syncChoiceResetBtn" class="small-button danger-button" type="button">설정 초기화</button>
-      </div>
-    </div>
-
-    <div class="sync-recommendation-box">
-      <span>현재 추천</span>
-      <strong id="syncChoiceRecommendation">아직 추천 없음</strong>
-      <p>서버 상태를 확인하면 추천 문구가 여기에 표시됩니다.</p>
-    </div>
-
-    <div class="sync-primary-box">
-      <div>
-        <span>추천 실행</span>
-        <strong id="syncChoicePrimaryAction">먼저 비교 필요</strong>
-        <p id="syncChoicePrimaryReason">서버와 브라우저 데이터를 비교하면 선택한 방식 기준으로 추천 실행 버튼이 준비됩니다.</p>
-      </div>
-      <div class="sync-primary-side">
-        <span>현재 기준</span>
-        <strong id="syncChoicePrimaryMode">추천만 보기</strong>
-        <button id="syncChoiceRunBtn" class="small-button primary-sync-button" type="button" disabled>먼저 비교하기</button>
-      </div>
-    </div>
-
-    <div class="sync-action-box">
-      <div>
-        <strong>선택형 실행</strong>
-        <p>추천 실행 버튼이 가장 안전해 보이는 행동을 먼저 제안합니다. 그래도 실제 저장/불러오기는 기존 확인창을 다시 거칩니다.</p>
-      </div>
-      <div class="sync-action-buttons">
-        <button id="syncChoiceCompareBtn" class="small-button" type="button">다시 비교하고 추천 보기</button>
-        <button id="syncChoiceSaveBtn" class="small-button" type="button">현재 데이터를 서버에 저장</button>
-        <button id="syncChoiceLoadBtn" class="small-button" type="button">서버에서 불러오기</button>
-      </div>
-    </div>
-
-    <div id="syncChoiceMessage" class="sync-choice-message">
-      Google 로그인 후 서버 상태를 확인하면 저장된 동기화 설정 기준으로 추천이 표시됩니다.
-    </div>
-  </section>
-
-
-  <section class="partner-card">
-
-    <div id="partnerEmpty" class="partner-empty">
-      <div class="partner-empty-orb">?</div>
-      <h2>파트너 오라클이 기다리고 있습니다</h2>
-      <p>
+</section><section class="input-card">
+<form id="fortuneForm">
+<div class="form-grid">
+<label class="field">
+<span>이름 또는 닉네임</span>
+<input autocomplete="name" id="userName" placeholder="선택 입력" type="text"/>
+</label>
+<label class="field">
+<span>성별</span>
+<select id="gender">
+<option value="none">선택 안 함</option>
+<option value="male">남성</option>
+<option value="female">여성</option>
+</select>
+</label>
+<label class="field wide">
+<span>생년월일</span>
+<input id="birthDate" max="2099-12-31" min="1900-01-01" required="" type="date"/>
+</label>
+<label class="field wide">
+<span>태어난 시간</span>
+<select id="birthTime">
+<option value="unknown">태어난 시간 모름</option>
+<option value="ja">자시 23:00 ~ 00:59</option>
+<option value="chuk">축시 01:00 ~ 02:59</option>
+<option value="in">인시 03:00 ~ 04:59</option>
+<option value="myo">묘시 05:00 ~ 06:59</option>
+<option value="jin">진시 07:00 ~ 08:59</option>
+<option value="sa">사시 09:00 ~ 10:59</option>
+<option value="oh">오시 11:00 ~ 12:59</option>
+<option value="mi">미시 13:00 ~ 14:59</option>
+<option value="shin">신시 15:00 ~ 16:59</option>
+<option value="yu">유시 17:00 ~ 18:59</option>
+<option value="sul">술시 19:00 ~ 20:59</option>
+<option value="hae">해시 21:00 ~ 22:59</option>
+</select>
+</label>
+</div>
+<p class="notice">
+        현재는 양력 생년월일 기준의 간이 분석입니다. 정밀 만세력, 음력 변환, 절기 기준 사주 계산은 추후 확장할 수 있습니다.
+      </p>
+<button id="analyzeBtn" type="submit">
+        AI 운세 분석하기
+      </button>
+</form>
+</section><div class="status-text" id="statusText">
+    정보를 입력하면 오늘의 운세코드를 분석합니다.
+  </div><section class="result-card hidden" id="resultCard">
+<div class="result-top">
+<div>
+<span>분석 코드</span>
+<strong id="analysisCode">#----</strong>
+</div>
+<div>
+<span>분석 완성도</span>
+<strong id="completeRate">--%</strong>
+</div>
+</div>
+<h2 id="resultTitle">오늘의 운세 분석 결과</h2>
+<div class="base-info" id="baseInfo"></div>
+<div class="partner-insight-box hidden" id="partnerInsightBox">
+<span id="partnerInsightLabel">파트너 해석</span>
+<p id="partnerInsightText"></p>
+</div>
+<div class="fortune-grid">
+<article class="fortune-section">
+<h3>오늘의 총운</h3>
+<p id="totalFortune"></p>
+</article>
+<article class="fortune-section">
+<h3>재물운</h3>
+<p id="moneyFortune"></p>
+</article>
+<article class="fortune-section">
+<h3>연애·인간관계운</h3>
+<p id="loveFortune"></p>
+</article>
+<article class="fortune-section">
+<h3>일·사업운</h3>
+<p id="workFortune"></p>
+</article>
+<article class="fortune-section">
+<h3>건강운</h3>
+<p id="healthFortune"></p>
+</article>
+<article class="fortune-section warning">
+<h3>오늘 조심할 점</h3>
+<p id="cautionFortune"></p>
+</article>
+</div>
+<div class="lucky-box">
+<h3>오늘의 행운 요소</h3>
+<div class="lucky-items" id="luckyItems"></div>
+</div>
+<div class="advice-box">
+<span>오늘의 한 줄 조언</span>
+<p id="finalAdvice"></p>
+</div>
+</section><section class="partner-card">
+<div class="partner-empty" id="partnerEmpty">
+<div class="partner-empty-orb">?</div>
+<h2>파트너 오라클이 기다리고 있습니다</h2>
+<p>
         운세를 함께 봐주는 작은 파트너를 만나보세요.
         파트너는 운세를 볼 때마다 경험치를 얻고 성장합니다.
       </p>
-      <div class="partner-choice-area" aria-label="파트너 선택 영역">
-        <p class="partner-choice-title">첫 파트너를 선택하거나 랜덤으로 만나보세요.</p>
-
-        <div class="partner-choice-grid">
-          <button class="partner-choice choice-lumy" type="button" data-partner-id="lumy" aria-label="루미 선택하기">
-            <span class="choice-symbol">✦</span>
-            <strong>루미</strong>
-            <small>다정한 빛 · 관계운</small>
-          </button>
-
-          <button class="partner-choice choice-moko" type="button" data-partner-id="moko" aria-label="모코 선택하기">
-            <span class="choice-symbol">●</span>
-            <strong>모코</strong>
-            <small>말랑한 숲 · 건강운</small>
-          </button>
-
-          <button class="partner-choice choice-nova" type="button" data-partner-id="nova" aria-label="노바 선택하기">
-            <span class="choice-symbol">◆</span>
-            <strong>노바</strong>
-            <small>별빛 AI · 재물/일운</small>
-          </button>
-        </div>
-
-        <div class="partner-action-row">
-          <button id="meetPartnerBtn" type="button">랜덤 파트너 만나기</button>
-        </div>
-
-        <div id="partnerDrawStage" class="partner-draw-stage hidden">
-          <div class="draw-orbit">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-          <strong id="partnerDrawName">파트너 연결 중...</strong>
-          <small>오라클 신호를 동기화하고 있습니다.</small>
-        </div>
-      </div>
-    </div>
-
-    <div id="partnerActive" class="partner-active hidden">
-
-      <div class="partner-left">
-        <div id="partnerOrb" class="partner-orb partner-lumy stage-1" aria-label="파트너 캐릭터">
-          <div class="partner-aura"></div>
-          <div class="partner-ring"></div>
-
-          <div class="partner-character">
-            <div class="character-halo"></div>
-            <div class="character-wing character-wing-left"></div>
-            <div class="character-wing character-wing-right"></div>
-            <div class="character-ear character-ear-left"></div>
-            <div class="character-ear character-ear-right"></div>
-
-            <div class="character-core">
-              <div class="character-mark" id="partnerSymbol">✦</div>
-              <div class="character-face">
-                <span class="character-eye character-eye-left"></span>
-                <span class="character-eye character-eye-right"></span>
-                <span class="character-mouth"></span>
-              </div>
-              <div class="character-cheek character-cheek-left"></div>
-              <div class="character-cheek character-cheek-right"></div>
-            </div>
-
-            <div class="character-shadow"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="partner-info">
-        <div class="partner-top">
-          <div>
-            <span class="small-label">PARTNER ORACLE V2</span>
-            <h2 id="partnerName">루미</h2>
-          </div>
-          <div class="partner-top-actions">
-            <button id="changePartnerBtn" class="small-button" type="button">교체</button>
-            <button id="resetPartnerBtn" class="small-button" type="button">초기화</button>
-          </div>
-        </div>
-
-        <p id="partnerType" class="partner-type">빛과 마음을 읽는 파트너</p>
-
-        <div class="partner-status">
-          <span id="partnerLevel">Lv.1</span>
-          <span id="partnerStage">새싹형</span>
-          <span id="partnerExpText">EXP 0 / 20</span>
-          <span id="partnerBond">첫 만남 동반자</span>
-          <span id="partnerMoodBadge">기분 안정</span>
-        </div>
-
-        <div class="exp-bar">
-          <div id="partnerExpFill"></div>
-        </div>
-
-        <div id="partnerSpeech" class="partner-speech">
+<div aria-label="파트너 선택 영역" class="partner-choice-area">
+<p class="partner-choice-title">첫 파트너를 선택하거나 랜덤으로 만나보세요.</p>
+<div class="partner-choice-grid">
+<button aria-label="루미 선택하기" class="partner-choice choice-lumy" data-partner-id="lumy" type="button">
+<span class="choice-symbol">✦</span>
+<strong>루미</strong>
+<small>다정한 빛 · 관계운</small>
+</button>
+<button aria-label="모코 선택하기" class="partner-choice choice-moko" data-partner-id="moko" type="button">
+<span class="choice-symbol">●</span>
+<strong>모코</strong>
+<small>말랑한 숲 · 건강운</small>
+</button>
+<button aria-label="노바 선택하기" class="partner-choice choice-nova" data-partner-id="nova" type="button">
+<span class="choice-symbol">◆</span>
+<strong>노바</strong>
+<small>별빛 AI · 재물/일운</small>
+</button>
+</div>
+<div class="partner-action-row">
+<button id="meetPartnerBtn" type="button">랜덤 파트너 만나기</button>
+</div>
+<div class="partner-draw-stage hidden" id="partnerDrawStage">
+<div class="draw-orbit">
+<span></span>
+<span></span>
+<span></span>
+</div>
+<strong id="partnerDrawName">파트너 연결 중...</strong>
+<small>오라클 신호를 동기화하고 있습니다.</small>
+</div>
+</div>
+</div>
+<div class="partner-active hidden" id="partnerActive">
+<div class="partner-left">
+<div aria-label="파트너 캐릭터" class="partner-orb partner-lumy stage-1" id="partnerOrb">
+<div class="partner-aura"></div>
+<div class="partner-ring"></div>
+<div class="partner-character">
+<div class="character-halo"></div>
+<div class="character-wing character-wing-left"></div>
+<div class="character-wing character-wing-right"></div>
+<div class="character-ear character-ear-left"></div>
+<div class="character-ear character-ear-right"></div>
+<div class="character-core">
+<div class="character-mark" id="partnerSymbol">✦</div>
+<div class="character-face">
+<span class="character-eye character-eye-left"></span>
+<span class="character-eye character-eye-right"></span>
+<span class="character-mouth"></span>
+</div>
+<div class="character-cheek character-cheek-left"></div>
+<div class="character-cheek character-cheek-right"></div>
+</div>
+<div class="character-shadow"></div>
+</div>
+</div>
+</div>
+<div class="partner-info">
+<div class="partner-top">
+<div>
+<span class="small-label">PARTNER ORACLE V2</span>
+<h2 id="partnerName">루미</h2>
+</div>
+<div class="partner-top-actions">
+<button class="small-button" id="changePartnerBtn" type="button">교체</button>
+<button class="small-button" id="resetPartnerBtn" type="button">초기화</button>
+</div>
+</div>
+<p class="partner-type" id="partnerType">빛과 마음을 읽는 파트너</p>
+<div class="partner-status">
+<span id="partnerLevel">Lv.1</span>
+<span id="partnerStage">새싹형</span>
+<span id="partnerExpText">EXP 0 / 20</span>
+<span id="partnerBond">첫 만남 동반자</span>
+<span id="partnerMoodBadge">기분 안정</span>
+</div>
+<div class="exp-bar">
+<div id="partnerExpFill"></div>
+</div>
+<div class="partner-speech" id="partnerSpeech">
           오늘도 같이 운세를 봐줄게.
         </div>
-
-        <div id="partnerMoodHint" class="partner-mood-hint hint-calm">
-          <span>현재 반응</span>
-          <strong>균형 모드</strong>
-          <p>운세 결과에 따라 파트너의 표정과 대사가 달라집니다.</p>
-        </div>
-      </div>
-
-    </div>
-
-  </section>
-
-  <section id="attendanceCard" class="attendance-card" aria-label="출석 보상">
-    <div class="attendance-top">
-      <div>
-        <span class="small-label">DAILY CHECK-IN</span>
-        <h2>출석 보상</h2>
-      </div>
-      <strong id="attendanceTodayStatus" class="attendance-status-badge">오늘 보상 대기</strong>
-    </div>
-
-    <p class="attendance-desc">
+<div class="partner-mood-hint hint-calm" id="partnerMoodHint">
+<span>현재 반응</span>
+<strong>균형 모드</strong>
+<p>운세 결과에 따라 파트너의 표정과 대사가 달라집니다.</p>
+</div>
+</div>
+</div>
+</section><section aria-label="출석 보상" class="attendance-card" id="attendanceCard">
+<div class="attendance-top">
+<div>
+<span class="small-label">DAILY CHECK-IN</span>
+<h2>출석 보상</h2>
+</div>
+<strong class="attendance-status-badge" id="attendanceTodayStatus">오늘 보상 대기</strong>
+</div>
+<p class="attendance-desc">
       하루에 한 번 파트너 출석 보상을 받을 수 있습니다. 연속 출석이 쌓이면 추가 EXP 보상이 붙습니다.
     </p>
-
-    <div class="attendance-stat-grid">
-      <div>
-        <span>현재 연속</span>
-        <strong id="attendanceStreak">0일</strong>
-      </div>
-      <div>
-        <span>최고 연속</span>
-        <strong id="attendanceBest">0일</strong>
-      </div>
-      <div>
-        <span>누적 출석</span>
-        <strong id="attendanceTotal">0회</strong>
-      </div>
-    </div>
-
-    <div class="attendance-reward-box">
-      <p id="attendanceRewardText">파트너를 선택하면 출석 보상을 받을 수 있습니다.</p>
-      <button id="attendanceClaimBtn" class="small-button" type="button">오늘 출석 보상 받기</button>
-    </div>
-
-    <div class="attendance-log-box">
-      <span>최근 보상 기록</span>
-      <ul id="attendanceLogList">
-        <li>아직 출석 보상 기록이 없습니다.</li>
-      </ul>
-    </div>
-  </section>
-
-  <section id="partnerDexCard" class="partner-dex-card" aria-label="파트너 도감과 프로필">
-    <div class="partner-dex-top">
-      <div>
-        <span class="small-label">PARTNER COLLECTION</span>
-        <h2>파트너 도감 / 프로필</h2>
-      </div>
-      <strong id="partnerDexProgress" class="dex-progress-badge">0 / 3 발견</strong>
-    </div>
-
-    <p class="partner-dex-desc">
+<div class="attendance-stat-grid">
+<div>
+<span>현재 연속</span>
+<strong id="attendanceStreak">0일</strong>
+</div>
+<div>
+<span>최고 연속</span>
+<strong id="attendanceBest">0일</strong>
+</div>
+<div>
+<span>누적 출석</span>
+<strong id="attendanceTotal">0회</strong>
+</div>
+</div>
+<div class="attendance-reward-box">
+<p id="attendanceRewardText">파트너를 선택하면 출석 보상을 받을 수 있습니다.</p>
+<button class="small-button" id="attendanceClaimBtn" type="button">오늘 출석 보상 받기</button>
+</div>
+<div class="attendance-log-box">
+<span>최근 보상 기록</span>
+<ul id="attendanceLogList">
+<li>아직 출석 보상 기록이 없습니다.</li>
+</ul>
+</div>
+</section><section aria-label="파트너 도감과 프로필" class="partner-dex-card" id="partnerDexCard">
+<div class="partner-dex-top">
+<div>
+<span class="small-label">PARTNER COLLECTION</span>
+<h2>파트너 도감 / 프로필</h2>
+</div>
+<strong class="dex-progress-badge" id="partnerDexProgress">0 / 3 발견</strong>
+</div>
+<p class="partner-dex-desc">
       지금 만난 파트너와 앞으로 만날 수 있는 파트너를 한눈에 확인합니다. 현재 파트너의 레벨, 성장 단계, 다음 진화 조건과 최근 감정 반응도 여기서 볼 수 있습니다.
     </p>
-
-    <div id="activePartnerProfile" class="active-partner-profile">
+<div class="active-partner-profile" id="activePartnerProfile">
       파트너를 선택하면 현재 파트너 프로필이 표시됩니다.
     </div>
-
-    <div id="partnerDexGrid" class="partner-dex-grid"></div>
-  </section>
-
-  <section class="input-card">
-    <form id="fortuneForm">
-
-      <div class="form-grid">
-
-        <label class="field">
-          <span>이름 또는 닉네임</span>
-          <input id="userName" type="text" placeholder="선택 입력" autocomplete="name" />
-        </label>
-
-        <label class="field">
-          <span>성별</span>
-          <select id="gender">
-            <option value="none">선택 안 함</option>
-            <option value="male">남성</option>
-            <option value="female">여성</option>
-          </select>
-        </label>
-
-        <label class="field wide">
-          <span>생년월일</span>
-          <input id="birthDate" type="date" min="1900-01-01" max="2099-12-31" required />
-        </label>
-
-        <label class="field wide">
-          <span>태어난 시간</span>
-          <select id="birthTime">
-            <option value="unknown">태어난 시간 모름</option>
-            <option value="ja">자시 23:00 ~ 00:59</option>
-            <option value="chuk">축시 01:00 ~ 02:59</option>
-            <option value="in">인시 03:00 ~ 04:59</option>
-            <option value="myo">묘시 05:00 ~ 06:59</option>
-            <option value="jin">진시 07:00 ~ 08:59</option>
-            <option value="sa">사시 09:00 ~ 10:59</option>
-            <option value="oh">오시 11:00 ~ 12:59</option>
-            <option value="mi">미시 13:00 ~ 14:59</option>
-            <option value="shin">신시 15:00 ~ 16:59</option>
-            <option value="yu">유시 17:00 ~ 18:59</option>
-            <option value="sul">술시 19:00 ~ 20:59</option>
-            <option value="hae">해시 21:00 ~ 22:59</option>
-          </select>
-        </label>
-
-      </div>
-
-      <p class="notice">
-        현재는 양력 생년월일 기준의 간이 분석입니다. 정밀 만세력, 음력 변환, 절기 기준 사주 계산은 추후 확장할 수 있습니다.
-      </p>
-
-      <button id="analyzeBtn" type="submit">
-        AI 운세 분석하기
-      </button>
-
-    </form>
-  </section>
-
-  <div id="statusText" class="status-text">
-    정보를 입력하면 오늘의 운세코드를 분석합니다.
-  </div>
-
-  <section id="resultCard" class="result-card hidden">
-
-    <div class="result-top">
-      <div>
-        <span>분석 코드</span>
-        <strong id="analysisCode">#----</strong>
-      </div>
-
-      <div>
-        <span>분석 완성도</span>
-        <strong id="completeRate">--%</strong>
-      </div>
-    </div>
-
-    <h2 id="resultTitle">오늘의 운세 분석 결과</h2>
-
-    <div id="baseInfo" class="base-info"></div>
-
-    <div id="partnerInsightBox" class="partner-insight-box hidden">
-      <span id="partnerInsightLabel">파트너 해석</span>
-      <p id="partnerInsightText"></p>
-    </div>
-
-    <div class="fortune-grid">
-      <article class="fortune-section">
-        <h3>오늘의 총운</h3>
-        <p id="totalFortune"></p>
-      </article>
-
-      <article class="fortune-section">
-        <h3>재물운</h3>
-        <p id="moneyFortune"></p>
-      </article>
-
-      <article class="fortune-section">
-        <h3>연애·인간관계운</h3>
-        <p id="loveFortune"></p>
-      </article>
-
-      <article class="fortune-section">
-        <h3>일·사업운</h3>
-        <p id="workFortune"></p>
-      </article>
-
-      <article class="fortune-section">
-        <h3>건강운</h3>
-        <p id="healthFortune"></p>
-      </article>
-
-      <article class="fortune-section warning">
-        <h3>오늘 조심할 점</h3>
-        <p id="cautionFortune"></p>
-      </article>
-    </div>
-
-    <div class="lucky-box">
-      <h3>오늘의 행운 요소</h3>
-      <div id="luckyItems" class="lucky-items"></div>
-    </div>
-
-    <div class="advice-box">
-      <span>오늘의 한 줄 조언</span>
-      <p id="finalAdvice"></p>
-    </div>
-
-  </section>
-
-
-  <section id="historyCard" class="history-card" aria-label="이전 운세 기록">
-    <div class="history-top">
-      <div>
-        <span class="small-label">FORTUNE HISTORY</span>
-        <h2>이전 운세 다시보기</h2>
-      </div>
-      <button id="clearHistoryBtn" class="small-button" type="button">기록 전체 삭제</button>
-    </div>
-
-    <p class="history-desc">
+<div class="partner-dex-grid" id="partnerDexGrid"></div>
+</section><section aria-label="이전 운세 기록" class="history-card" id="historyCard">
+<div class="history-top">
+<div>
+<span class="small-label">FORTUNE HISTORY</span>
+<h2>이전 운세 다시보기</h2>
+</div>
+<button class="small-button" id="clearHistoryBtn" type="button">기록 전체 삭제</button>
+</div>
+<p class="history-desc">
       운세를 분석하면 이 브라우저에 오늘의 기록이 저장됩니다. 같은 날짜와 같은 입력값은 하나의 기록으로 갱신됩니다.
     </p>
-
-    <div id="fortuneHistoryEmpty" class="history-empty">
+<div class="history-empty" id="fortuneHistoryEmpty">
       아직 저장된 운세 기록이 없습니다. 운세를 한 번 분석하면 여기에 표시됩니다.
     </div>
-
-    <div id="fortuneHistoryList" class="history-list"></div>
-  </section>
-
-
-  <section id="dataManagerCard" class="data-manager-card" aria-label="데이터 관리 센터">
-    <div class="data-manager-top">
-      <div>
-        <span class="small-label">DATA MANAGER</span>
-        <h2>데이터 관리 센터</h2>
-      </div>
-      <strong id="dataManagerStatus" class="data-status-badge">확인 중</strong>
+<div class="history-list" id="fortuneHistoryList"></div>
+</section><details class="advanced-tools" id="advancedTools"><summary>고급 설정 / 개발자 도구 열기</summary><p class="advanced-tools-desc">서버 저장, 백업, 프로필 관리, 개발 점검표는 필요할 때만 열어서 확인할 수 있습니다.</p><div class="advanced-tools-inner"><section aria-label="프로필 저장 구조" class="profile-card" id="profileCard">
+<div class="profile-card-top">
+<div>
+<span class="small-label">PROFILE STORAGE</span>
+<h2>프로필 관리</h2>
+</div>
+<strong class="profile-current-badge" id="profileCurrentBadge">기본 프로필</strong>
+</div>
+<p class="profile-desc">프로필을 나눠서 파트너, 출석, 이전 운세 기록을 따로 관리합니다.</p>
+<div class="profile-control-box">
+<label class="profile-select-field">
+<span>현재 프로필</span>
+<select id="profileSelect"></select>
+</label>
+<button class="small-button" id="switchProfileBtn" type="button">프로필 전환</button>
+</div>
+<div class="profile-create-box">
+<label class="profile-name-field">
+<span>새 프로필 이름</span>
+<input id="newProfileName" maxlength="18" placeholder="예: 내 프로필, 아내 프로필, 테스트" type="text"/>
+</label>
+<button class="small-button" id="createProfileBtn" type="button">새 프로필 만들기</button>
+</div>
+<div class="profile-manage-box">
+<label class="profile-name-field">
+<span>현재 프로필 이름 변경</span>
+<input id="renameProfileName" maxlength="18" placeholder="바꿀 이름 입력" type="text"/>
+</label>
+<div class="profile-manage-actions">
+<button class="small-button" id="renameProfileBtn" type="button">이름 변경</button>
+<button class="small-button" id="duplicateProfileBtn" type="button">현재 프로필 복사</button>
+<button class="small-button danger-button" id="deleteProfileBtn" type="button">현재 프로필 삭제</button>
+</div>
+</div>
+<div class="profile-info-grid">
+<div>
+<span>프로필 수</span>
+<strong id="profileCountText">1개</strong>
+</div>
+<div>
+<span>현재 저장 방식</span>
+<strong>프로필별 분리</strong>
+</div>
+<div>
+<span>기존 데이터</span>
+<strong id="profileMigrationState">자동 이전 완료</strong>
+</div>
+<div>
+<span>관리 기능</span>
+<strong>이름 변경 / 복사 / 삭제</strong>
+</div>
+</div>
+<div class="profile-message" id="profileMessage">
+      V2-8에서 쓰던 데이터는 첫 실행 시 기본 프로필로 자동 이전됩니다. V2-10부터 프로필 이름 변경, 복사, 삭제가 가능하고, V2-11에서는 로그인 저장 구조를 점검합니다.
     </div>
-
-    <p class="data-manager-desc">
+</section><section aria-label="Firebase 계정 저장 테스트" class="cloud-save-card" id="cloudSaveCard">
+<div class="cloud-save-top">
+<div>
+<span class="small-label">FIRESTORE SAVE TEST</span>
+<h2>서버 저장 / 불러오기</h2>
+</div>
+<strong class="cloud-save-badge" id="cloudSaveStatus">로그인 대기</strong>
+</div>
+<p class="cloud-save-desc">고급 설정용 영역입니다. 계정 데이터 저장 상태를 확인하거나 수동으로 서버 저장/불러오기를 실행합니다.</p>
+<div class="cloud-save-grid">
+<div>
+<span>로그인 사용자</span>
+<strong id="cloudSaveUser">로그인 필요</strong>
+</div>
+<div>
+<span>저장할 프로필</span>
+<strong id="cloudSaveProfile">확인 중</strong>
+</div>
+<div>
+<span>브라우저 데이터</span>
+<strong id="cloudSaveLocalState">확인 중</strong>
+</div>
+<div>
+<span>서버 데이터</span>
+<strong id="cloudSaveServerState">확인 전</strong>
+</div>
+<div>
+<span>최근 서버 저장</span>
+<strong id="cloudLastSaved">기록 없음</strong>
+</div>
+</div>
+<div class="cloud-compare-box">
+<div class="cloud-compare-top">
+<div>
+<span>서버 / 브라우저 데이터 비교</span>
+<p>자동 동기화 전에 어느 쪽 데이터가 있는지 먼저 확인합니다.</p>
+</div>
+<strong id="cloudCompareStatus">비교 대기</strong>
+</div>
+<div class="cloud-compare-grid">
+<div class="cloud-compare-column">
+<h3>현재 브라우저</h3>
+<p><span>프로필</span><strong id="cloudLocalProfileCount">확인 중</strong></p>
+<p><span>운세 기록</span><strong id="cloudLocalHistoryCount">확인 중</strong></p>
+<p><span>출석</span><strong id="cloudLocalAttendanceState">확인 중</strong></p>
+<p><span>파트너</span><strong id="cloudLocalPartnerState">확인 중</strong></p>
+</div>
+<div class="cloud-compare-column">
+<h3>Firestore 서버</h3>
+<p><span>프로필</span><strong id="cloudServerProfileCount">확인 전</strong></p>
+<p><span>운세 기록</span><strong id="cloudServerHistoryCount">확인 전</strong></p>
+<p><span>출석</span><strong id="cloudServerAttendanceState">확인 전</strong></p>
+<p><span>파트너</span><strong id="cloudServerPartnerState">확인 전</strong></p>
+</div>
+</div>
+<div class="cloud-direction-hint" id="cloudDataDirectionHint">
+        Google 로그인 후 서버/브라우저 데이터를 비교할 수 있습니다.
+      </div>
+</div>
+<div class="cloud-save-action-box">
+<div>
+<strong>수동 저장 / 불러오기</strong>
+<p>먼저 ‘서버/브라우저 비교’를 눌러 상태를 확인하세요. 저장은 서버를 현재 브라우저 데이터로 갱신하고, 불러오기는 브라우저 데이터를 서버 데이터로 교체합니다.</p>
+</div>
+<div class="cloud-save-buttons">
+<button class="small-button" id="cloudCompareBtn" type="button">서버/브라우저 비교</button>
+<button class="small-button" id="cloudSaveBtn" type="button">현재 데이터를 서버에 저장</button>
+<button class="small-button" id="cloudLoadBtn" type="button">서버에서 불러오기</button>
+<button class="small-button" id="cloudRefreshBtn" type="button">서버 상태 확인</button>
+</div>
+</div>
+<div class="cloud-save-message" id="cloudSaveMessage">
+      Google 로그인 후 서버/브라우저 비교를 먼저 진행할 수 있습니다. 저장 전에는 백업 파일을 받아두면 더 안전합니다.
+    </div>
+</section><section aria-label="로그인 후 서버 상태 자동 확인" class="cloud-auto-check-card" id="autoCheckCard">
+<div class="cloud-auto-check-top">
+<div>
+<span class="small-label">AUTO SERVER CHECK</span>
+<h2>서버 상태 자동 확인</h2>
+</div>
+<strong class="auto-check-badge" id="autoCheckStatus">로그인 대기</strong>
+</div>
+<p class="cloud-auto-check-desc">
+      V3-6에서는 Google 로그인 상태가 확인되면 서버 데이터가 있는지 자동으로 확인하고, 저장된 동기화 설정을 기준으로 다음 행동을 추천합니다.
+    </p>
+<div class="auto-check-grid">
+<div>
+<span>확인 사용자</span>
+<strong id="autoCheckUser">로그인 전</strong>
+</div>
+<div>
+<span>마지막 자동 확인</span>
+<strong id="autoCheckLast">아직 없음</strong>
+</div>
+<div>
+<span>확인 결과</span>
+<strong id="autoCheckResult">로그인 필요</strong>
+</div>
+<div>
+<span>동기화 방식</span>
+<strong id="autoCheckMode">읽기 전용</strong>
+</div>
+</div>
+<div class="auto-check-action-box">
+<div>
+<strong>자동 확인만 진행</strong>
+<p>서버에 저장된 데이터가 있는지 확인만 합니다. 저장/불러오기는 사용자가 버튼을 눌러야만 진행됩니다.</p>
+</div>
+<button class="small-button" id="autoCheckBtn" type="button">자동 확인 다시 실행</button>
+</div>
+<div class="auto-check-message" id="autoCheckMessage">
+      Google 로그인 후 서버 상태를 자동으로 확인합니다.
+    </div>
+</section><section aria-label="선택값 저장 및 동기화 설정 유지" class="sync-choice-card" id="syncChoiceCard">
+<div class="sync-choice-top">
+<div>
+<span class="small-label">SYNC ACTION GUIDE</span>
+<h2>동기화 설정</h2>
+</div>
+<strong class="sync-choice-badge" id="syncChoiceStatus">로그인 대기</strong>
+</div>
+<p class="sync-choice-desc">
+      자동 저장/자동 불러오기는 아직 하지 않습니다. 대신 선택한 동기화 방식에 따라 가장 안전한 실행 버튼을 더 크게 추천해줍니다.
+    </p>
+<div class="sync-choice-grid">
+<div>
+<span>로그인 사용자</span>
+<strong id="syncChoiceUser">로그인 전</strong>
+</div>
+<div>
+<span>선택 방식</span>
+<strong id="syncChoiceMode">추천만 보기</strong>
+</div>
+<div>
+<span>마지막 확인</span>
+<strong id="syncChoiceLast">아직 없음</strong>
+</div>
+<div>
+<span>판단 결과</span>
+<strong id="syncChoiceResult">로그인 필요</strong>
+</div>
+<div>
+<span>설정 저장 상태</span>
+<strong id="syncChoiceSaved">저장 대기</strong>
+</div>
+<div>
+<span>설정 변경 시간</span>
+<strong id="syncChoiceUpdated">아직 없음</strong>
+</div>
+</div>
+<div class="sync-mode-box">
+<div>
+<strong>동기화 선택 방식</strong>
+<p>선택한 방식은 자동 저장됩니다. 새로고침하거나 다시 접속해도 마지막 선택값이 유지됩니다.</p>
+</div>
+<div class="sync-mode-buttons">
+<button class="small-button" data-sync-mode="manual" type="button">항상 수동</button>
+<button class="small-button" data-sync-mode="ask" type="button">추천만 보기</button>
+<button class="small-button" data-sync-mode="local" type="button">브라우저 우선</button>
+<button class="small-button" data-sync-mode="server" type="button">서버 우선</button>
+<button class="small-button danger-button" id="syncChoiceResetBtn" type="button">설정 초기화</button>
+</div>
+</div>
+<div class="sync-recommendation-box">
+<span>현재 추천</span>
+<strong id="syncChoiceRecommendation">아직 추천 없음</strong>
+<p>서버 상태를 확인하면 추천 문구가 여기에 표시됩니다.</p>
+</div>
+<div class="sync-primary-box">
+<div>
+<span>추천 실행</span>
+<strong id="syncChoicePrimaryAction">먼저 비교 필요</strong>
+<p id="syncChoicePrimaryReason">서버와 브라우저 데이터를 비교하면 선택한 방식 기준으로 추천 실행 버튼이 준비됩니다.</p>
+</div>
+<div class="sync-primary-side">
+<span>현재 기준</span>
+<strong id="syncChoicePrimaryMode">추천만 보기</strong>
+<button class="small-button primary-sync-button" disabled="" id="syncChoiceRunBtn" type="button">먼저 비교하기</button>
+</div>
+</div>
+<div class="sync-action-box">
+<div>
+<strong>선택형 실행</strong>
+<p>추천 실행 버튼이 가장 안전해 보이는 행동을 먼저 제안합니다. 그래도 실제 저장/불러오기는 기존 확인창을 다시 거칩니다.</p>
+</div>
+<div class="sync-action-buttons">
+<button class="small-button" id="syncChoiceCompareBtn" type="button">다시 비교하고 추천 보기</button>
+<button class="small-button" id="syncChoiceSaveBtn" type="button">현재 데이터를 서버에 저장</button>
+<button class="small-button" id="syncChoiceLoadBtn" type="button">서버에서 불러오기</button>
+</div>
+</div>
+<div class="sync-choice-message" id="syncChoiceMessage">
+      Google 로그인 후 서버 상태를 확인하면 저장된 동기화 설정 기준으로 추천이 표시됩니다.
+    </div>
+</section><section aria-label="데이터 관리 센터" class="data-manager-card" id="dataManagerCard">
+<div class="data-manager-top">
+<div>
+<span class="small-label">DATA MANAGER</span>
+<h2>데이터 백업 / 복원</h2>
+</div>
+<strong class="data-status-badge" id="dataManagerStatus">확인 중</strong>
+</div>
+<p class="data-manager-desc">
       현재 선택된 프로필의 파트너, 출석, 도감, 이전 운세 기록을 백업 파일로 저장하거나 다시 불러올 수 있습니다.
     </p>
-
-    <div class="data-summary-grid">
-      <div>
-        <span>현재 프로필</span>
-        <strong id="dataProfileState">확인 중</strong>
-      </div>
-      <div>
-        <span>파트너</span>
-        <strong id="dataPartnerState">확인 중</strong>
-      </div>
-      <div>
-        <span>운세 기록</span>
-        <strong id="dataHistoryState">확인 중</strong>
-      </div>
-      <div>
-        <span>도감</span>
-        <strong id="dataDexState">확인 중</strong>
-      </div>
-      <div>
-        <span>출석</span>
-        <strong id="dataAttendanceState">확인 중</strong>
-      </div>
-      <div>
-        <span>점검표</span>
-        <strong id="dataChecklistState">확인 중</strong>
-      </div>
-    </div>
-
-    <div class="data-action-box">
-      <div>
-        <strong>백업 / 복원</strong>
-        <p>GitHub Pages를 다시 올리기 전이나 브라우저를 바꾸기 전에 백업을 받아두면 안전합니다.</p>
-      </div>
-      <div class="data-action-buttons">
-        <button id="backupDataBtn" class="small-button" type="button">백업 파일 다운로드</button>
-        <button id="importDataBtn" class="small-button" type="button">백업 파일 불러오기</button>
-        <button id="resetAllDataBtn" class="small-button danger-button" type="button">저장 데이터 전체 초기화</button>
-      </div>
-      <input id="dataImportFile" class="hidden" type="file" accept="application/json,.json" />
-    </div>
-
-    <div id="dataManagerMessage" class="data-manager-message">
+<div class="data-summary-grid">
+<div>
+<span>현재 프로필</span>
+<strong id="dataProfileState">확인 중</strong>
+</div>
+<div>
+<span>파트너</span>
+<strong id="dataPartnerState">확인 중</strong>
+</div>
+<div>
+<span>운세 기록</span>
+<strong id="dataHistoryState">확인 중</strong>
+</div>
+<div>
+<span>도감</span>
+<strong id="dataDexState">확인 중</strong>
+</div>
+<div>
+<span>출석</span>
+<strong id="dataAttendanceState">확인 중</strong>
+</div>
+<div>
+<span>점검표</span>
+<strong id="dataChecklistState">확인 중</strong>
+</div>
+</div>
+<div class="data-action-box">
+<div>
+<strong>백업 / 복원</strong>
+<p>GitHub Pages를 다시 올리기 전이나 브라우저를 바꾸기 전에 백업을 받아두면 안전합니다.</p>
+</div>
+<div class="data-action-buttons">
+<button class="small-button" id="backupDataBtn" type="button">백업 파일 다운로드</button>
+<button class="small-button" id="importDataBtn" type="button">백업 파일 불러오기</button>
+<button class="small-button danger-button" id="resetAllDataBtn" type="button">저장 데이터 전체 초기화</button>
+</div>
+<input accept="application/json,.json" class="hidden" id="dataImportFile" type="file"/>
+</div>
+<div class="data-manager-message" id="dataManagerMessage">
       아직 실행한 작업이 없습니다.
     </div>
-  </section>
-
-
-  <section id="loginCheckCard" class="login-check-card" aria-label="로그인 저장 구조 점검">
-    <div class="login-check-top">
-      <div>
-        <span class="small-label">LOGIN STORAGE CHECK</span>
-        <h2>로그인 저장 구조 점검</h2>
-      </div>
-      <strong id="loginReadyBadge" class="login-ready-badge">확인 중</strong>
-    </div>
-
-    <p class="login-check-desc">
+</section><section aria-label="로그인 저장 구조 점검" class="login-check-card" id="loginCheckCard">
+<div class="login-check-top">
+<div>
+<span class="small-label">LOGIN STORAGE CHECK</span>
+<h2>로그인 저장 구조 점검</h2>
+</div>
+<strong class="login-ready-badge" id="loginReadyBadge">확인 중</strong>
+</div>
+<p class="login-check-desc">
       아직 진짜 로그인은 아니지만, 현재 프로필 데이터를 나중에 로그인 계정에 저장할 수 있는 하나의 묶음으로 확인합니다.
     </p>
-
-    <div class="login-summary-grid">
-      <div>
-        <span>현재 프로필</span>
-        <strong id="loginActiveProfileName">확인 중</strong>
-      </div>
-      <div>
-        <span>스키마 버전</span>
-        <strong id="loginSchemaVersionText">확인 중</strong>
-      </div>
-      <div>
-        <span>데이터 묶음</span>
-        <strong id="loginDataBundleState">확인 중</strong>
-      </div>
-      <div>
-        <span>현재 저장 방식</span>
-        <strong id="loginStorageModeText">로컬 저장</strong>
-      </div>
-    </div>
-
-    <div class="login-flow-box">
-      <article>
-        <span>현재 단계</span>
-        <strong>브라우저 저장</strong>
-        <p>localStorage에 프로필별 데이터가 저장됩니다.</p>
-      </article>
-      <article>
-        <span>다음 저장 대상</span>
-        <strong>로그인 계정</strong>
-        <p>나중에는 같은 묶음을 계정 ID 아래에 저장하면 됩니다.</p>
-      </article>
-      <article>
-        <span>V3 준비 상태</span>
-        <strong>구조 점검</strong>
-        <p>어떤 데이터를 서버로 보낼지 미리 확인합니다.</p>
-      </article>
-    </div>
-
-    <div class="login-key-grid">
-      <div><span>파트너 키</span><strong id="loginPartnerKeyState">확인 중</strong></div>
-      <div><span>운세 기록 키</span><strong id="loginHistoryKeyState">확인 중</strong></div>
-      <div><span>도감 키</span><strong id="loginDexKeyState">확인 중</strong></div>
-      <div><span>출석 키</span><strong id="loginAttendanceKeyState">확인 중</strong></div>
-      <div><span>점검표 키</span><strong id="loginChecklistKeyState">확인 중</strong></div>
-    </div>
-
-    <div class="login-schema-box">
-      <div class="login-schema-top">
-        <div>
-          <span>로그인 저장용 데이터 미리보기</span>
-          <p>실제 비밀번호나 개인정보 저장은 아직 없습니다. 저장 구조만 확인합니다.</p>
-        </div>
-        <div class="login-schema-actions">
-          <button id="refreshLoginSchemaBtn" class="small-button" type="button">구조 새로고침</button>
-          <button id="copyLoginSchemaBtn" class="small-button" type="button">미리보기 복사</button>
-        </div>
-      </div>
-      <pre id="loginSchemaPreview">확인 중...</pre>
-    </div>
-
-    <div id="loginInspectorMessage" class="login-inspector-message">
+<div class="login-summary-grid">
+<div>
+<span>현재 프로필</span>
+<strong id="loginActiveProfileName">확인 중</strong>
+</div>
+<div>
+<span>스키마 버전</span>
+<strong id="loginSchemaVersionText">확인 중</strong>
+</div>
+<div>
+<span>데이터 묶음</span>
+<strong id="loginDataBundleState">확인 중</strong>
+</div>
+<div>
+<span>현재 저장 방식</span>
+<strong id="loginStorageModeText">로컬 저장</strong>
+</div>
+</div>
+<div class="login-flow-box">
+<article>
+<span>현재 단계</span>
+<strong>브라우저 저장</strong>
+<p>localStorage에 프로필별 데이터가 저장됩니다.</p>
+</article>
+<article>
+<span>다음 저장 대상</span>
+<strong>로그인 계정</strong>
+<p>나중에는 같은 묶음을 계정 ID 아래에 저장하면 됩니다.</p>
+</article>
+<article>
+<span>V3 준비 상태</span>
+<strong>구조 점검</strong>
+<p>어떤 데이터를 서버로 보낼지 미리 확인합니다.</p>
+</article>
+</div>
+<div class="login-key-grid">
+<div><span>파트너 키</span><strong id="loginPartnerKeyState">확인 중</strong></div>
+<div><span>운세 기록 키</span><strong id="loginHistoryKeyState">확인 중</strong></div>
+<div><span>도감 키</span><strong id="loginDexKeyState">확인 중</strong></div>
+<div><span>출석 키</span><strong id="loginAttendanceKeyState">확인 중</strong></div>
+<div><span>점검표 키</span><strong id="loginChecklistKeyState">확인 중</strong></div>
+</div>
+<div class="login-schema-box">
+<div class="login-schema-top">
+<div>
+<span>로그인 저장용 데이터 미리보기</span>
+<p>실제 비밀번호나 개인정보 저장은 아직 없습니다. 저장 구조만 확인합니다.</p>
+</div>
+<div class="login-schema-actions">
+<button class="small-button" id="refreshLoginSchemaBtn" type="button">구조 새로고침</button>
+<button class="small-button" id="copyLoginSchemaBtn" type="button">미리보기 복사</button>
+</div>
+</div>
+<pre id="loginSchemaPreview">확인 중...</pre>
+</div>
+<div class="login-inspector-message" id="loginInspectorMessage">
       V2-11에서는 진짜 로그인 연결 전, 현재 데이터 묶음이 로그인 저장에 적합한지 확인합니다.
     </div>
-  </section>
-
-
-  <section id="devCheckCard" class="dev-check-card" aria-label="개발 점검 체크리스트">
-    <div class="dev-check-top">
-      <div>
-        <span class="small-label">DEVELOPMENT CHECKLIST</span>
-        <h2>업데이트 점검표</h2>
-      </div>
-      <strong id="devVersionBadge" class="version-badge">V3-6</strong>
-    </div>
-
-    <p class="dev-check-desc">
+</section><section aria-label="개발 점검 체크리스트" class="dev-check-card" id="devCheckCard">
+<div class="dev-check-top">
+<div>
+<span class="small-label">DEVELOPMENT CHECKLIST</span>
+<h2>업데이트 점검표</h2>
+</div>
+<strong class="version-badge" id="devVersionBadge">V3-7</strong>
+</div>
+<p class="dev-check-desc">
       개발 중에는 아래 항목을 직접 눌러보고 체크하세요. 체크 상태는 이 브라우저에 저장됩니다.
     </p>
-
-    <div class="dev-check-progress">
-      <span id="devChecklistProgress">0 / 10 확인 완료</span>
-      <div class="dev-progress-bar" aria-hidden="true">
-        <div id="devChecklistFill"></div>
-      </div>
-    </div>
-
-    <div class="dev-check-list">
-      <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v36-version-visible" />
-        <span>화면에 현재 버전 V3-6이 보인다.</span>
-      </label>
-
-      <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v36-firebase-card" />
-        <span>Firebase 로그인 연결 테스트 카드가 화면에 보인다.</span>
-      </label>
-
-      <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v36-sdk-ready" />
-        <span>Firebase 연결 상태가 준비 완료로 표시된다.</span>
-      </label>
-
-      <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v36-google-login" />
-        <span>Google 로그인 테스트 버튼을 누르면 로그인 창이 열린다.</span>
-      </label>
-
-      <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v36-user-visible" />
-        <span>로그인 후 사용자 이름과 이메일이 표시된다.</span>
-      </label>
-
-      <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v36-auto-card" />
-        <span>로그인 후 서버 상태 자동 확인 카드가 그대로 보인다.</span>
-      </label>
-
-      <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v36-sync-card" />
-        <span>브라우저/서버 우선 추천 실행 강화 카드가 보인다.</span>
-      </label>
-
-      <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v36-sync-mode" />
-        <span>동기화 선택 방식 버튼을 누르면 추천 실행 내용도 함께 바뀐다.</span>
-      </label>
-
-      <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v36-recommendation" />
-        <span>새로고침 후에도 마지막 동기화 선택 방식이 유지된다.</span>
-      </label>
-
-      <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v36-check-save" />
-        <span>설정 초기화 버튼을 누르면 추천만 보기로 돌아간다.</span>
-      </label>
-    </div>
-
-    <div class="dev-check-actions">
-      <button id="resetChecklistBtn" class="small-button" type="button">점검표 초기화</button>
-    </div>
-  </section>
-
-  <div class="version-footer">오늘의 운세코드 V3-6 · 브라우저/서버 우선 추천 실행 강화 버전</div>
-
-</main>
-
-<button id="checklistJumpBtn" class="checklist-jump" type="button">점검표 보기</button>
-
-<div id="levelToast" class="level-toast hidden">
-  <strong id="levelToastTitle">LEVEL UP</strong>
-  <span id="levelToastText">파트너가 성장했습니다.</span>
+<div class="dev-check-progress">
+<span id="devChecklistProgress">0 / 10 확인 완료</span>
+<div aria-hidden="true" class="dev-progress-bar">
+<div id="devChecklistFill"></div>
 </div>
+</div>
+<div class="dev-check-list"><label class="dev-check-item">
+<input data-check-id="v37-version-visible" type="checkbox"/>
+<span>화면에 현재 버전 V3-7이 보인다.</span>
+</label><label class="dev-check-item">
+<input data-check-id="v37-user-first" type="checkbox"/>
+<span>기본 화면에서 운세 입력 영역이 먼저 보인다.</span>
+</label><label class="dev-check-item">
+<input data-check-id="v37-simple-login" type="checkbox"/>
+<span>Google 계정 저장 카드가 간단하게 보인다.</span>
+</label><label class="dev-check-item">
+<input data-check-id="v37-advanced-closed" type="checkbox"/>
+<span>고급 설정 / 개발자 도구가 기본으로 접혀 있다.</span>
+</label><label class="dev-check-item">
+<input data-check-id="v37-advanced-open" type="checkbox"/>
+<span>고급 설정을 열면 서버 저장 / 불러오기 기능이 보인다.</span>
+</label><label class="dev-check-item">
+<input data-check-id="v37-dev-hidden" type="checkbox"/>
+<span>개발 점검표가 일반 화면에 바로 노출되지 않는다.</span>
+</label><label class="dev-check-item">
+<input data-check-id="v37-fortune-still-ok" type="checkbox"/>
+<span>운세 분석 기능이 그대로 작동한다.</span>
+</label><label class="dev-check-item">
+<input data-check-id="v37-partner-still-ok" type="checkbox"/>
+<span>파트너 / 출석 / 도감 기능이 그대로 작동한다.</span>
+</label><label class="dev-check-item">
+<input data-check-id="v37-login-still-ok" type="checkbox"/>
+<span>Google 로그인 / 로그아웃이 그대로 작동한다.</span>
+</label><label class="dev-check-item">
+<input data-check-id="v37-check-save" type="checkbox"/>
+<span>새로고침해도 개발 점검 체크 상태가 유지된다.</span>
+</label></div>
+<div class="dev-check-actions">
+<button class="small-button" id="resetChecklistBtn" type="button">점검표 초기화</button>
+</div>
+</section></div></details><div class="version-footer">오늘의 운세코드 V3-7 · 사용자 화면 정리 / 고급 기능 숨김 버전</div></main>
 
-<script src="./app.js?v=20260526-v36"></script>
-
+<div class="level-toast hidden" id="levelToast">
+<strong id="levelToastTitle">LEVEL UP</strong>
+<span id="levelToastText">파트너가 성장했습니다.</span>
+</div>
+<script src="./app.js?v=20260526-v37"></script>
 </body>
 </html>

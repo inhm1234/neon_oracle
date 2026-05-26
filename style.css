@@ -3716,3 +3716,96 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 }
+
+/* V3-7 사용자 화면 정리 / 고급 기능 숨김 */
+.user-account-card {
+  margin-bottom: 18px;
+  border-color: rgba(142, 245, 255, 0.22);
+  background:
+    radial-gradient(circle at top left, rgba(142, 245, 255, 0.1), transparent 58%),
+    linear-gradient(180deg, rgba(142, 245, 255, 0.05), rgba(0, 0, 0, 0.18));
+}
+
+.user-simple-desc {
+  margin-bottom: 12px;
+}
+
+.compact-user-box {
+  margin-top: 10px;
+}
+
+.compact-action-box {
+  margin-top: 12px;
+}
+
+.firebase-system-state.hidden {
+  display: none !important;
+}
+
+.input-card {
+  margin-bottom: 18px;
+}
+
+.result-card {
+  margin-bottom: 18px;
+}
+
+.advanced-tools {
+  margin-top: 24px;
+  padding: 18px;
+  border: 1px solid rgba(216, 195, 255, 0.24);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top left, rgba(216, 195, 255, 0.1), transparent 56%),
+    rgba(0, 0, 0, 0.16);
+  text-align: left;
+}
+
+.advanced-tools > summary {
+  cursor: pointer;
+  color: #f1e8ff;
+  font-weight: bold;
+  font-size: 0.95rem;
+  list-style-position: inside;
+}
+
+.advanced-tools > summary:hover {
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(216, 195, 255, 0.36);
+}
+
+.advanced-tools-desc {
+  margin-top: 10px;
+  color: rgba(239, 252, 255, 0.64);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.advanced-tools-inner {
+  display: grid;
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.advanced-tools-inner > section {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.advanced-tools:not([open]) .advanced-tools-desc {
+  margin-bottom: 0;
+}
+
+.checklist-jump {
+  display: none !important;
+}
+
+@media (max-width: 520px) {
+  .advanced-tools {
+    padding: 15px;
+  }
+
+  .advanced-tools > summary {
+    font-size: 0.9rem;
+  }
+}
