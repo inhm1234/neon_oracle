@@ -129,10 +129,21 @@ const cloudSaveBtn = document.getElementById("cloudSaveBtn");
 const cloudLoadBtn = document.getElementById("cloudLoadBtn");
 const cloudRefreshBtn = document.getElementById("cloudRefreshBtn");
 const cloudSaveMessage = document.getElementById("cloudSaveMessage");
+const cloudCompareStatus = document.getElementById("cloudCompareStatus");
+const cloudLocalProfileCount = document.getElementById("cloudLocalProfileCount");
+const cloudServerProfileCount = document.getElementById("cloudServerProfileCount");
+const cloudLocalHistoryCount = document.getElementById("cloudLocalHistoryCount");
+const cloudServerHistoryCount = document.getElementById("cloudServerHistoryCount");
+const cloudLocalAttendanceState = document.getElementById("cloudLocalAttendanceState");
+const cloudServerAttendanceState = document.getElementById("cloudServerAttendanceState");
+const cloudLocalPartnerState = document.getElementById("cloudLocalPartnerState");
+const cloudServerPartnerState = document.getElementById("cloudServerPartnerState");
+const cloudDataDirectionHint = document.getElementById("cloudDataDirectionHint");
+const cloudCompareBtn = document.getElementById("cloudCompareBtn");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-1";
+const DEV_VERSION = "V3-2";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -213,8 +224,150 @@ function getCloudLocalSummaryText() {
   return `${summary.partner} · 기록 ${summary.historyCount}개 · 출석 ${summary.attendance}`;
 }
 
+function safeParseStorageValue(value, fallback = null) {
+  if (value === null || value === undefined || value === "") return fallback;
+
+  try {
+    return JSON.parse(value);
+  } catch (error) {
+    return fallback;
+  }
+}
+
+function getLocalCompareSummary() {
+  const store = ensureProfileStore();
+  const summary = getCurrentDataSummary();
+
+  return {
+    profileCount: Object.keys(store.profiles || {}).length,
+    partner: summary.partner,
+    historyCount: summary.historyCount,
+    attendance: summary.attendance,
+    updatedAt: store.updatedAt || ""
+  };
+}
+
+function getServerCompareSummary(data) {
+  if (!data || !data.profileStore || !data.profileStore.profiles) {
+    return null;
+  }
+
+  const profileStore = data.profileStore;
+  const profiles = profileStore.profiles || {};
+  const profileIds = Object.keys(profiles);
+  const activeId = data.activeProfileId && profiles[data.activeProfileId] ? data.activeProfileId : profileIds[0];
+  const activeProfile = activeId ? profiles[activeId] : null;
+  const storage = activeProfile && activeProfile.storage ? activeProfile.storage : {};
+  const partner = safeParseStorageValue(storage[PARTNER_KEY], null);
+  const history = safeParseStorageValue(storage[HISTORY_KEY], []);
+  const attendance = safeParseStorageValue(storage[ATTENDANCE_KEY], getDefaultAttendance());
+  const partnerText = partner ? `${getPartnerTemplate(partner.id).name} Lv.${getLevel(partner.exp || 0)}` : "없음";
+  const historyCount = Array.isArray(history) ? history.length : 0;
+  const attendanceText = `${attendance.totalClaims || 0}회 · ${attendance.currentStreak || 0}일 연속`;
+
+  return {
+    profileCount: profileIds.length,
+    partner: partnerText,
+    historyCount,
+    attendance: attendanceText,
+    updatedAt: profileStore.updatedAt || data.savedAt || "",
+    savedAt: data.serverSavedAt || data.savedAt || ""
+  };
+}
+
+function renderCloudCompareWaiting(message = "로그인 후 서버/브라우저 데이터를 비교할 수 있습니다.") {
+  const local = getLocalCompareSummary();
+
+  if (cloudLocalProfileCount) cloudLocalProfileCount.textContent = `${local.profileCount}개`;
+  if (cloudLocalHistoryCount) cloudLocalHistoryCount.textContent = `${local.historyCount}개`;
+  if (cloudLocalAttendanceState) cloudLocalAttendanceState.textContent = local.attendance;
+  if (cloudLocalPartnerState) cloudLocalPartnerState.textContent = local.partner;
+
+  if (cloudServerProfileCount) cloudServerProfileCount.textContent = "확인 전";
+  if (cloudServerHistoryCount) cloudServerHistoryCount.textContent = "확인 전";
+  if (cloudServerAttendanceState) cloudServerAttendanceState.textContent = "확인 전";
+  if (cloudServerPartnerState) cloudServerPartnerState.textContent = "확인 전";
+  if (cloudCompareStatus) cloudCompareStatus.textContent = "비교 대기";
+  if (cloudDataDirectionHint) cloudDataDirectionHint.textContent = message;
+}
+
+function renderCloudCompareResult(serverData) {
+  const local = getLocalCompareSummary();
+  const server = getServerCompareSummary(serverData);
+
+  if (cloudLocalProfileCount) cloudLocalProfileCount.textContent = `${local.profileCount}개`;
+  if (cloudLocalHistoryCount) cloudLocalHistoryCount.textContent = `${local.historyCount}개`;
+  if (cloudLocalAttendanceState) cloudLocalAttendanceState.textContent = local.attendance;
+  if (cloudLocalPartnerState) cloudLocalPartnerState.textContent = local.partner;
+
+  if (!server) {
+    if (cloudServerProfileCount) cloudServerProfileCount.textContent = "없음";
+    if (cloudServerHistoryCount) cloudServerHistoryCount.textContent = "없음";
+    if (cloudServerAttendanceState) cloudServerAttendanceState.textContent = "없음";
+    if (cloudServerPartnerState) cloudServerPartnerState.textContent = "없음";
+    if (cloudCompareStatus) cloudCompareStatus.textContent = "첫 저장 필요";
+    if (cloudDataDirectionHint) cloudDataDirectionHint.textContent = "서버 데이터가 아직 없습니다. 현재 브라우저 데이터를 서버에 먼저 저장하면 됩니다.";
+    return;
+  }
+
+  if (cloudServerProfileCount) cloudServerProfileCount.textContent = `${server.profileCount}개`;
+  if (cloudServerHistoryCount) cloudServerHistoryCount.textContent = `${server.historyCount}개`;
+  if (cloudServerAttendanceState) cloudServerAttendanceState.textContent = server.attendance;
+  if (cloudServerPartnerState) cloudServerPartnerState.textContent = server.partner;
+
+  const localTime = local.updatedAt ? new Date(local.updatedAt).getTime() : 0;
+  const serverTime = server.updatedAt ? new Date(server.updatedAt).getTime() : 0;
+
+  if (local.profileCount === server.profileCount && local.historyCount === server.historyCount && local.attendance === server.attendance && local.partner === server.partner) {
+    if (cloudCompareStatus) cloudCompareStatus.textContent = "거의 동일";
+    if (cloudDataDirectionHint) cloudDataDirectionHint.textContent = "서버와 브라우저의 주요 데이터가 거의 같습니다. 급하게 덮어쓸 필요는 없습니다.";
+  } else if (serverTime > localTime) {
+    if (cloudCompareStatus) cloudCompareStatus.textContent = "서버가 더 최신일 수 있음";
+    if (cloudDataDirectionHint) cloudDataDirectionHint.textContent = "서버 데이터가 더 최근일 수 있습니다. 불러오기 전에는 백업을 받아두고 진행하세요.";
+  } else if (localTime > serverTime) {
+    if (cloudCompareStatus) cloudCompareStatus.textContent = "브라우저가 더 최신일 수 있음";
+    if (cloudDataDirectionHint) cloudDataDirectionHint.textContent = "현재 브라우저 데이터가 더 최근일 수 있습니다. 서버에 저장하면 서버 데이터가 이 내용으로 갱신됩니다.";
+  } else {
+    if (cloudCompareStatus) cloudCompareStatus.textContent = "차이 있음";
+    if (cloudDataDirectionHint) cloudDataDirectionHint.textContent = "서버와 브라우저 데이터에 차이가 있습니다. 어느 쪽을 기준으로 할지 확인하고 저장/불러오기를 눌러주세요.";
+  }
+}
+
+async function compareCloudAndLocalData() {
+  renderCloudSaveState();
+
+  const ref = getCloudUserDocRef();
+
+  if (!ref || !firebaseGetDoc) {
+    renderCloudCompareWaiting("Google 로그인 후 비교할 수 있습니다.");
+    setCloudSaveMessage("먼저 Google 로그인을 완료해주세요.");
+    return;
+  }
+
+  try {
+    if (cloudCompareStatus) cloudCompareStatus.textContent = "비교 중";
+    if (cloudDataDirectionHint) cloudDataDirectionHint.textContent = "서버 데이터와 브라우저 데이터를 비교하는 중입니다.";
+
+    const snapshot = await firebaseGetDoc(ref);
+
+    if (!snapshot.exists()) {
+      renderCloudCompareResult(null);
+      setCloudSaveMessage("서버 데이터가 아직 없습니다. 현재 브라우저 데이터를 서버에 저장하면 첫 서버 데이터가 만들어집니다.");
+      return;
+    }
+
+    renderCloudCompareResult(snapshot.data());
+    setCloudSaveMessage("서버/브라우저 데이터 비교가 완료되었습니다.");
+  } catch (error) {
+    console.error("서버/브라우저 비교 실패", error);
+    if (cloudCompareStatus) cloudCompareStatus.textContent = "비교 실패";
+    if (cloudDataDirectionHint) cloudDataDirectionHint.textContent = `비교 중 오류가 생겼습니다. ${error.message || error.code || "알 수 없음"}`;
+    setCloudSaveMessage(`서버/브라우저 비교 중 오류가 생겼습니다. ${error.message || error.code || "알 수 없음"}`);
+  }
+}
+
 function setCloudButtonsEnabled(enabled) {
-  [cloudSaveBtn, cloudLoadBtn, cloudRefreshBtn].forEach((button) => {
+  [cloudSaveBtn, cloudLoadBtn, cloudRefreshBtn, cloudCompareBtn].forEach((button) => {
     if (button) button.disabled = !enabled;
   });
 }
@@ -324,6 +477,7 @@ async function refreshCloudServerState() {
     if (!snapshot.exists()) {
       if (cloudSaveServerState) cloudSaveServerState.textContent = "아직 없음";
       if (cloudLastSaved) cloudLastSaved.textContent = "기록 없음";
+      renderCloudCompareResult(null);
       setCloudSaveMessage("아직 서버에 저장된 운세 데이터가 없습니다. 먼저 ‘현재 데이터를 서버에 저장’을 눌러주세요.");
       return;
     }
@@ -332,7 +486,8 @@ async function refreshCloudServerState() {
     const profileCount = data.profileStore && data.profileStore.profiles ? Object.keys(data.profileStore.profiles).length : 0;
     if (cloudSaveServerState) cloudSaveServerState.textContent = `있음 · 프로필 ${profileCount}개`;
     if (cloudLastSaved) cloudLastSaved.textContent = formatCloudSavedAt(data.serverSavedAt || data.savedAt);
-    setCloudSaveMessage("서버 저장 데이터를 확인했습니다. 필요하면 서버에서 불러올 수 있습니다.");
+    renderCloudCompareResult(data);
+    setCloudSaveMessage("서버 저장 데이터를 확인했습니다. 비교 결과를 보고 저장 또는 불러오기를 선택하세요.");
   } catch (error) {
     console.error("서버 데이터 확인 실패", error);
     if (cloudSaveServerState) cloudSaveServerState.textContent = "확인 실패";
@@ -349,6 +504,9 @@ async function saveCurrentDataToCloud() {
     return;
   }
 
+  const ok = confirm("현재 브라우저 데이터를 서버에 저장할까요? 서버에 있던 데이터는 현재 브라우저 데이터 기준으로 갱신됩니다.");
+  if (!ok) return;
+
   try {
     if (cloudSaveBtn) cloudSaveBtn.disabled = true;
     if (cloudSaveStatus) cloudSaveStatus.textContent = "저장 중";
@@ -359,8 +517,9 @@ async function saveCurrentDataToCloud() {
     if (cloudSaveStatus) cloudSaveStatus.textContent = "저장 완료";
     if (cloudSaveServerState) cloudSaveServerState.textContent = "있음 · 방금 저장";
     if (cloudLastSaved) cloudLastSaved.textContent = formatSavedAt(new Date().toISOString());
-    setCloudSaveMessage("현재 프로필 데이터가 로그인 계정에 저장되었습니다.");
+    setCloudSaveMessage("현재 프로필 데이터가 로그인 계정에 저장되었습니다. 서버/브라우저 비교를 다시 갱신했습니다.");
     statusText.textContent = "로그인 계정에 현재 데이터를 저장했습니다.";
+    await refreshCloudServerState();
   } catch (error) {
     console.error("서버 저장 실패", error);
     if (cloudSaveStatus) cloudSaveStatus.textContent = "저장 실패";
@@ -378,7 +537,7 @@ async function loadCurrentDataFromCloud() {
     return;
   }
 
-  const ok = confirm("서버에 저장된 데이터로 현재 브라우저 데이터를 교체할까요? 필요하면 먼저 백업 파일을 받아두세요.");
+  const ok = confirm("서버 데이터로 현재 브라우저 데이터를 교체할까요? 현재 브라우저 데이터가 덮어써집니다. 진행 전 백업 파일을 받아두는 것을 추천합니다.");
   if (!ok) return;
 
   try {
@@ -402,7 +561,8 @@ async function loadCurrentDataFromCloud() {
     if (cloudSaveServerState) cloudSaveServerState.textContent = "있음 · 불러오기 완료";
     if (cloudLastSaved) cloudLastSaved.textContent = formatCloudSavedAt(data.serverSavedAt || data.savedAt);
     if (cloudSaveStatus) cloudSaveStatus.textContent = "불러오기 완료";
-    setCloudSaveMessage("서버 데이터를 이 브라우저로 불러왔습니다.");
+    renderCloudCompareResult(data);
+    setCloudSaveMessage("서버 데이터를 이 브라우저로 불러왔습니다. 비교 결과도 갱신했습니다.");
     statusText.textContent = "로그인 계정의 데이터를 불러왔습니다.";
   } catch (error) {
     console.error("서버 불러오기 실패", error);
@@ -3187,6 +3347,10 @@ if (cloudRefreshBtn) {
   cloudRefreshBtn.addEventListener("click", refreshCloudServerState);
 }
 
+if (cloudCompareBtn) {
+  cloudCompareBtn.addEventListener("click", compareCloudAndLocalData);
+}
+
 if (fortuneHistoryList) {
   fortuneHistoryList.addEventListener("click", (event) => {
     const deleteButton = event.target.closest("[data-history-delete]");
@@ -3277,4 +3441,5 @@ renderAttendance();
 renderDataManager();
 renderLoginStorageInspector();
 renderCloudSaveState();
+renderCloudCompareWaiting();
 initFirebaseLoginTest();
