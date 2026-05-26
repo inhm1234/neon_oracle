@@ -147,10 +147,21 @@ const autoCheckResult = document.getElementById("autoCheckResult");
 const autoCheckMode = document.getElementById("autoCheckMode");
 const autoCheckMessage = document.getElementById("autoCheckMessage");
 const autoCheckBtn = document.getElementById("autoCheckBtn");
+const syncChoiceStatus = document.getElementById("syncChoiceStatus");
+const syncChoiceUser = document.getElementById("syncChoiceUser");
+const syncChoiceMode = document.getElementById("syncChoiceMode");
+const syncChoiceLast = document.getElementById("syncChoiceLast");
+const syncChoiceResult = document.getElementById("syncChoiceResult");
+const syncChoiceRecommendation = document.getElementById("syncChoiceRecommendation");
+const syncChoiceMessage = document.getElementById("syncChoiceMessage");
+const syncChoiceOptionButtons = document.querySelectorAll("[data-sync-mode]");
+const syncChoiceCompareBtn = document.getElementById("syncChoiceCompareBtn");
+const syncChoiceSaveBtn = document.getElementById("syncChoiceSaveBtn");
+const syncChoiceLoadBtn = document.getElementById("syncChoiceLoadBtn");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-3";
+const DEV_VERSION = "V3-4";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -158,6 +169,7 @@ const HISTORY_LIMIT = 20;
 const DEX_KEY = "fortune_partner_dex_guest_v1";
 const ATTENDANCE_KEY = "fortune_attendance_guest_v1";
 const ATTENDANCE_LOG_LIMIT = 10;
+const SYNC_OPTION_KEY = "fortune_sync_choice_mode_v1";
 const DATA_BACKUP_KEYS = [
   { key: PARTNER_KEY, label: "파트너" },
   { key: HISTORY_KEY, label: "이전 운세" },
@@ -359,12 +371,15 @@ async function compareCloudAndLocalData() {
 
     if (!snapshot.exists()) {
       renderCloudCompareResult(null);
+      renderSyncChoiceFromServerData(null, "manual");
       setCloudSaveMessage("서버 데이터가 아직 없습니다. 현재 브라우저 데이터를 서버에 저장하면 첫 서버 데이터가 만들어집니다.");
       return;
     }
 
-    renderCloudCompareResult(snapshot.data());
-    setCloudSaveMessage("서버/브라우저 데이터 비교가 완료되었습니다.");
+    const data = snapshot.data();
+    renderCloudCompareResult(data);
+    renderSyncChoiceFromServerData(data, "manual");
+    setCloudSaveMessage("서버/브라우저 데이터 비교가 완료되었습니다. 선택형 동기화 추천도 갱신했습니다.");
   } catch (error) {
     console.error("서버/브라우저 비교 실패", error);
     if (cloudCompareStatus) cloudCompareStatus.textContent = "비교 실패";
@@ -428,6 +443,7 @@ async function runAutomaticCloudStatusCheck(reason = "manual") {
   if (!user || !ref || !firebaseGetDoc) {
     renderAutoCheckWaiting("Google 로그인 후 서버 상태를 자동으로 확인합니다.");
     renderCloudCompareWaiting("Google 로그인 후 비교할 수 있습니다.");
+    renderSyncChoiceWaiting("Google 로그인 후 선택형 동기화 추천을 볼 수 있습니다.");
     return;
   }
 
@@ -449,6 +465,7 @@ async function runAutomaticCloudStatusCheck(reason = "manual") {
       if (cloudSaveServerState) cloudSaveServerState.textContent = "아직 없음";
       if (cloudLastSaved) cloudLastSaved.textContent = "기록 없음";
       renderCloudCompareResult(null);
+      renderSyncChoiceFromServerData(null, "auto");
       setAutoCheckResultFromServerData(null);
       setCloudSaveMessage("자동 확인 완료: 서버 데이터가 아직 없습니다. 첫 저장이 필요합니다.");
       return;
@@ -459,6 +476,7 @@ async function runAutomaticCloudStatusCheck(reason = "manual") {
     if (cloudSaveServerState) cloudSaveServerState.textContent = `있음 · 프로필 ${profileCount}개`;
     if (cloudLastSaved) cloudLastSaved.textContent = formatCloudSavedAt(data.serverSavedAt || data.savedAt);
     renderCloudCompareResult(data);
+    renderSyncChoiceFromServerData(data, "auto");
     setAutoCheckResultFromServerData(data);
     setCloudSaveMessage("로그인 후 서버 상태 자동 확인이 완료되었습니다. 저장/불러오기는 직접 선택해야 합니다.");
   } catch (error) {
@@ -470,6 +488,188 @@ async function runAutomaticCloudStatusCheck(reason = "manual") {
     if (autoCheckBtn) autoCheckBtn.disabled = !(firebaseAuth && firebaseAuth.currentUser && firebaseDb);
     renderCloudSaveState();
   }
+}
+
+
+function getSyncModeInfo(mode) {
+  const map = {
+    manual: {
+      label: "항상 수동",
+      desc: "자동 저장/불러오기는 하지 않고, 사용자가 버튼으로만 처리합니다."
+    },
+    ask: {
+      label: "추천만 보기",
+      desc: "로그인 후 비교 결과를 보고 어떤 버튼을 누르면 좋을지 추천만 표시합니다."
+    },
+    local: {
+      label: "브라우저 우선",
+      desc: "현재 브라우저 데이터가 기준입니다. 필요하면 서버 저장을 추천합니다."
+    },
+    server: {
+      label: "서버 우선",
+      desc: "서버 데이터가 기준입니다. 필요하면 서버 불러오기를 추천합니다."
+    }
+  };
+
+  return map[mode] || map.ask;
+}
+
+function loadSyncChoiceMode() {
+  return localStorage.getItem(SYNC_OPTION_KEY) || "ask";
+}
+
+function saveSyncChoiceMode(mode) {
+  localStorage.setItem(SYNC_OPTION_KEY, mode);
+  updateSyncChoiceOptionUI();
+  renderSyncChoiceWaiting(`동기화 선택 방식을 ${getSyncModeInfo(mode).label}(으)로 저장했습니다. 서버 상태를 다시 확인하면 추천이 갱신됩니다.`);
+}
+
+function updateSyncChoiceOptionUI() {
+  const mode = loadSyncChoiceMode();
+  const info = getSyncModeInfo(mode);
+
+  if (syncChoiceMode) syncChoiceMode.textContent = info.label;
+
+  syncChoiceOptionButtons.forEach((button) => {
+    const buttonMode = button.getAttribute("data-sync-mode");
+    button.classList.toggle("selected", buttonMode === mode);
+    button.setAttribute("aria-pressed", buttonMode === mode ? "true" : "false");
+  });
+}
+
+function setSyncChoiceMessage(message) {
+  if (syncChoiceMessage) {
+    syncChoiceMessage.textContent = message;
+  }
+}
+
+function setSyncChoiceButtonsEnabled(enabled) {
+  [syncChoiceCompareBtn, syncChoiceSaveBtn, syncChoiceLoadBtn].forEach((button) => {
+    if (button) button.disabled = !enabled;
+  });
+}
+
+function getSyncDecision(serverData) {
+  const local = getLocalCompareSummary();
+  const server = getServerCompareSummary(serverData);
+
+  if (!server) {
+    return {
+      type: "first-save",
+      label: "첫 서버 저장 추천",
+      action: "save",
+      message: "서버 데이터가 아직 없습니다. 현재 브라우저 데이터를 서버에 저장하면 첫 백업이 만들어집니다."
+    };
+  }
+
+  const same = local.profileCount === server.profileCount
+    && local.historyCount === server.historyCount
+    && local.attendance === server.attendance
+    && local.partner === server.partner;
+
+  const localTime = local.updatedAt ? new Date(local.updatedAt).getTime() : 0;
+  const serverTime = server.updatedAt ? new Date(server.updatedAt).getTime() : 0;
+
+  if (same) {
+    return {
+      type: "same",
+      label: "동기화 필요 낮음",
+      action: "none",
+      message: "서버와 브라우저의 주요 데이터가 거의 같습니다. 지금은 저장/불러오기를 하지 않아도 괜찮습니다."
+    };
+  }
+
+  if (serverTime > localTime) {
+    return {
+      type: "server-newer",
+      label: "서버 불러오기 검토",
+      action: "load",
+      message: "서버 데이터가 더 최신일 수 있습니다. 백업 후 서버에서 불러오기를 검토하세요."
+    };
+  }
+
+  if (localTime > serverTime) {
+    return {
+      type: "local-newer",
+      label: "서버 저장 검토",
+      action: "save",
+      message: "현재 브라우저 데이터가 더 최신일 수 있습니다. 서버 저장을 검토하세요."
+    };
+  }
+
+  return {
+    type: "different",
+    label: "직접 선택 필요",
+    action: "manual",
+    message: "서버와 브라우저 데이터에 차이가 있습니다. 어느 쪽이 맞는지 확인한 뒤 저장 또는 불러오기를 선택하세요."
+  };
+}
+
+function getSyncRecommendationText(decision) {
+  const mode = loadSyncChoiceMode();
+
+  if (mode === "manual") {
+    return "항상 수동 모드입니다. 비교 결과를 보고 직접 저장/불러오기를 선택하세요.";
+  }
+
+  if (mode === "local") {
+    return decision.action === "none"
+      ? "브라우저 우선 모드입니다. 현재는 큰 차이가 없어 보입니다."
+      : "브라우저 우선 모드입니다. 서버 저장을 먼저 검토하는 것이 안전합니다.";
+  }
+
+  if (mode === "server") {
+    return decision.action === "none"
+      ? "서버 우선 모드입니다. 현재는 큰 차이가 없어 보입니다."
+      : "서버 우선 모드입니다. 서버에서 불러오기를 먼저 검토하되, 불러오기 전 백업을 권장합니다.";
+  }
+
+  if (decision.action === "save") return "추천: 현재 브라우저 데이터를 서버에 저장하는 쪽을 먼저 검토하세요.";
+  if (decision.action === "load") return "추천: 서버 데이터를 불러오는 쪽을 먼저 검토하세요. 불러오기 전 백업을 권장합니다.";
+  if (decision.action === "none") return "추천: 지금은 동기화 작업을 하지 않아도 괜찮아 보입니다.";
+  return "추천: 자동으로 결정하기 애매합니다. 비교 내용을 보고 직접 선택하세요.";
+}
+
+function renderSyncChoiceWaiting(message = "로그인 후 서버 상태를 확인하면 동기화 추천이 표시됩니다.") {
+  const user = firebaseAuth ? firebaseAuth.currentUser : null;
+
+  updateSyncChoiceOptionUI();
+  if (syncChoiceStatus) syncChoiceStatus.textContent = user ? "추천 대기" : "로그인 대기";
+  if (syncChoiceUser) syncChoiceUser.textContent = user ? (user.email || user.displayName || "Google 사용자") : "로그인 전";
+  if (syncChoiceLast) syncChoiceLast.textContent = "아직 없음";
+  if (syncChoiceResult) syncChoiceResult.textContent = user ? "비교 필요" : "로그인 필요";
+  if (syncChoiceRecommendation) syncChoiceRecommendation.textContent = "아직 추천 없음";
+  setSyncChoiceButtonsEnabled(Boolean(user && firebaseDb));
+  setSyncChoiceMessage(message);
+}
+
+function renderSyncChoiceFromServerData(serverData, source = "auto") {
+  const user = firebaseAuth ? firebaseAuth.currentUser : null;
+  const decision = getSyncDecision(serverData);
+  const checkedAt = new Date().toISOString();
+
+  updateSyncChoiceOptionUI();
+  if (syncChoiceStatus) syncChoiceStatus.textContent = "추천 완료";
+  if (syncChoiceUser) syncChoiceUser.textContent = user ? (user.email || user.displayName || "Google 사용자") : "로그인 전";
+  if (syncChoiceLast) syncChoiceLast.textContent = formatSavedAt(checkedAt);
+  if (syncChoiceResult) syncChoiceResult.textContent = decision.label;
+  if (syncChoiceRecommendation) syncChoiceRecommendation.textContent = getSyncRecommendationText(decision);
+  setSyncChoiceButtonsEnabled(Boolean(user && firebaseDb));
+
+  const sourceText = source === "auto" ? "자동 확인" : "수동 비교";
+  setSyncChoiceMessage(`${sourceText} 결과: ${decision.message} 실제 저장/불러오기는 사용자가 버튼을 눌러야만 진행됩니다.`);
+}
+
+async function runSyncChoiceCompare() {
+  await compareCloudAndLocalData();
+}
+
+async function runSyncChoiceSave() {
+  await saveCurrentDataToCloud();
+}
+
+async function runSyncChoiceLoad() {
+  await loadCurrentDataFromCloud();
 }
 
 function setCloudButtonsEnabled(enabled) {
@@ -584,6 +784,7 @@ async function refreshCloudServerState() {
       if (cloudSaveServerState) cloudSaveServerState.textContent = "아직 없음";
       if (cloudLastSaved) cloudLastSaved.textContent = "기록 없음";
       renderCloudCompareResult(null);
+      renderSyncChoiceFromServerData(null, "manual");
       setCloudSaveMessage("아직 서버에 저장된 운세 데이터가 없습니다. 먼저 ‘현재 데이터를 서버에 저장’을 눌러주세요.");
       return;
     }
@@ -593,7 +794,8 @@ async function refreshCloudServerState() {
     if (cloudSaveServerState) cloudSaveServerState.textContent = `있음 · 프로필 ${profileCount}개`;
     if (cloudLastSaved) cloudLastSaved.textContent = formatCloudSavedAt(data.serverSavedAt || data.savedAt);
     renderCloudCompareResult(data);
-    setCloudSaveMessage("서버 저장 데이터를 확인했습니다. 비교 결과를 보고 저장 또는 불러오기를 선택하세요.");
+    renderSyncChoiceFromServerData(data, "manual");
+    setCloudSaveMessage("서버 저장 데이터를 확인했습니다. 비교 결과와 선택형 동기화 추천을 보고 저장 또는 불러오기를 선택하세요.");
   } catch (error) {
     console.error("서버 데이터 확인 실패", error);
     if (cloudSaveServerState) cloudSaveServerState.textContent = "확인 실패";
@@ -668,7 +870,8 @@ async function loadCurrentDataFromCloud() {
     if (cloudLastSaved) cloudLastSaved.textContent = formatCloudSavedAt(data.serverSavedAt || data.savedAt);
     if (cloudSaveStatus) cloudSaveStatus.textContent = "불러오기 완료";
     renderCloudCompareResult(data);
-    setCloudSaveMessage("서버 데이터를 이 브라우저로 불러왔습니다. 비교 결과도 갱신했습니다.");
+    renderSyncChoiceFromServerData(data, "manual");
+    setCloudSaveMessage("서버 데이터를 이 브라우저로 불러왔습니다. 비교 결과와 동기화 추천도 갱신했습니다.");
     statusText.textContent = "로그인 계정의 데이터를 불러왔습니다.";
   } catch (error) {
     console.error("서버 불러오기 실패", error);
@@ -800,6 +1003,7 @@ async function initFirebaseLoginTest() {
         setFirebaseLoginStatus("준비 완료");
         renderCloudSaveState();
         renderAutoCheckWaiting("로그아웃 상태입니다. 다시 로그인하면 서버 상태를 자동 확인합니다.");
+        renderSyncChoiceWaiting("로그아웃 상태입니다. 로그인하면 선택형 동기화 추천을 볼 수 있습니다.");
       }
     });
 
@@ -865,6 +1069,7 @@ async function handleFirebaseSignOut() {
     setFirebaseLoginMessage("로그아웃했습니다. 서버 저장 테스트를 하려면 다시 로그인해주세요.");
     renderCloudSaveState();
     renderAutoCheckWaiting("로그아웃 상태입니다. 다시 로그인하면 서버 상태를 자동 확인합니다.");
+    renderSyncChoiceWaiting("로그아웃 상태입니다. 로그인하면 선택형 동기화 추천을 볼 수 있습니다.");
   } catch (error) {
     console.error("로그아웃 실패", error);
     setFirebaseLoginMessage(`로그아웃 중 오류가 생겼습니다. ${error.message || error.code || "알 수 없음"}`);
@@ -3463,6 +3668,25 @@ if (autoCheckBtn) {
   autoCheckBtn.addEventListener("click", () => runAutomaticCloudStatusCheck("manual"));
 }
 
+syncChoiceOptionButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const mode = button.getAttribute("data-sync-mode") || "ask";
+    saveSyncChoiceMode(mode);
+  });
+});
+
+if (syncChoiceCompareBtn) {
+  syncChoiceCompareBtn.addEventListener("click", runSyncChoiceCompare);
+}
+
+if (syncChoiceSaveBtn) {
+  syncChoiceSaveBtn.addEventListener("click", runSyncChoiceSave);
+}
+
+if (syncChoiceLoadBtn) {
+  syncChoiceLoadBtn.addEventListener("click", runSyncChoiceLoad);
+}
+
 if (fortuneHistoryList) {
   fortuneHistoryList.addEventListener("click", (event) => {
     const deleteButton = event.target.closest("[data-history-delete]");
@@ -3555,4 +3779,5 @@ renderLoginStorageInspector();
 renderCloudSaveState();
 renderCloudCompareWaiting();
 renderAutoCheckWaiting();
+renderSyncChoiceWaiting();
 initFirebaseLoginTest();
