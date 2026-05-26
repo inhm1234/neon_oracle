@@ -15,72 +15,15 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>오늘의 운세코드</title>
 <link href="manifest.json" rel="manifest"/>
-<link href="./style.css?v=20260526-v37" rel="stylesheet"/>
+<link href="./style.css?v=20260526-v38" rel="stylesheet"/>
 </head>
 <body>
 <canvas id="matrix"></canvas>
 <div class="background-glow"></div>
 <main class="container">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <div class="brand-label">AI ORACLE FORTUNE SYSTEM</div><h1 class="title" data-text="오늘의 운세코드">오늘의 운세코드</h1><p class="subtitle">
     생년월일과 태어난 시간을 바탕으로 오늘의 운세 흐름을 분석합니다.
-  </p><section aria-label="Google 계정 저장 상태" class="firebase-login-card user-account-card" id="firebaseLoginCard">
-<div class="firebase-login-top">
-<div>
-<span class="small-label">ACCOUNT SAVE</span>
-<h2>Google 계정 저장</h2>
-</div>
-<strong class="firebase-status-badge" id="firebaseLoginStatus">연결 확인 중</strong>
-</div>
-<p class="firebase-login-desc user-simple-desc">
-      로그인하면 운세 기록과 파트너 데이터를 계정에 저장할 수 있습니다. 기본 화면에서는 운세 보기만 편하게 사용할 수 있어요.
-    </p>
-<div class="firebase-user-box compact-user-box" id="firebaseUserBox">
-<div class="firebase-user-photo" id="firebaseUserPhoto">?</div>
-<div class="firebase-user-info">
-<span>계정 상태</span>
-<strong id="firebaseUserName">로그인 전</strong>
-<p id="firebaseUserEmail">Google로 로그인하면 내 데이터 저장을 사용할 수 있습니다.</p>
-</div>
-</div>
-<div class="firebase-action-box compact-action-box">
-<div>
-<strong>간편 저장 준비</strong>
-<p>서버 저장/불러오기 같은 관리 기능은 아래 고급 설정 안에 정리했습니다.</p>
-</div>
-<div class="firebase-action-buttons">
-<button class="small-button" id="firebaseSignInBtn" type="button">Google로 로그인</button>
-<button class="small-button danger-button hidden" id="firebaseSignOutBtn" type="button">로그아웃</button>
-</div>
-</div>
-<div aria-hidden="true" class="firebase-state-grid firebase-system-state hidden">
-<div><span>Firebase 프로젝트</span><strong id="firebaseProjectState">today-fortune-code</strong></div>
-<div><span>승인 도메인</span><strong id="firebaseDomainState">inhm1234.github.io</strong></div>
-<div><span>로그인 제공업체</span><strong id="firebaseProviderState">Google</strong></div>
-<div><span>Firestore</span><strong id="firebaseFirestoreState">준비 완료 · 저장 테스트 가능</strong></div>
-</div>
-<div class="firebase-login-message" id="firebaseLoginMessage">
-      Firebase 연결을 확인하는 중입니다. 준비가 끝나면 Google 로그인을 사용할 수 있습니다.
-    </div>
-</section><section class="input-card">
+  </p><section class="input-card hero-input-card">
 <form id="fortuneForm">
 <div class="form-grid">
 <label class="field">
@@ -127,7 +70,45 @@
 </form>
 </section><div class="status-text" id="statusText">
     정보를 입력하면 오늘의 운세코드를 분석합니다.
-  </div><section class="result-card hidden" id="resultCard">
+  </div><section aria-label="Google 계정 저장 상태" class="firebase-login-card user-account-card" id="firebaseLoginCard">
+<div class="firebase-login-top">
+<div>
+<span class="small-label">ACCOUNT SAVE</span>
+<h2>Google 계정 저장</h2>
+</div>
+<strong class="firebase-status-badge" id="firebaseLoginStatus">연결 확인 중</strong>
+</div>
+<p class="firebase-login-desc user-simple-desc">
+      로그인하면 운세 기록과 파트너 데이터를 계정에 저장할 수 있습니다. 기본 화면에서는 운세 보기만 편하게 사용할 수 있어요.
+    </p>
+<div class="firebase-user-box compact-user-box" id="firebaseUserBox">
+<div class="firebase-user-photo" id="firebaseUserPhoto">?</div>
+<div class="firebase-user-info">
+<span>계정 상태</span>
+<strong id="firebaseUserName">로그인 전</strong>
+<p id="firebaseUserEmail">Google로 로그인하면 내 데이터 저장을 사용할 수 있습니다.</p>
+</div>
+</div>
+<div class="firebase-action-box compact-action-box">
+<div>
+<strong>간편 저장 준비</strong>
+<p>서버 저장/불러오기 같은 관리 기능은 아래 고급 설정 안에 정리했습니다.</p>
+</div>
+<div class="firebase-action-buttons">
+<button class="small-button" id="firebaseSignInBtn" type="button">Google로 로그인</button>
+<button class="small-button danger-button hidden" id="firebaseSignOutBtn" type="button">로그아웃</button>
+</div>
+</div>
+<div aria-hidden="true" class="firebase-state-grid firebase-system-state hidden">
+<div><span>Firebase 프로젝트</span><strong id="firebaseProjectState">today-fortune-code</strong></div>
+<div><span>승인 도메인</span><strong id="firebaseDomainState">inhm1234.github.io</strong></div>
+<div><span>로그인 제공업체</span><strong id="firebaseProviderState">Google</strong></div>
+<div><span>Firestore</span><strong id="firebaseFirestoreState">준비 완료 · 저장 테스트 가능</strong></div>
+</div>
+<div class="firebase-login-message" id="firebaseLoginMessage">
+      Firebase 연결을 확인하는 중입니다. 준비가 끝나면 Google 로그인을 사용할 수 있습니다.
+    </div>
+</section><section class="result-card hidden" id="resultCard">
 <div class="result-top">
 <div>
 <span>분석 코드</span>
@@ -178,7 +159,7 @@
 <span>오늘의 한 줄 조언</span>
 <p id="finalAdvice"></p>
 </div>
-</section><section class="partner-card">
+</section><section class="simple-explore-card" id="simpleExploreCard"><div class="simple-explore-top"><div><span class="small-label">OPTIONAL CONTENTS</span><h2>더 둘러보기</h2><p>운세를 본 뒤 궁금한 기능만 열어보세요. 처음 화면은 운세 보기에 집중하도록 정리했습니다.</p></div></div><div class="simple-feature-grid"><details class="feature-drawer feature-drawer-1" id="partnerDrawer"><summary><div class="feature-summary-text"><span>내 파트너</span><strong>운세를 함께 보는 오라클</strong><em>파트너를 만나고 성장 상태를 확인합니다.</em></div><b>열기</b></summary><section class="partner-card">
 <div class="partner-empty" id="partnerEmpty">
 <div class="partner-empty-orb">?</div>
 <h2>파트너 오라클이 기다리고 있습니다</h2>
@@ -276,7 +257,7 @@
 </div>
 </div>
 </div>
-</section><section aria-label="출석 보상" class="attendance-card" id="attendanceCard">
+</section></details><details class="feature-drawer feature-drawer-2" id="attendanceDrawer"><summary><div class="feature-summary-text"><span>출석 보상</span><strong>매일 EXP 받기</strong><em>하루 한 번 출석 보상을 받을 수 있습니다.</em></div><b>열기</b></summary><section aria-label="출석 보상" class="attendance-card" id="attendanceCard">
 <div class="attendance-top">
 <div>
 <span class="small-label">DAILY CHECK-IN</span>
@@ -311,22 +292,7 @@
 <li>아직 출석 보상 기록이 없습니다.</li>
 </ul>
 </div>
-</section><section aria-label="파트너 도감과 프로필" class="partner-dex-card" id="partnerDexCard">
-<div class="partner-dex-top">
-<div>
-<span class="small-label">PARTNER COLLECTION</span>
-<h2>파트너 도감 / 프로필</h2>
-</div>
-<strong class="dex-progress-badge" id="partnerDexProgress">0 / 3 발견</strong>
-</div>
-<p class="partner-dex-desc">
-      지금 만난 파트너와 앞으로 만날 수 있는 파트너를 한눈에 확인합니다. 현재 파트너의 레벨, 성장 단계, 다음 진화 조건과 최근 감정 반응도 여기서 볼 수 있습니다.
-    </p>
-<div class="active-partner-profile" id="activePartnerProfile">
-      파트너를 선택하면 현재 파트너 프로필이 표시됩니다.
-    </div>
-<div class="partner-dex-grid" id="partnerDexGrid"></div>
-</section><section aria-label="이전 운세 기록" class="history-card" id="historyCard">
+</section></details><details class="feature-drawer feature-drawer-3" id="historyDrawer"><summary><div class="feature-summary-text"><span>이전 운세</span><strong>지난 기록 다시보기</strong><em>최근에 본 운세 기록을 펼쳐봅니다.</em></div><b>열기</b></summary><section aria-label="이전 운세 기록" class="history-card" id="historyCard">
 <div class="history-top">
 <div>
 <span class="small-label">FORTUNE HISTORY</span>
@@ -341,7 +307,22 @@
       아직 저장된 운세 기록이 없습니다. 운세를 한 번 분석하면 여기에 표시됩니다.
     </div>
 <div class="history-list" id="fortuneHistoryList"></div>
-</section><details class="advanced-tools" id="advancedTools"><summary>고급 설정 / 개발자 도구 열기</summary><p class="advanced-tools-desc">서버 저장, 백업, 프로필 관리, 개발 점검표는 필요할 때만 열어서 확인할 수 있습니다.</p><div class="advanced-tools-inner"><section aria-label="프로필 저장 구조" class="profile-card" id="profileCard">
+</section></details><details class="feature-drawer feature-drawer-4" id="partnerDexDrawer"><summary><div class="feature-summary-text"><span>파트너 도감</span><strong>숨은 파트너 둘러보기</strong><em>루미, 모코, 노바의 도감을 궁금할 때 열어봅니다.</em></div><b>열기</b></summary><section aria-label="파트너 도감과 프로필" class="partner-dex-card" id="partnerDexCard">
+<div class="partner-dex-top">
+<div>
+<span class="small-label">PARTNER COLLECTION</span>
+<h2>파트너 도감 / 프로필</h2>
+</div>
+<strong class="dex-progress-badge" id="partnerDexProgress">0 / 3 발견</strong>
+</div>
+<p class="partner-dex-desc">
+      지금 만난 파트너와 앞으로 만날 수 있는 파트너를 한눈에 확인합니다. 현재 파트너의 레벨, 성장 단계, 다음 진화 조건과 최근 감정 반응도 여기서 볼 수 있습니다.
+    </p>
+<div class="active-partner-profile" id="activePartnerProfile">
+      파트너를 선택하면 현재 파트너 프로필이 표시됩니다.
+    </div>
+<div class="partner-dex-grid" id="partnerDexGrid"></div>
+</section></details></div></section><details class="advanced-tools" id="advancedTools"><summary>고급 설정 / 개발자 도구 열기</summary><p class="advanced-tools-desc">서버 저장, 백업, 프로필 관리, 개발 점검표는 필요할 때만 열어서 확인할 수 있습니다.</p><div class="advanced-tools-inner"><section aria-label="프로필 저장 구조" class="profile-card" id="profileCard">
 <div class="profile-card-top">
 <div>
 <span class="small-label">PROFILE STORAGE</span>
@@ -479,7 +460,7 @@
 <strong class="auto-check-badge" id="autoCheckStatus">로그인 대기</strong>
 </div>
 <p class="cloud-auto-check-desc">
-      V3-6에서는 Google 로그인 상태가 확인되면 서버 데이터가 있는지 자동으로 확인하고, 저장된 동기화 설정을 기준으로 다음 행동을 추천합니다.
+      V3-8에서는 고급 설정 안에서 서버 상태 자동 확인과 동기화 추천 기능을 계속 사용할 수 있습니다.
     </p>
 <div class="auto-check-grid">
 <div>
@@ -518,7 +499,7 @@
 <strong class="sync-choice-badge" id="syncChoiceStatus">로그인 대기</strong>
 </div>
 <p class="sync-choice-desc">
-      자동 저장/자동 불러오기는 아직 하지 않습니다. 대신 선택한 동기화 방식에 따라 가장 안전한 실행 버튼을 더 크게 추천해줍니다.
+      고급 설정용 기능입니다. 선택한 동기화 방식에 따라 서버 저장 또는 서버 불러오기를 추천합니다.
     </p>
 <div class="sync-choice-grid">
 <div>
@@ -717,7 +698,7 @@
 <span class="small-label">DEVELOPMENT CHECKLIST</span>
 <h2>업데이트 점검표</h2>
 </div>
-<strong class="version-badge" id="devVersionBadge">V3-7</strong>
+<strong class="version-badge" id="devVersionBadge">V3-8</strong>
 </div>
 <p class="dev-check-desc">
       개발 중에는 아래 항목을 직접 눌러보고 체크하세요. 체크 상태는 이 브라우저에 저장됩니다.
@@ -729,45 +710,44 @@
 </div>
 </div>
 <div class="dev-check-list"><label class="dev-check-item">
-<input data-check-id="v37-version-visible" type="checkbox"/>
-<span>화면에 현재 버전 V3-7이 보인다.</span>
+<input data-check-id="v38-version-visible" type="checkbox"/>
+<span>화면에 현재 버전 V3-8이 보인다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v37-user-first" type="checkbox"/>
-<span>기본 화면에서 운세 입력 영역이 먼저 보인다.</span>
+<input data-check-id="v38-input-first" type="checkbox"/>
+<span>첫 화면에서 운세 입력 영역이 가장 먼저 눈에 들어온다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v37-simple-login" type="checkbox"/>
-<span>Google 계정 저장 카드가 간단하게 보인다.</span>
+<input data-check-id="v38-account-compact" type="checkbox"/>
+<span>Google 계정 저장 영역이 작고 간단하게 보인다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v37-advanced-closed" type="checkbox"/>
+<input data-check-id="v38-sub-folded" type="checkbox"/>
+<span>파트너 / 출석 / 이전 운세 / 도감이 기본으로 접혀 있다.</span>
+</label><label class="dev-check-item">
+<input data-check-id="v38-dex-open" type="checkbox"/>
+<span>파트너 도감은 사용자가 열었을 때만 자세히 보인다.</span>
+</label><label class="dev-check-item">
+<input data-check-id="v38-advanced-closed" type="checkbox"/>
 <span>고급 설정 / 개발자 도구가 기본으로 접혀 있다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v37-advanced-open" type="checkbox"/>
-<span>고급 설정을 열면 서버 저장 / 불러오기 기능이 보인다.</span>
-</label><label class="dev-check-item">
-<input data-check-id="v37-dev-hidden" type="checkbox"/>
-<span>개발 점검표가 일반 화면에 바로 노출되지 않는다.</span>
-</label><label class="dev-check-item">
-<input data-check-id="v37-fortune-still-ok" type="checkbox"/>
+<input data-check-id="v38-fortune-still-ok" type="checkbox"/>
 <span>운세 분석 기능이 그대로 작동한다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v37-partner-still-ok" type="checkbox"/>
-<span>파트너 / 출석 / 도감 기능이 그대로 작동한다.</span>
+<input data-check-id="v38-sub-still-ok" type="checkbox"/>
+<span>서브 콘텐츠를 열면 파트너 / 출석 / 기록 기능이 그대로 작동한다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v37-login-still-ok" type="checkbox"/>
+<input data-check-id="v38-login-still-ok" type="checkbox"/>
 <span>Google 로그인 / 로그아웃이 그대로 작동한다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v37-check-save" type="checkbox"/>
+<input data-check-id="v38-check-save" type="checkbox"/>
 <span>새로고침해도 개발 점검 체크 상태가 유지된다.</span>
 </label></div>
 <div class="dev-check-actions">
 <button class="small-button" id="resetChecklistBtn" type="button">점검표 초기화</button>
 </div>
-</section></div></details><div class="version-footer">오늘의 운세코드 V3-7 · 사용자 화면 정리 / 고급 기능 숨김 버전</div></main>
-
+</section></div></details><div class="version-footer">오늘의 운세코드 V3-8 · 심플 홈 / 서브 콘텐츠 접기 버전</div></main>
 <div class="level-toast hidden" id="levelToast">
 <strong id="levelToastTitle">LEVEL UP</strong>
 <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
-<script src="./app.js?v=20260526-v37"></script>
+<script src="./app.js?v=20260526-v38"></script>
 </body>
 </html>
