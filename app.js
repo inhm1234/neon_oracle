@@ -122,7 +122,7 @@ const firebaseLoginMessage = document.getElementById("firebaseLoginMessage");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-0";
+const DEV_VERSION = "V3-0.1";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -159,6 +159,198 @@ let firebaseSignInWithPopup = null;
 let firebaseSignOut = null;
 let firebaseLoginReady = false;
 let isProfileSystemReady = false;
+
+
+function setFirebaseLoginMessage(message) {
+  if (firebaseLoginMessage) {
+    firebaseLoginMessage.textContent = message;
+  }
+}
+
+function setFirebaseLoginStatus(text) {
+  if (firebaseLoginStatus) {
+    firebaseLoginStatus.textContent = text;
+  }
+}
+
+function renderFirebaseSignedOut() {
+  if (firebaseUserPhoto) {
+    firebaseUserPhoto.textContent = "?";
+    firebaseUserPhoto.style.backgroundImage = "";
+  }
+
+  if (firebaseUserName) {
+    firebaseUserName.textContent = "로그인 전";
+  }
+
+  if (firebaseUserEmail) {
+    firebaseUserEmail.textContent = "Google 로그인 버튼을 눌러 연결을 확인하세요.";
+  }
+
+  if (firebaseSignInBtn) {
+    firebaseSignInBtn.classList.remove("hidden");
+    firebaseSignInBtn.disabled = !firebaseLoginReady;
+  }
+
+  if (firebaseSignOutBtn) {
+    firebaseSignOutBtn.classList.add("hidden");
+  }
+}
+
+function renderFirebaseSignedIn(user) {
+  if (!user) {
+    renderFirebaseSignedOut();
+    return;
+  }
+
+  if (firebaseUserPhoto) {
+    const photoUrl = user.photoURL || "";
+
+    if (photoUrl) {
+      firebaseUserPhoto.textContent = "";
+      firebaseUserPhoto.style.backgroundImage = `url("${photoUrl}")`;
+      firebaseUserPhoto.style.backgroundSize = "cover";
+      firebaseUserPhoto.style.backgroundPosition = "center";
+    } else {
+      firebaseUserPhoto.style.backgroundImage = "";
+      firebaseUserPhoto.textContent = (user.displayName || user.email || "G").slice(0, 1).toUpperCase();
+    }
+  }
+
+  if (firebaseUserName) {
+    firebaseUserName.textContent = user.displayName || "Google 사용자";
+  }
+
+  if (firebaseUserEmail) {
+    firebaseUserEmail.textContent = user.email || "이메일 정보 없음";
+  }
+
+  if (firebaseSignInBtn) {
+    firebaseSignInBtn.classList.add("hidden");
+  }
+
+  if (firebaseSignOutBtn) {
+    firebaseSignOutBtn.classList.remove("hidden");
+    firebaseSignOutBtn.disabled = false;
+  }
+}
+
+async function initFirebaseLoginTest() {
+  if (!firebaseLoginStatus || !firebaseSignInBtn) return;
+
+  firebaseLoginReady = false;
+  firebaseSignInBtn.disabled = true;
+  setFirebaseLoginStatus("SDK 확인 중");
+  setFirebaseLoginMessage("Firebase SDK를 불러오는 중입니다. 잠시만 기다려주세요.");
+
+  try {
+    const [appModule, authModule] = await Promise.all([
+      import(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-app.js`),
+      import(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-auth.js`)
+    ]);
+
+    const firebaseApp = appModule.initializeApp(FIREBASE_CONFIG);
+    firebaseAuth = authModule.getAuth(firebaseApp);
+    firebaseProvider = new authModule.GoogleAuthProvider();
+    firebaseSignInWithPopup = authModule.signInWithPopup;
+    firebaseSignOut = authModule.signOut;
+    firebaseLoginReady = true;
+
+    if (firebaseProjectState) {
+      firebaseProjectState.textContent = FIREBASE_CONFIG.projectId;
+    }
+
+    if (firebaseDomainState) {
+      firebaseDomainState.textContent = FIREBASE_ALLOWED_DOMAIN;
+    }
+
+    if (firebaseProviderState) {
+      firebaseProviderState.textContent = "Google · 사용 설정됨";
+    }
+
+    if (firebaseFirestoreState) {
+      firebaseFirestoreState.textContent = "준비 완료 · 저장은 다음 단계";
+    }
+
+    setFirebaseLoginStatus("준비 완료");
+    setFirebaseLoginMessage("Firebase 연결 준비 완료. Google 로그인 테스트 버튼을 눌러 확인하세요.");
+
+    authModule.onAuthStateChanged(firebaseAuth, (user) => {
+      if (user) {
+        renderFirebaseSignedIn(user);
+        setFirebaseLoginStatus("로그인 완료");
+        setFirebaseLoginMessage("Google 로그인 연결이 정상 작동합니다. 운세 데이터 서버 저장은 다음 단계에서 진행합니다.");
+      } else {
+        renderFirebaseSignedOut();
+        setFirebaseLoginStatus("준비 완료");
+      }
+    });
+
+    renderFirebaseSignedOut();
+  } catch (error) {
+    console.error("Firebase SDK 초기화 실패", error);
+    firebaseLoginReady = false;
+    if (firebaseSignInBtn) firebaseSignInBtn.disabled = true;
+    setFirebaseLoginStatus("연결 실패");
+    setFirebaseLoginMessage(`Firebase SDK를 불러오지 못했습니다. Ctrl + F5 후 다시 시도하세요. 오류: ${error.message || error.code || "알 수 없음"}`);
+  }
+}
+
+async function handleFirebaseSignIn() {
+  if (!firebaseLoginReady || !firebaseAuth || !firebaseProvider || !firebaseSignInWithPopup) {
+    setFirebaseLoginMessage("아직 Firebase 준비가 끝나지 않았습니다. 잠시 기다린 뒤 다시 눌러주세요.");
+    return;
+  }
+
+  try {
+    if (firebaseSignInBtn) firebaseSignInBtn.disabled = true;
+    setFirebaseLoginStatus("로그인 중");
+    setFirebaseLoginMessage("Google 로그인 창을 여는 중입니다. 팝업이 차단되면 주소창 오른쪽을 확인해주세요.");
+
+    const result = await firebaseSignInWithPopup(firebaseAuth, firebaseProvider);
+    renderFirebaseSignedIn(result.user);
+    setFirebaseLoginStatus("로그인 완료");
+    setFirebaseLoginMessage("Google 로그인 테스트가 완료되었습니다. 아직 운세 데이터는 서버에 저장하지 않습니다.");
+  } catch (error) {
+    console.error("Google 로그인 실패", error);
+    const code = error.code || "알 수 없는 오류";
+    const message = error.message || "오류 메시지 없음";
+
+    if (code === "auth/popup-closed-by-user") {
+      setFirebaseLoginMessage("Google 로그인 창이 닫혔습니다. 다시 로그인 버튼을 눌러주세요.");
+    } else if (code === "auth/unauthorized-domain") {
+      setFirebaseLoginMessage(`승인되지 않은 도메인입니다. Firebase Authentication 승인된 도메인에 ${window.location.hostname} 를 추가해야 합니다.`);
+    } else {
+      setFirebaseLoginMessage(`Google 로그인 중 오류가 생겼습니다. ${code} · ${message}`);
+    }
+
+    setFirebaseLoginStatus("로그인 실패");
+  } finally {
+    if (firebaseSignInBtn && !firebaseAuth.currentUser) {
+      firebaseSignInBtn.disabled = false;
+    }
+  }
+}
+
+async function handleFirebaseSignOut() {
+  if (!firebaseAuth || !firebaseSignOut) {
+    setFirebaseLoginMessage("로그아웃 준비가 아직 끝나지 않았습니다.");
+    return;
+  }
+
+  try {
+    if (firebaseSignOutBtn) firebaseSignOutBtn.disabled = true;
+    await firebaseSignOut(firebaseAuth);
+    renderFirebaseSignedOut();
+    setFirebaseLoginStatus("준비 완료");
+    setFirebaseLoginMessage("로그아웃했습니다. 다시 Google 로그인 테스트를 할 수 있습니다.");
+  } catch (error) {
+    console.error("로그아웃 실패", error);
+    setFirebaseLoginMessage(`로그아웃 중 오류가 생겼습니다. ${error.message || error.code || "알 수 없음"}`);
+  } finally {
+    if (firebaseSignOutBtn) firebaseSignOutBtn.disabled = false;
+  }
+}
 
 const relationMeta = {
   support: {
