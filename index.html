@@ -15,7 +15,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>오늘의 운세코드</title>
 <link href="manifest.json" rel="manifest"/>
-<link href="./style.css?v=20260526-v38" rel="stylesheet"/>
+<link href="./style.css?v=20260526-v381" rel="stylesheet"/>
 </head>
 <body>
 <canvas id="matrix"></canvas>
@@ -81,6 +81,16 @@
 <p class="firebase-login-desc user-simple-desc">
       로그인하면 운세 기록과 파트너 데이터를 계정에 저장할 수 있습니다. 기본 화면에서는 운세 보기만 편하게 사용할 수 있어요.
     </p>
+<div class="embedded-browser-guide hidden" id="embeddedBrowserGuide">
+<strong>카카오톡 안에서는 Google 로그인이 제한될 수 있어요</strong>
+<p>운세 보기는 바로 가능하고, 계정 저장은 Chrome, Samsung Internet, Safari에서 열면 사용할 수 있습니다.</p>
+<div class="embedded-guide-actions">
+<button class="small-button" id="continueGuestBtn" type="button">운세 먼저 보기</button>
+<button class="small-button" id="openExternalBrowserBtn" type="button">브라우저로 열기</button>
+<button class="small-button" id="copySiteUrlBtn" type="button">주소 복사</button>
+</div>
+<p class="embedded-guide-note">카카오톡에서는 오른쪽 아래 ⋮ 또는 상단 메뉴에서 ‘브라우저로 열기’를 눌러도 됩니다.</p>
+</div>
 <div class="firebase-user-box compact-user-box" id="firebaseUserBox">
 <div class="firebase-user-photo" id="firebaseUserPhoto">?</div>
 <div class="firebase-user-info">
@@ -698,56 +708,62 @@
 <span class="small-label">DEVELOPMENT CHECKLIST</span>
 <h2>업데이트 점검표</h2>
 </div>
-<strong class="version-badge" id="devVersionBadge">V3-8</strong>
+<strong class="version-badge" id="devVersionBadge">V3-8.1</strong>
 </div>
 <p class="dev-check-desc">
       개발 중에는 아래 항목을 직접 눌러보고 체크하세요. 체크 상태는 이 브라우저에 저장됩니다.
     </p>
 <div class="dev-check-progress">
-<span id="devChecklistProgress">0 / 10 확인 완료</span>
+<span id="devChecklistProgress">0 / 12 확인 완료</span>
 <div aria-hidden="true" class="dev-progress-bar">
 <div id="devChecklistFill"></div>
 </div>
 </div>
 <div class="dev-check-list"><label class="dev-check-item">
-<input data-check-id="v38-version-visible" type="checkbox"/>
-<span>화면에 현재 버전 V3-8이 보인다.</span>
+<input data-check-id="v381-version-visible" type="checkbox"/>
+<span>화면에 현재 버전 V3-8.1이 보인다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v38-input-first" type="checkbox"/>
+<input data-check-id="v381-input-first" type="checkbox"/>
 <span>첫 화면에서 운세 입력 영역이 가장 먼저 눈에 들어온다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v38-account-compact" type="checkbox"/>
+<input data-check-id="v381-account-compact" type="checkbox"/>
 <span>Google 계정 저장 영역이 작고 간단하게 보인다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v38-sub-folded" type="checkbox"/>
+<input data-check-id="v381-sub-folded" type="checkbox"/>
 <span>파트너 / 출석 / 이전 운세 / 도감이 기본으로 접혀 있다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v38-dex-open" type="checkbox"/>
+<input data-check-id="v381-dex-open" type="checkbox"/>
 <span>파트너 도감은 사용자가 열었을 때만 자세히 보인다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v38-advanced-closed" type="checkbox"/>
+<input data-check-id="v381-advanced-closed" type="checkbox"/>
 <span>고급 설정 / 개발자 도구가 기본으로 접혀 있다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v38-fortune-still-ok" type="checkbox"/>
+<input data-check-id="v381-fortune-still-ok" type="checkbox"/>
 <span>운세 분석 기능이 그대로 작동한다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v38-sub-still-ok" type="checkbox"/>
+<input data-check-id="v381-sub-still-ok" type="checkbox"/>
 <span>서브 콘텐츠를 열면 파트너 / 출석 / 기록 기능이 그대로 작동한다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v38-login-still-ok" type="checkbox"/>
-<span>Google 로그인 / 로그아웃이 그대로 작동한다.</span>
+<input data-check-id="v381-login-still-ok" type="checkbox"/>
+<span>PC 브라우저에서 Google 로그인 / 로그아웃이 그대로 작동한다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v38-check-save" type="checkbox"/>
+<input data-check-id="v381-mobile-guide-ok" type="checkbox"/>
+<span>카카오톡 같은 앱 내부 브라우저에서 Google 로그인 안내가 먼저 보인다.</span>
+</label><label class="dev-check-item">
+<input data-check-id="v381-mobile-browser-ok" type="checkbox"/>
+<span>모바일 일반 브라우저에서는 리다이렉트 방식으로 Google 로그인을 시도한다.</span>
+</label><label class="dev-check-item">
+<input data-check-id="v381-check-save" type="checkbox"/>
 <span>새로고침해도 개발 점검 체크 상태가 유지된다.</span>
 </label></div>
 <div class="dev-check-actions">
 <button class="small-button" id="resetChecklistBtn" type="button">점검표 초기화</button>
 </div>
-</section></div></details><div class="version-footer">오늘의 운세코드 V3-8 · 심플 홈 / 서브 콘텐츠 접기 버전</div></main>
+</section></div></details><div class="version-footer">오늘의 운세코드 V3-8.1 · 카카오톡 접속 대응 / 모바일 로그인 안정화</div></main>
 <div class="level-toast hidden" id="levelToast">
 <strong id="levelToastTitle">LEVEL UP</strong>
 <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
-<script src="./app.js?v=20260526-v38"></script>
+<script src="./app.js?v=20260526-v381"></script>
 </body>
 </html>

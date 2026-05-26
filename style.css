@@ -3892,6 +3892,65 @@ button:disabled {
   line-height: 1.45;
 }
 
+
+/* V3-8.1 카카오톡 접속 대응 / 모바일 로그인 안정화 */
+.embedded-browser-guide {
+  margin: 10px 0 12px;
+  padding: 12px;
+  border: 1px solid rgba(255, 225, 132, 0.34);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 225, 132, 0.13), transparent 58%),
+    rgba(0, 0, 0, 0.18);
+  text-align: left;
+}
+
+.embedded-browser-guide strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #fff1b8;
+  font-size: 0.86rem;
+}
+
+.embedded-browser-guide p {
+  color: rgba(239, 252, 255, 0.78);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.embedded-guide-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.embedded-guide-actions .small-button {
+  border-color: rgba(255, 225, 132, 0.38);
+  color: #fff7d6;
+}
+
+.embedded-guide-note {
+  margin-top: 8px;
+  color: rgba(255, 247, 214, 0.68) !important;
+  font-size: 0.72rem !important;
+}
+
+.user-account-card:has(.embedded-browser-guide:not(.hidden)) {
+  border-color: rgba(255, 225, 132, 0.28);
+}
+
+@media (max-width: 520px) {
+  .embedded-guide-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .embedded-guide-actions .small-button {
+    width: 100%;
+  }
+}
+
 .simple-explore-card {
   margin-top: 18px;
   padding: 20px;
@@ -4023,7 +4082,66 @@ button:disabled {
 }
 
 @media (max-width: 520px) {
-  .simple-explore-card {
+  
+/* V3-8.1 카카오톡 접속 대응 / 모바일 로그인 안정화 */
+.embedded-browser-guide {
+  margin: 10px 0 12px;
+  padding: 12px;
+  border: 1px solid rgba(255, 225, 132, 0.34);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 225, 132, 0.13), transparent 58%),
+    rgba(0, 0, 0, 0.18);
+  text-align: left;
+}
+
+.embedded-browser-guide strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #fff1b8;
+  font-size: 0.86rem;
+}
+
+.embedded-browser-guide p {
+  color: rgba(239, 252, 255, 0.78);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.embedded-guide-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.embedded-guide-actions .small-button {
+  border-color: rgba(255, 225, 132, 0.38);
+  color: #fff7d6;
+}
+
+.embedded-guide-note {
+  margin-top: 8px;
+  color: rgba(255, 247, 214, 0.68) !important;
+  font-size: 0.72rem !important;
+}
+
+.user-account-card:has(.embedded-browser-guide:not(.hidden)) {
+  border-color: rgba(255, 225, 132, 0.28);
+}
+
+@media (max-width: 520px) {
+  .embedded-guide-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .embedded-guide-actions .small-button {
+    width: 100%;
+  }
+}
+
+.simple-explore-card {
     padding: 16px 14px;
   }
 

@@ -119,6 +119,10 @@ const firebaseUserEmail = document.getElementById("firebaseUserEmail");
 const firebaseSignInBtn = document.getElementById("firebaseSignInBtn");
 const firebaseSignOutBtn = document.getElementById("firebaseSignOutBtn");
 const firebaseLoginMessage = document.getElementById("firebaseLoginMessage");
+const embeddedBrowserGuide = document.getElementById("embeddedBrowserGuide");
+const openExternalBrowserBtn = document.getElementById("openExternalBrowserBtn");
+const copySiteUrlBtn = document.getElementById("copySiteUrlBtn");
+const continueGuestBtn = document.getElementById("continueGuestBtn");
 const cloudSaveStatus = document.getElementById("cloudSaveStatus");
 const cloudSaveUser = document.getElementById("cloudSaveUser");
 const cloudSaveProfile = document.getElementById("cloudSaveProfile");
@@ -168,7 +172,7 @@ const syncChoiceRunBtn = document.getElementById("syncChoiceRunBtn");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-8";
+const DEV_VERSION = "V3-8.1";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -204,6 +208,8 @@ const FIREBASE_ALLOWED_DOMAIN = "inhm1234.github.io";
 let firebaseAuth = null;
 let firebaseProvider = null;
 let firebaseSignInWithPopup = null;
+let firebaseSignInWithRedirect = null;
+let firebaseGetRedirectResult = null;
 let firebaseSignOut = null;
 let firebaseDb = null;
 let firebaseDoc = null;
@@ -214,6 +220,109 @@ let firebaseLoginReady = false;
 let isProfileSystemReady = false;
 let lastSyncDecision = null;
 
+
+
+function getCurrentSiteUrl() {
+  return `${window.location.origin}${window.location.pathname}`;
+}
+
+function getBrowserEnvironment() {
+  const ua = navigator.userAgent || "";
+  const lower = ua.toLowerCase();
+  const appMatches = [
+    { key: "kakaotalk", label: "카카오톡" },
+    { key: "instagram", label: "인스타그램" },
+    { key: "fban", label: "페이스북" },
+    { key: "fbav", label: "페이스북" },
+    { key: "line/", label: "라인" },
+    { key: "naver", label: "네이버앱" },
+    { key: "daum", label: "다음앱" },
+    { key: "wv", label: "앱 내부 브라우저" }
+  ];
+  const found = appMatches.find((item) => lower.includes(item.key));
+  const isMobile = /android|iphone|ipad|ipod|mobile/i.test(ua);
+  const isAndroid = /android/i.test(ua);
+  const isIos = /iphone|ipad|ipod/i.test(ua);
+  const isEmbedded = Boolean(found) || /; wv\)/i.test(ua) || /version\/\d+\.\d+.*mobile.*safari/i.test(lower) === false && isMobile && lower.includes(" wv");
+
+  return {
+    ua,
+    isMobile,
+    isAndroid,
+    isIos,
+    isEmbedded,
+    appLabel: found ? found.label : "앱 내부 브라우저"
+  };
+}
+
+function isEmbeddedLoginBlocked() {
+  return getBrowserEnvironment().isEmbedded;
+}
+
+function renderMobileLoginGuide() {
+  const env = getBrowserEnvironment();
+  const user = firebaseAuth ? firebaseAuth.currentUser : null;
+
+  if (embeddedBrowserGuide) {
+    embeddedBrowserGuide.classList.toggle("hidden", !env.isEmbedded || Boolean(user));
+  }
+
+  if (firebaseSignInBtn && !user) {
+    firebaseSignInBtn.textContent = env.isEmbedded ? "브라우저에서 로그인" : "Google로 로그인";
+    firebaseSignInBtn.disabled = !firebaseLoginReady;
+  }
+
+  if (env.isEmbedded && !user) {
+    setFirebaseLoginStatus("브라우저 열기 필요");
+    setFirebaseLoginMessage(`${env.appLabel} 안에서는 Google 로그인이 제한될 수 있습니다. 운세 보기는 바로 가능하고, 계정 저장은 Chrome/Samsung Internet/Safari에서 열면 사용할 수 있습니다.`);
+  }
+}
+
+async function copyCurrentSiteUrl() {
+  const url = getCurrentSiteUrl();
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(url);
+    } else {
+      const textarea = document.createElement("textarea");
+      textarea.value = url;
+      textarea.setAttribute("readonly", "readonly");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+    }
+
+    setFirebaseLoginMessage("사이트 주소를 복사했습니다. Chrome, Samsung Internet, Safari 주소창에 붙여넣고 접속하면 Google 로그인을 사용할 수 있습니다.");
+  } catch (error) {
+    setFirebaseLoginMessage(`주소 복사가 되지 않았습니다. 주소창에 ${url} 를 직접 입력해주세요.`);
+  }
+}
+
+function openInExternalBrowser() {
+  const env = getBrowserEnvironment();
+  const url = getCurrentSiteUrl();
+
+  if (env.isAndroid) {
+    const hostPath = `${window.location.host}${window.location.pathname}`;
+    const fallbackUrl = encodeURIComponent(url);
+    setFirebaseLoginMessage("외부 브라우저 열기를 시도합니다. 열리지 않으면 주소 복사를 눌러 Chrome/Samsung Internet에서 접속해주세요.");
+    window.location.href = `intent://${hostPath}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${fallbackUrl};end`;
+    return;
+  }
+
+  setFirebaseLoginMessage("iPhone/iPad에서는 공유 버튼 또는 메뉴에서 Safari/Chrome으로 열기를 선택해주세요. 필요하면 주소 복사를 눌러주세요.");
+}
+
+function scrollToFortuneForm() {
+  if (form && typeof form.scrollIntoView === "function") {
+    form.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  setFirebaseLoginMessage("로그인하지 않아도 운세 보기는 바로 사용할 수 있습니다. 기록 저장이 필요할 때만 외부 브라우저에서 로그인해주세요.");
+}
 
 function setFirebaseLoginMessage(message) {
   if (firebaseLoginMessage) {
@@ -1094,6 +1203,7 @@ function renderFirebaseSignedOut() {
 function renderFirebaseSignedIn(user) {
   if (!user) {
     renderFirebaseSignedOut();
+    renderMobileLoginGuide();
     return;
   }
 
@@ -1153,6 +1263,8 @@ async function initFirebaseLoginTest() {
     firebaseServerTimestamp = firestoreModule.serverTimestamp;
     firebaseProvider = new authModule.GoogleAuthProvider();
     firebaseSignInWithPopup = authModule.signInWithPopup;
+    firebaseSignInWithRedirect = authModule.signInWithRedirect;
+    firebaseGetRedirectResult = authModule.getRedirectResult;
     firebaseSignOut = authModule.signOut;
     firebaseLoginReady = true;
 
@@ -1173,8 +1285,26 @@ async function initFirebaseLoginTest() {
     }
 
     setFirebaseLoginStatus("준비 완료");
-    setFirebaseLoginMessage("Firebase 연결 준비 완료. Google 로그인 후 서버 저장 테스트를 진행하세요.");
+    setFirebaseLoginMessage(getBrowserEnvironment().isMobile ? "Firebase 연결 준비 완료. 모바일에서는 안정적인 리다이렉트 방식으로 Google 로그인을 진행합니다." : "Firebase 연결 준비 완료. Google 로그인 후 서버 저장 테스트를 진행하세요.");
     renderCloudSaveState();
+    renderMobileLoginGuide();
+
+    if (firebaseGetRedirectResult) {
+      try {
+        const redirectResult = await firebaseGetRedirectResult(firebaseAuth);
+        if (redirectResult && redirectResult.user) {
+          renderFirebaseSignedIn(redirectResult.user);
+          setFirebaseLoginStatus("로그인 완료");
+          setFirebaseLoginMessage("Google 로그인 연결이 정상 작동합니다. 이제 서버 저장 테스트를 진행할 수 있습니다.");
+          renderCloudSaveState();
+          runAutomaticCloudStatusCheck("login");
+        }
+      } catch (redirectError) {
+        console.error("Google 리다이렉트 로그인 결과 확인 실패", redirectError);
+        setFirebaseLoginStatus("로그인 확인 실패");
+        setFirebaseLoginMessage(`Google 로그인 결과를 확인하지 못했습니다. ${redirectError.message || redirectError.code || "알 수 없음"}`);
+      }
+    }
 
     authModule.onAuthStateChanged(firebaseAuth, (user) => {
       if (user) {
@@ -1182,11 +1312,13 @@ async function initFirebaseLoginTest() {
         setFirebaseLoginStatus("로그인 완료");
         setFirebaseLoginMessage("Google 로그인 연결이 정상 작동합니다. 이제 서버 저장 테스트를 진행할 수 있습니다.");
         renderCloudSaveState();
+        renderMobileLoginGuide();
         runAutomaticCloudStatusCheck("login");
       } else {
         renderFirebaseSignedOut();
         setFirebaseLoginStatus("준비 완료");
         renderCloudSaveState();
+        renderMobileLoginGuide();
         renderAutoCheckWaiting("로그아웃 상태입니다. 다시 로그인하면 서버 상태를 자동 확인합니다.");
         renderSyncChoiceWaiting("로그아웃 상태입니다. 로그인하면 선택형 동기화 추천을 볼 수 있습니다.");
       }
@@ -1203,7 +1335,17 @@ async function initFirebaseLoginTest() {
 }
 
 async function handleFirebaseSignIn() {
-  if (!firebaseLoginReady || !firebaseAuth || !firebaseProvider || !firebaseSignInWithPopup) {
+  if (isEmbeddedLoginBlocked()) {
+    renderMobileLoginGuide();
+    if (embeddedBrowserGuide && typeof embeddedBrowserGuide.scrollIntoView === "function") {
+      embeddedBrowserGuide.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    return;
+  }
+
+  const env = getBrowserEnvironment();
+
+  if (!firebaseLoginReady || !firebaseAuth || !firebaseProvider || !firebaseSignInWithPopup || !firebaseSignInWithRedirect) {
     setFirebaseLoginMessage("아직 Firebase 준비가 끝나지 않았습니다. 잠시 기다린 뒤 다시 눌러주세요.");
     return;
   }
@@ -1211,6 +1353,13 @@ async function handleFirebaseSignIn() {
   try {
     if (firebaseSignInBtn) firebaseSignInBtn.disabled = true;
     setFirebaseLoginStatus("로그인 중");
+
+    if (env.isMobile) {
+      setFirebaseLoginMessage("모바일 환경이라 Google 로그인 페이지로 이동합니다. 로그인 후 다시 운세코드로 돌아옵니다.");
+      await firebaseSignInWithRedirect(firebaseAuth, firebaseProvider);
+      return;
+    }
+
     setFirebaseLoginMessage("Google 로그인 창을 여는 중입니다. 팝업이 차단되면 주소창 오른쪽을 확인해주세요.");
 
     const result = await firebaseSignInWithPopup(firebaseAuth, firebaseProvider);
@@ -1218,6 +1367,7 @@ async function handleFirebaseSignIn() {
     setFirebaseLoginStatus("로그인 완료");
     setFirebaseLoginMessage("Google 로그인 테스트가 완료되었습니다. 이제 현재 데이터를 서버에 저장할 수 있습니다.");
     renderCloudSaveState();
+    renderMobileLoginGuide();
     runAutomaticCloudStatusCheck("login");
   } catch (error) {
     console.error("Google 로그인 실패", error);
@@ -1228,13 +1378,16 @@ async function handleFirebaseSignIn() {
       setFirebaseLoginMessage("Google 로그인 창이 닫혔습니다. 다시 로그인 버튼을 눌러주세요.");
     } else if (code === "auth/unauthorized-domain") {
       setFirebaseLoginMessage(`승인되지 않은 도메인입니다. Firebase Authentication 승인된 도메인에 ${window.location.hostname} 를 추가해야 합니다.`);
+    } else if (code === "auth/operation-not-supported-in-this-environment" || message.includes("disallowed_useragent")) {
+      setFirebaseLoginMessage("현재 앱 내부 브라우저에서는 Google 로그인이 제한됩니다. 운세 보기는 바로 가능하고, 계정 저장은 외부 브라우저에서 이용해주세요.");
+      renderMobileLoginGuide();
     } else {
       setFirebaseLoginMessage(`Google 로그인 중 오류가 생겼습니다. ${code} · ${message}`);
     }
 
     setFirebaseLoginStatus("로그인 실패");
   } finally {
-    if (firebaseSignInBtn && !firebaseAuth.currentUser) {
+    if (firebaseSignInBtn && (!firebaseAuth || !firebaseAuth.currentUser)) {
       firebaseSignInBtn.disabled = false;
     }
   }
@@ -3825,6 +3978,18 @@ if (copyLoginSchemaBtn) {
   copyLoginSchemaBtn.addEventListener("click", copyLoginSchemaPreview);
 }
 
+if (openExternalBrowserBtn) {
+  openExternalBrowserBtn.addEventListener("click", openInExternalBrowser);
+}
+
+if (copySiteUrlBtn) {
+  copySiteUrlBtn.addEventListener("click", copyCurrentSiteUrl);
+}
+
+if (continueGuestBtn) {
+  continueGuestBtn.addEventListener("click", scrollToFortuneForm);
+}
+
 if (firebaseSignInBtn) {
   firebaseSignInBtn.addEventListener("click", handleFirebaseSignIn);
 }
@@ -3973,4 +4138,5 @@ renderCloudSaveState();
 renderCloudCompareWaiting();
 renderAutoCheckWaiting();
 renderSyncChoiceWaiting();
+renderMobileLoginGuide();
 initFirebaseLoginTest();
