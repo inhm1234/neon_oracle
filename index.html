@@ -18,7 +18,7 @@
   <title>오늘의 운세코드</title>
 
   <link rel="manifest" href="manifest.json"/>
-  <link rel="stylesheet" href="./style.css?v=20260526-v31"/>
+  <link rel="stylesheet" href="./style.css?v=20260526-v33"/>
 </head>
 
 <body>
@@ -111,7 +111,7 @@
     </div>
 
     <p class="firebase-login-desc">
-      V3-2에서는 Google 로그인 계정에 현재 프로필 데이터를 저장하고 다시 불러오는 테스트를 진행합니다.
+      V3-3에서는 로그인 상태가 확인되면 서버 저장 상태를 자동으로 확인합니다.
     </p>
 
     <div class="firebase-state-grid">
@@ -168,7 +168,7 @@
     </div>
 
     <p class="cloud-save-desc">
-      V3-2에서는 서버 데이터와 현재 브라우저 데이터를 비교해서 보여주고, 저장/불러오기 전에 한 번 더 확인합니다. 자동 동기화는 아직 하지 않습니다.
+      V3-3에서는 로그인 후 서버 상태를 자동 확인하고, 저장/불러오기 전에 비교 결과를 더 쉽게 확인합니다. 자동 저장은 아직 하지 않습니다.
     </p>
 
     <div class="cloud-save-grid">
@@ -243,6 +243,52 @@
       Google 로그인 후 서버/브라우저 비교를 먼저 진행할 수 있습니다. 저장 전에는 백업 파일을 받아두면 더 안전합니다.
     </div>
   </section>
+
+  <section id="autoCheckCard" class="cloud-auto-check-card" aria-label="로그인 후 서버 상태 자동 확인">
+    <div class="cloud-auto-check-top">
+      <div>
+        <span class="small-label">AUTO SERVER CHECK</span>
+        <h2>로그인 후 서버 상태 자동 확인</h2>
+      </div>
+      <strong id="autoCheckStatus" class="auto-check-badge">로그인 대기</strong>
+    </div>
+
+    <p class="cloud-auto-check-desc">
+      V3-3에서는 Google 로그인 상태가 확인되면 서버 데이터가 있는지 자동으로 확인합니다. 자동 저장이나 자동 불러오기는 아직 하지 않습니다.
+    </p>
+
+    <div class="auto-check-grid">
+      <div>
+        <span>확인 사용자</span>
+        <strong id="autoCheckUser">로그인 전</strong>
+      </div>
+      <div>
+        <span>마지막 자동 확인</span>
+        <strong id="autoCheckLast">아직 없음</strong>
+      </div>
+      <div>
+        <span>확인 결과</span>
+        <strong id="autoCheckResult">로그인 필요</strong>
+      </div>
+      <div>
+        <span>동기화 방식</span>
+        <strong id="autoCheckMode">읽기 전용</strong>
+      </div>
+    </div>
+
+    <div class="auto-check-action-box">
+      <div>
+        <strong>자동 확인만 진행</strong>
+        <p>서버에 저장된 데이터가 있는지 확인만 합니다. 저장/불러오기는 사용자가 버튼을 눌러야만 진행됩니다.</p>
+      </div>
+      <button id="autoCheckBtn" class="small-button" type="button">자동 확인 다시 실행</button>
+    </div>
+
+    <div id="autoCheckMessage" class="auto-check-message">
+      Google 로그인 후 서버 상태를 자동으로 확인합니다.
+    </div>
+  </section>
+
 
   <section class="partner-card">
 
@@ -716,7 +762,7 @@
         <span class="small-label">DEVELOPMENT CHECKLIST</span>
         <h2>업데이트 점검표</h2>
       </div>
-      <strong id="devVersionBadge" class="version-badge">V3-2</strong>
+      <strong id="devVersionBadge" class="version-badge">V3-3</strong>
     </div>
 
     <p class="dev-check-desc">
@@ -732,52 +778,52 @@
 
     <div class="dev-check-list">
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v32-version-visible" />
-        <span>화면에 현재 버전 V3-2가 보인다.</span>
+        <input type="checkbox" data-check-id="v33-version-visible" />
+        <span>화면에 현재 버전 V3-3이 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v32-firebase-card" />
+        <input type="checkbox" data-check-id="v33-firebase-card" />
         <span>Firebase 로그인 연결 테스트 카드가 화면에 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v32-sdk-ready" />
+        <input type="checkbox" data-check-id="v33-sdk-ready" />
         <span>Firebase 연결 상태가 준비 완료로 표시된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v32-google-login" />
+        <input type="checkbox" data-check-id="v33-google-login" />
         <span>Google 로그인 테스트 버튼을 누르면 로그인 창이 열린다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v32-user-visible" />
+        <input type="checkbox" data-check-id="v33-user-visible" />
         <span>로그인 후 사용자 이름과 이메일이 표시된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v32-logout" />
-        <span>로그아웃 버튼이 정상 작동한다.</span>
+        <input type="checkbox" data-check-id="v33-auto-card" />
+        <span>로그인 후 서버 상태 자동 확인 카드가 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v32-cloud-card" />
-        <span>로그인 계정 저장 테스트 카드와 서버/브라우저 비교 영역이 보인다.</span>
+        <input type="checkbox" data-check-id="v33-cloud-card" />
+        <span>로그인 계정 저장 테스트 카드와 서버/브라우저 비교 영역이 그대로 보인다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v32-server-compare" />
-        <span>서버/브라우저 비교 버튼으로 데이터 차이를 확인할 수 있다.</span>
+        <input type="checkbox" data-check-id="v33-auto-check" />
+        <span>로그인 후 서버 상태가 자동으로 확인된다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v32-safe-confirm" />
-        <span>저장 또는 불러오기 전에 확인창이 나온다.</span>
+        <input type="checkbox" data-check-id="v33-safe-confirm" />
+        <span>저장 또는 불러오기 전에 확인창이 그대로 나온다.</span>
       </label>
 
       <label class="dev-check-item">
-        <input type="checkbox" data-check-id="v32-check-save" />
+        <input type="checkbox" data-check-id="v33-check-save" />
         <span>새로고침해도 개발 점검 체크 상태가 유지된다.</span>
       </label>
     </div>
@@ -787,7 +833,7 @@
     </div>
   </section>
 
-  <div class="version-footer">오늘의 운세코드 V3-2 · 서버/브라우저 데이터 비교 안전 버전</div>
+  <div class="version-footer">오늘의 운세코드 V3-3 · 로그인 후 서버 상태 자동 확인 버전</div>
 
 </main>
 
@@ -798,7 +844,7 @@
   <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
 
-<script src="./app.js?v=20260526-v31"></script>
+<script src="./app.js?v=20260526-v33"></script>
 
 </body>
 </html>

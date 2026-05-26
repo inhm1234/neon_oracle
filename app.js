@@ -140,10 +140,17 @@ const cloudLocalPartnerState = document.getElementById("cloudLocalPartnerState")
 const cloudServerPartnerState = document.getElementById("cloudServerPartnerState");
 const cloudDataDirectionHint = document.getElementById("cloudDataDirectionHint");
 const cloudCompareBtn = document.getElementById("cloudCompareBtn");
+const autoCheckStatus = document.getElementById("autoCheckStatus");
+const autoCheckUser = document.getElementById("autoCheckUser");
+const autoCheckLast = document.getElementById("autoCheckLast");
+const autoCheckResult = document.getElementById("autoCheckResult");
+const autoCheckMode = document.getElementById("autoCheckMode");
+const autoCheckMessage = document.getElementById("autoCheckMessage");
+const autoCheckBtn = document.getElementById("autoCheckBtn");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-2";
+const DEV_VERSION = "V3-3";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -363,6 +370,105 @@ async function compareCloudAndLocalData() {
     if (cloudCompareStatus) cloudCompareStatus.textContent = "비교 실패";
     if (cloudDataDirectionHint) cloudDataDirectionHint.textContent = `비교 중 오류가 생겼습니다. ${error.message || error.code || "알 수 없음"}`;
     setCloudSaveMessage(`서버/브라우저 비교 중 오류가 생겼습니다. ${error.message || error.code || "알 수 없음"}`);
+  }
+}
+
+function setAutoCheckMessage(message) {
+  if (autoCheckMessage) {
+    autoCheckMessage.textContent = message;
+  }
+}
+
+function renderAutoCheckWaiting(message = "Google 로그인 후 서버 상태를 자동으로 확인합니다.") {
+  const user = firebaseAuth ? firebaseAuth.currentUser : null;
+
+  if (autoCheckStatus) autoCheckStatus.textContent = user ? "자동 확인 대기" : "로그인 대기";
+  if (autoCheckUser) autoCheckUser.textContent = user ? (user.email || user.displayName || "Google 사용자") : "로그인 전";
+  if (autoCheckLast) autoCheckLast.textContent = "아직 없음";
+  if (autoCheckResult) autoCheckResult.textContent = user ? "대기 중" : "로그인 필요";
+  if (autoCheckMode) autoCheckMode.textContent = "읽기 전용";
+  if (autoCheckBtn) autoCheckBtn.disabled = !user || !firebaseDb;
+  setAutoCheckMessage(message);
+}
+
+function setAutoCheckResultFromServerData(serverData) {
+  const server = getServerCompareSummary(serverData);
+  const local = getLocalCompareSummary();
+
+  if (!server) {
+    if (autoCheckResult) autoCheckResult.textContent = "서버 데이터 없음";
+    setAutoCheckMessage("자동 확인 결과: 서버에 저장된 데이터가 아직 없습니다. 필요하면 현재 데이터를 서버에 저장하세요.");
+    return;
+  }
+
+  const localTime = local.updatedAt ? new Date(local.updatedAt).getTime() : 0;
+  const serverTime = server.updatedAt ? new Date(server.updatedAt).getTime() : 0;
+
+  if (local.profileCount === server.profileCount && local.historyCount === server.historyCount && local.attendance === server.attendance && local.partner === server.partner) {
+    if (autoCheckResult) autoCheckResult.textContent = "거의 동일";
+    setAutoCheckMessage("자동 확인 결과: 서버와 현재 브라우저의 주요 데이터가 거의 같습니다.");
+  } else if (serverTime > localTime) {
+    if (autoCheckResult) autoCheckResult.textContent = "서버가 더 최신일 수 있음";
+    setAutoCheckMessage("자동 확인 결과: 서버 데이터가 더 최근일 수 있습니다. 불러오기 전에는 백업을 받아두세요.");
+  } else if (localTime > serverTime) {
+    if (autoCheckResult) autoCheckResult.textContent = "브라우저가 더 최신일 수 있음";
+    setAutoCheckMessage("자동 확인 결과: 현재 브라우저 데이터가 더 최근일 수 있습니다. 서버 저장 여부를 직접 선택하세요.");
+  } else {
+    if (autoCheckResult) autoCheckResult.textContent = "차이 있음";
+    setAutoCheckMessage("자동 확인 결과: 서버와 브라우저 데이터에 차이가 있습니다. 자동 저장/불러오기는 하지 않습니다.");
+  }
+}
+
+async function runAutomaticCloudStatusCheck(reason = "manual") {
+  renderCloudSaveState();
+
+  const user = firebaseAuth ? firebaseAuth.currentUser : null;
+  const ref = getCloudUserDocRef();
+
+  if (!user || !ref || !firebaseGetDoc) {
+    renderAutoCheckWaiting("Google 로그인 후 서버 상태를 자동으로 확인합니다.");
+    renderCloudCompareWaiting("Google 로그인 후 비교할 수 있습니다.");
+    return;
+  }
+
+  try {
+    if (autoCheckStatus) autoCheckStatus.textContent = reason === "manual" ? "수동 확인 중" : "자동 확인 중";
+    if (autoCheckUser) autoCheckUser.textContent = user.email || user.displayName || "Google 사용자";
+    if (autoCheckResult) autoCheckResult.textContent = "확인 중";
+    if (autoCheckMode) autoCheckMode.textContent = "읽기 전용";
+    if (autoCheckBtn) autoCheckBtn.disabled = true;
+    setAutoCheckMessage(reason === "manual" ? "서버 상태를 다시 확인하는 중입니다." : "로그인 상태가 확인되어 서버 저장 상태를 자동으로 확인하는 중입니다.");
+
+    const snapshot = await firebaseGetDoc(ref);
+    const checkedAt = new Date().toISOString();
+
+    if (autoCheckLast) autoCheckLast.textContent = formatSavedAt(checkedAt);
+    if (autoCheckStatus) autoCheckStatus.textContent = "확인 완료";
+
+    if (!snapshot.exists()) {
+      if (cloudSaveServerState) cloudSaveServerState.textContent = "아직 없음";
+      if (cloudLastSaved) cloudLastSaved.textContent = "기록 없음";
+      renderCloudCompareResult(null);
+      setAutoCheckResultFromServerData(null);
+      setCloudSaveMessage("자동 확인 완료: 서버 데이터가 아직 없습니다. 첫 저장이 필요합니다.");
+      return;
+    }
+
+    const data = snapshot.data();
+    const profileCount = data.profileStore && data.profileStore.profiles ? Object.keys(data.profileStore.profiles).length : 0;
+    if (cloudSaveServerState) cloudSaveServerState.textContent = `있음 · 프로필 ${profileCount}개`;
+    if (cloudLastSaved) cloudLastSaved.textContent = formatCloudSavedAt(data.serverSavedAt || data.savedAt);
+    renderCloudCompareResult(data);
+    setAutoCheckResultFromServerData(data);
+    setCloudSaveMessage("로그인 후 서버 상태 자동 확인이 완료되었습니다. 저장/불러오기는 직접 선택해야 합니다.");
+  } catch (error) {
+    console.error("자동 서버 상태 확인 실패", error);
+    if (autoCheckStatus) autoCheckStatus.textContent = "확인 실패";
+    if (autoCheckResult) autoCheckResult.textContent = "오류";
+    setAutoCheckMessage(`자동 확인 중 오류가 생겼습니다. ${error.message || error.code || "알 수 없음"}`);
+  } finally {
+    if (autoCheckBtn) autoCheckBtn.disabled = !(firebaseAuth && firebaseAuth.currentUser && firebaseDb);
+    renderCloudSaveState();
   }
 }
 
@@ -688,11 +794,12 @@ async function initFirebaseLoginTest() {
         setFirebaseLoginStatus("로그인 완료");
         setFirebaseLoginMessage("Google 로그인 연결이 정상 작동합니다. 이제 서버 저장 테스트를 진행할 수 있습니다.");
         renderCloudSaveState();
-        refreshCloudServerState();
+        runAutomaticCloudStatusCheck("login");
       } else {
         renderFirebaseSignedOut();
         setFirebaseLoginStatus("준비 완료");
         renderCloudSaveState();
+        renderAutoCheckWaiting("로그아웃 상태입니다. 다시 로그인하면 서버 상태를 자동 확인합니다.");
       }
     });
 
@@ -722,7 +829,7 @@ async function handleFirebaseSignIn() {
     setFirebaseLoginStatus("로그인 완료");
     setFirebaseLoginMessage("Google 로그인 테스트가 완료되었습니다. 이제 현재 데이터를 서버에 저장할 수 있습니다.");
     renderCloudSaveState();
-    refreshCloudServerState();
+    runAutomaticCloudStatusCheck("login");
   } catch (error) {
     console.error("Google 로그인 실패", error);
     const code = error.code || "알 수 없는 오류";
@@ -757,6 +864,7 @@ async function handleFirebaseSignOut() {
     setFirebaseLoginStatus("준비 완료");
     setFirebaseLoginMessage("로그아웃했습니다. 서버 저장 테스트를 하려면 다시 로그인해주세요.");
     renderCloudSaveState();
+    renderAutoCheckWaiting("로그아웃 상태입니다. 다시 로그인하면 서버 상태를 자동 확인합니다.");
   } catch (error) {
     console.error("로그아웃 실패", error);
     setFirebaseLoginMessage(`로그아웃 중 오류가 생겼습니다. ${error.message || error.code || "알 수 없음"}`);
@@ -3351,6 +3459,10 @@ if (cloudCompareBtn) {
   cloudCompareBtn.addEventListener("click", compareCloudAndLocalData);
 }
 
+if (autoCheckBtn) {
+  autoCheckBtn.addEventListener("click", () => runAutomaticCloudStatusCheck("manual"));
+}
+
 if (fortuneHistoryList) {
   fortuneHistoryList.addEventListener("click", (event) => {
     const deleteButton = event.target.closest("[data-history-delete]");
@@ -3442,4 +3554,5 @@ renderDataManager();
 renderLoginStorageInspector();
 renderCloudSaveState();
 renderCloudCompareWaiting();
+renderAutoCheckWaiting();
 initFirebaseLoginTest();
