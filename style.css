@@ -2944,7 +2944,7 @@ button:disabled {
 
 .firebase-state-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
   gap: 10px;
   margin-bottom: 13px;
 }
@@ -3362,7 +3362,7 @@ button:disabled {
 }
 
 
-/* V3-4 로그인 후 서버 상태 자동 확인 */
+/* V3-5 로그인 후 서버 상태 자동 확인 */
 .cloud-auto-check-card {
   margin-bottom: 18px;
   padding: 22px;
@@ -3498,7 +3498,7 @@ button:disabled {
   }
 }
 
-/* V3-4 선택형 자동 동기화 준비 */
+/* V3-5 선택값 저장 및 동기화 설정 유지 */
 .sync-choice-card {
   margin-bottom: 18px;
   padding: 22px;

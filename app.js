@@ -152,16 +152,19 @@ const syncChoiceUser = document.getElementById("syncChoiceUser");
 const syncChoiceMode = document.getElementById("syncChoiceMode");
 const syncChoiceLast = document.getElementById("syncChoiceLast");
 const syncChoiceResult = document.getElementById("syncChoiceResult");
+const syncChoiceSaved = document.getElementById("syncChoiceSaved");
+const syncChoiceUpdated = document.getElementById("syncChoiceUpdated");
 const syncChoiceRecommendation = document.getElementById("syncChoiceRecommendation");
 const syncChoiceMessage = document.getElementById("syncChoiceMessage");
 const syncChoiceOptionButtons = document.querySelectorAll("[data-sync-mode]");
 const syncChoiceCompareBtn = document.getElementById("syncChoiceCompareBtn");
 const syncChoiceSaveBtn = document.getElementById("syncChoiceSaveBtn");
 const syncChoiceLoadBtn = document.getElementById("syncChoiceLoadBtn");
+const syncChoiceResetBtn = document.getElementById("syncChoiceResetBtn");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-4";
+const DEV_VERSION = "V3-5";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -170,6 +173,7 @@ const DEX_KEY = "fortune_partner_dex_guest_v1";
 const ATTENDANCE_KEY = "fortune_attendance_guest_v1";
 const ATTENDANCE_LOG_LIMIT = 10;
 const SYNC_OPTION_KEY = "fortune_sync_choice_mode_v1";
+const SYNC_OPTION_UPDATED_KEY = "fortune_sync_choice_updated_at_v1";
 const DATA_BACKUP_KEYS = [
   { key: PARTNER_KEY, label: "파트너" },
   { key: HISTORY_KEY, label: "이전 운세" },
@@ -515,20 +519,49 @@ function getSyncModeInfo(mode) {
 }
 
 function loadSyncChoiceMode() {
-  return localStorage.getItem(SYNC_OPTION_KEY) || "ask";
+  const saved = localStorage.getItem(SYNC_OPTION_KEY);
+  const validModes = ["manual", "ask", "local", "server"];
+
+  if (!validModes.includes(saved)) {
+    return "ask";
+  }
+
+  return saved;
+}
+
+function loadSyncChoiceUpdatedAt() {
+  return localStorage.getItem(SYNC_OPTION_UPDATED_KEY) || "";
 }
 
 function saveSyncChoiceMode(mode) {
-  localStorage.setItem(SYNC_OPTION_KEY, mode);
+  const validModes = ["manual", "ask", "local", "server"];
+  const nextMode = validModes.includes(mode) ? mode : "ask";
+  const updatedAt = new Date().toISOString();
+
+  localStorage.setItem(SYNC_OPTION_KEY, nextMode);
+  localStorage.setItem(SYNC_OPTION_UPDATED_KEY, updatedAt);
   updateSyncChoiceOptionUI();
-  renderSyncChoiceWaiting(`동기화 선택 방식을 ${getSyncModeInfo(mode).label}(으)로 저장했습니다. 서버 상태를 다시 확인하면 추천이 갱신됩니다.`);
+  renderSyncChoiceWaiting(`동기화 선택 방식을 ${getSyncModeInfo(nextMode).label}(으)로 저장했습니다. 새로고침해도 이 설정이 유지됩니다.`);
+}
+
+function resetSyncChoiceMode() {
+  const ok = confirm("동기화 선택 방식을 기본값인 추천만 보기로 되돌릴까요?");
+  if (!ok) return;
+
+  localStorage.setItem(SYNC_OPTION_KEY, "ask");
+  localStorage.setItem(SYNC_OPTION_UPDATED_KEY, new Date().toISOString());
+  updateSyncChoiceOptionUI();
+  renderSyncChoiceWaiting("동기화 선택 방식을 추천만 보기로 초기화했습니다.");
 }
 
 function updateSyncChoiceOptionUI() {
   const mode = loadSyncChoiceMode();
   const info = getSyncModeInfo(mode);
+  const updatedAt = loadSyncChoiceUpdatedAt();
 
   if (syncChoiceMode) syncChoiceMode.textContent = info.label;
+  if (syncChoiceSaved) syncChoiceSaved.textContent = updatedAt ? "저장됨" : "기본값 사용 중";
+  if (syncChoiceUpdated) syncChoiceUpdated.textContent = updatedAt ? formatSavedAt(updatedAt) : "아직 없음";
 
   syncChoiceOptionButtons.forEach((button) => {
     const buttonMode = button.getAttribute("data-sync-mode");
@@ -638,7 +671,7 @@ function renderSyncChoiceWaiting(message = "로그인 후 서버 상태를 확�
   if (syncChoiceUser) syncChoiceUser.textContent = user ? (user.email || user.displayName || "Google 사용자") : "로그인 전";
   if (syncChoiceLast) syncChoiceLast.textContent = "아직 없음";
   if (syncChoiceResult) syncChoiceResult.textContent = user ? "비교 필요" : "로그인 필요";
-  if (syncChoiceRecommendation) syncChoiceRecommendation.textContent = "아직 추천 없음";
+  if (syncChoiceRecommendation) syncChoiceRecommendation.textContent = `아직 추천 없음 · 현재 설정: ${getSyncModeInfo(loadSyncChoiceMode()).label}`;
   setSyncChoiceButtonsEnabled(Boolean(user && firebaseDb));
   setSyncChoiceMessage(message);
 }
@@ -3685,6 +3718,10 @@ if (syncChoiceSaveBtn) {
 
 if (syncChoiceLoadBtn) {
   syncChoiceLoadBtn.addEventListener("click", runSyncChoiceLoad);
+}
+
+if (syncChoiceResetBtn) {
+  syncChoiceResetBtn.addEventListener("click", resetSyncChoiceMode);
 }
 
 if (fortuneHistoryList) {
