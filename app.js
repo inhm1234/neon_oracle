@@ -13,6 +13,9 @@ const analysisCode = document.getElementById("analysisCode");
 const completeRate = document.getElementById("completeRate");
 const resultTitle = document.getElementById("resultTitle");
 const baseInfo = document.getElementById("baseInfo");
+const resultSummaryFlow = document.getElementById("resultSummaryFlow");
+const resultSummaryKeyword = document.getElementById("resultSummaryKeyword");
+const resultSummaryMessage = document.getElementById("resultSummaryMessage");
 
 const totalFortune = document.getElementById("totalFortune");
 const moneyFortune = document.getElementById("moneyFortune");
@@ -22,6 +25,11 @@ const healthFortune = document.getElementById("healthFortune");
 const cautionFortune = document.getElementById("cautionFortune");
 const luckyItems = document.getElementById("luckyItems");
 const finalAdvice = document.getElementById("finalAdvice");
+const restartInputBtn = document.getElementById("restartInputBtn");
+const openPartnerResultBtn = document.getElementById("openPartnerResultBtn");
+const openHistoryResultBtn = document.getElementById("openHistoryResultBtn");
+const partnerDrawer = document.getElementById("partnerDrawer");
+const historyDrawer = document.getElementById("historyDrawer");
 
 const meetPartnerBtn = document.getElementById("meetPartnerBtn");
 const resetPartnerBtn = document.getElementById("resetPartnerBtn");
@@ -172,7 +180,7 @@ const syncChoiceRunBtn = document.getElementById("syncChoiceRunBtn");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-8.1";
+const DEV_VERSION = "V3-9";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -2667,6 +2675,7 @@ function makeResult(profile) {
   const todayElement = getTodayElement();
   const relation = getRelation(mainElement, todayElement);
   const text = fortuneText[relation];
+  const relationInfo = relationMeta[relation] || relationMeta.balance;
 
   const seed = getHash(`${profile.date}-${profile.time}-${profile.name}-${profile.gender}-${getTodayKey()}`);
   const lucky = luckyData[mainElement];
@@ -2679,6 +2688,11 @@ function makeResult(profile) {
     relation,
     mainElement,
     todayElement,
+    summary: {
+      flow: relationInfo.short,
+      keyword: lucky[2],
+      message: text.advice
+    },
     base: [
       ["출생 간지", yearInfo.ganji],
       ["띠", `${yearInfo.animal}띠`],
@@ -2720,6 +2734,10 @@ function renderResult(result, partnerReaction = null) {
 
   baseInfo.innerHTML = renderChips(result.base);
 
+  if (resultSummaryFlow) resultSummaryFlow.textContent = result.summary ? result.summary.flow : "오늘의 흐름을 정리했습니다.";
+  if (resultSummaryKeyword) resultSummaryKeyword.textContent = result.summary ? result.summary.keyword : "균형";
+  if (resultSummaryMessage) resultSummaryMessage.textContent = result.summary ? result.summary.message : result.fortunes.advice;
+
   totalFortune.textContent = result.fortunes.total;
   moneyFortune.textContent = result.fortunes.money;
   loveFortune.textContent = result.fortunes.love;
@@ -2732,6 +2750,42 @@ function renderResult(result, partnerReaction = null) {
 
   renderPartnerInsight(partnerReaction);
   resultCard.classList.remove("hidden");
+}
+
+function scrollToResultCard() {
+  if (resultCard && typeof resultCard.scrollIntoView === "function") {
+    window.setTimeout(() => {
+      resultCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 120);
+  }
+}
+
+function focusFortuneFormForRetry() {
+  if (form && typeof form.scrollIntoView === "function") {
+    form.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  if (birthDateEl && typeof birthDateEl.focus === "function") {
+    window.setTimeout(() => birthDateEl.focus(), 250);
+  }
+
+  if (statusText) {
+    statusText.textContent = "새로운 정보로 다시 운세를 볼 수 있습니다.";
+  }
+}
+
+function openDrawerFromResult(drawer, message) {
+  if (!drawer) return;
+
+  drawer.open = true;
+
+  if (typeof drawer.scrollIntoView === "function") {
+    drawer.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  if (statusText && message) {
+    statusText.textContent = message;
+  }
 }
 
 function loadFortuneHistory() {
@@ -2963,6 +3017,7 @@ async function analyzeFortune(event) {
     const result = makeResult(profile);
     const reaction = loadPartner() ? getPartnerReaction(result) : null;
     renderResult(result, reaction);
+    scrollToResultCard();
 
     if (loadPartner()) {
       partnerOrb.classList.remove("analyzing");
@@ -3913,6 +3968,22 @@ if (deleteProfileBtn) {
 
 if (form) {
   form.addEventListener("submit", analyzeFortune);
+}
+
+if (restartInputBtn) {
+  restartInputBtn.addEventListener("click", focusFortuneFormForRetry);
+}
+
+if (openPartnerResultBtn) {
+  openPartnerResultBtn.addEventListener("click", () => {
+    openDrawerFromResult(partnerDrawer, "내 파트너 영역을 열었습니다.");
+  });
+}
+
+if (openHistoryResultBtn) {
+  openHistoryResultBtn.addEventListener("click", () => {
+    openDrawerFromResult(historyDrawer, "이전 운세 기록 영역을 열었습니다.");
+  });
 }
 
 if (meetPartnerBtn) {
