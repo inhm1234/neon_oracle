@@ -15,7 +15,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>오늘의 운세코드</title>
 <link href="manifest.json" rel="manifest"/>
-<link href="./style.css?v=20260526-v381" rel="stylesheet"/>
+<link href="./style.css?v=20260527-v39" rel="stylesheet"/>
 </head>
 <body>
 <canvas id="matrix"></canvas>
@@ -118,7 +118,7 @@
 <div class="firebase-login-message" id="firebaseLoginMessage">
       Firebase 연결을 확인하는 중입니다. 준비가 끝나면 Google 로그인을 사용할 수 있습니다.
     </div>
-</section><section class="result-card hidden" id="resultCard">
+</section><section class="result-card hidden result-card-v39" id="resultCard">
 <div class="result-top">
 <div>
 <span>분석 코드</span>
@@ -131,15 +131,45 @@
 </div>
 <h2 id="resultTitle">오늘의 운세 분석 결과</h2>
 <div class="base-info" id="baseInfo"></div>
+<div class="today-summary-card" aria-label="오늘의 핵심 요약 카드">
+<div class="today-summary-head">
+<span class="small-label">TODAY SUMMARY</span>
+<strong>오늘의 핵심 요약</strong>
+</div>
+<div class="today-summary-grid">
+<div class="summary-item summary-flow">
+<span>오늘의 흐름</span>
+<strong id="resultSummaryFlow">분석 대기</strong>
+</div>
+<div class="summary-item summary-keyword">
+<span>오늘의 키워드</span>
+<strong id="resultSummaryKeyword">--</strong>
+</div>
+<div class="summary-item summary-message">
+<span>오늘의 한마디</span>
+<strong id="resultSummaryMessage">운세를 분석하면 표시됩니다.</strong>
+</div>
+</div>
+</div>
 <div class="partner-insight-box hidden" id="partnerInsightBox">
 <span id="partnerInsightLabel">파트너 해석</span>
 <p id="partnerInsightText"></p>
 </div>
-<div class="fortune-grid">
-<article class="fortune-section">
+<div class="priority-result-grid">
+<article class="fortune-section priority-section total-priority">
 <h3>오늘의 총운</h3>
 <p id="totalFortune"></p>
 </article>
+<article class="fortune-section priority-section warning caution-priority">
+<h3>오늘 조심할 점</h3>
+<p id="cautionFortune"></p>
+</article>
+</div>
+<div class="advice-box advice-box-v39">
+<span>오늘의 한 줄 조언</span>
+<p id="finalAdvice"></p>
+</div>
+<div class="fortune-grid detail-fortune-grid">
 <article class="fortune-section">
 <h3>재물운</h3>
 <p id="moneyFortune"></p>
@@ -156,18 +186,21 @@
 <h3>건강운</h3>
 <p id="healthFortune"></p>
 </article>
-<article class="fortune-section warning">
-<h3>오늘 조심할 점</h3>
-<p id="cautionFortune"></p>
-</article>
 </div>
 <div class="lucky-box">
 <h3>오늘의 행운 요소</h3>
 <div class="lucky-items" id="luckyItems"></div>
 </div>
-<div class="advice-box">
-<span>오늘의 한 줄 조언</span>
-<p id="finalAdvice"></p>
+<div class="result-next-actions" aria-label="운세 결과 다음 행동">
+<div>
+<span>다음 행동</span>
+<strong>결과를 저장했어요. 이제 원하는 기능으로 바로 이동할 수 있습니다.</strong>
+</div>
+<div class="result-action-buttons">
+<button class="small-button" id="restartInputBtn" type="button">다시 입력하기</button>
+<button class="small-button" id="openPartnerResultBtn" type="button">내 파트너 보기</button>
+<button class="small-button" id="openHistoryResultBtn" type="button">이전 운세 보기</button>
+</div>
 </div>
 </section><section class="simple-explore-card" id="simpleExploreCard"><div class="simple-explore-top"><div><span class="small-label">OPTIONAL CONTENTS</span><h2>더 둘러보기</h2><p>운세를 본 뒤 궁금한 기능만 열어보세요. 처음 화면은 운세 보기에 집중하도록 정리했습니다.</p></div></div><div class="simple-feature-grid"><details class="feature-drawer feature-drawer-1" id="partnerDrawer"><summary><div class="feature-summary-text"><span>내 파트너</span><strong>운세를 함께 보는 오라클</strong><em>파트너를 만나고 성장 상태를 확인합니다.</em></div><b>열기</b></summary><section class="partner-card">
 <div class="partner-empty" id="partnerEmpty">
@@ -708,62 +741,65 @@
 <span class="small-label">DEVELOPMENT CHECKLIST</span>
 <h2>업데이트 점검표</h2>
 </div>
-<strong class="version-badge" id="devVersionBadge">V3-8.1</strong>
+<strong class="version-badge" id="devVersionBadge">V3-9</strong>
 </div>
 <p class="dev-check-desc">
       개발 중에는 아래 항목을 직접 눌러보고 체크하세요. 체크 상태는 이 브라우저에 저장됩니다.
     </p>
 <div class="dev-check-progress">
-<span id="devChecklistProgress">0 / 12 확인 완료</span>
+<span id="devChecklistProgress">0 / 13 확인 완료</span>
 <div aria-hidden="true" class="dev-progress-bar">
 <div id="devChecklistFill"></div>
 </div>
 </div>
 <div class="dev-check-list"><label class="dev-check-item">
-<input data-check-id="v381-version-visible" type="checkbox"/>
-<span>화면에 현재 버전 V3-8.1이 보인다.</span>
+<input data-check-id="v39-version-visible" type="checkbox"/>
+<span>화면에 현재 버전 V3-9가 보인다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v381-input-first" type="checkbox"/>
+<input data-check-id="v39-input-first" type="checkbox"/>
 <span>첫 화면에서 운세 입력 영역이 가장 먼저 눈에 들어온다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v381-account-compact" type="checkbox"/>
+<input data-check-id="v39-account-compact" type="checkbox"/>
 <span>Google 계정 저장 영역이 작고 간단하게 보인다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v381-sub-folded" type="checkbox"/>
+<input data-check-id="v39-sub-folded" type="checkbox"/>
 <span>파트너 / 출석 / 이전 운세 / 도감이 기본으로 접혀 있다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v381-dex-open" type="checkbox"/>
+<input data-check-id="v39-dex-open" type="checkbox"/>
 <span>파트너 도감은 사용자가 열었을 때만 자세히 보인다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v381-advanced-closed" type="checkbox"/>
+<input data-check-id="v39-advanced-closed" type="checkbox"/>
 <span>고급 설정 / 개발자 도구가 기본으로 접혀 있다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v381-fortune-still-ok" type="checkbox"/>
+<input data-check-id="v39-fortune-still-ok" type="checkbox"/>
 <span>운세 분석 기능이 그대로 작동한다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v381-sub-still-ok" type="checkbox"/>
+<input data-check-id="v39-result-service-view" type="checkbox"/>
+<span>분석 후 결과 화면에 핵심 요약 카드와 다음 행동 버튼이 보인다.</span>
+</label><label class="dev-check-item">
+<input data-check-id="v39-sub-still-ok" type="checkbox"/>
 <span>서브 콘텐츠를 열면 파트너 / 출석 / 기록 기능이 그대로 작동한다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v381-login-still-ok" type="checkbox"/>
+<input data-check-id="v39-login-still-ok" type="checkbox"/>
 <span>PC 브라우저에서 Google 로그인 / 로그아웃이 그대로 작동한다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v381-mobile-guide-ok" type="checkbox"/>
+<input data-check-id="v39-mobile-guide-ok" type="checkbox"/>
 <span>카카오톡 같은 앱 내부 브라우저에서 Google 로그인 안내가 먼저 보인다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v381-mobile-browser-ok" type="checkbox"/>
+<input data-check-id="v39-mobile-browser-ok" type="checkbox"/>
 <span>모바일 일반 브라우저에서는 리다이렉트 방식으로 Google 로그인을 시도한다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v381-check-save" type="checkbox"/>
+<input data-check-id="v39-check-save" type="checkbox"/>
 <span>새로고침해도 개발 점검 체크 상태가 유지된다.</span>
 </label></div>
 <div class="dev-check-actions">
 <button class="small-button" id="resetChecklistBtn" type="button">점검표 초기화</button>
 </div>
-</section></div></details><div class="version-footer">오늘의 운세코드 V3-8.1 · 카카오톡 접속 대응 / 모바일 로그인 안정화</div></main>
+</section></div></details><div class="version-footer">오늘의 운세코드 V3-9 · 결과 화면 서비스화</div></main>
 <div class="level-toast hidden" id="levelToast">
 <strong id="levelToastTitle">LEVEL UP</strong>
 <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
-<script src="./app.js?v=20260526-v381"></script>
+<script src="./app.js?v=20260527-v39"></script>
 </body>
 </html>
