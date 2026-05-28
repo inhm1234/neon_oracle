@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /*?admin=1
+
+Sitemap: https://inhm1234.github.io/neon_oracle/sitemap.xml
