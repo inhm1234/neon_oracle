@@ -3750,6 +3750,64 @@ button:disabled {
   margin-bottom: 18px;
 }
 
+
+/* V3-11: 사용자 데이터 관리 / 관리자 도구 분리 */
+.user-data-tools {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid rgba(142, 245, 255, 0.24);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top left, rgba(142, 245, 255, 0.1), transparent 56%),
+    rgba(0, 0, 0, 0.16);
+  text-align: left;
+}
+
+.user-data-tools > summary {
+  cursor: pointer;
+  color: #dffcff;
+  font-weight: bold;
+  font-size: 0.95rem;
+  list-style-position: inside;
+}
+
+.user-data-tools > summary:hover {
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(142, 245, 255, 0.36);
+}
+
+.user-data-tools-desc {
+  margin-top: 10px;
+  color: rgba(239, 252, 255, 0.64);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.user-data-tools-inner {
+  display: grid;
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.user-data-tools-inner > section {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.user-data-tools:not([open]) .user-data-tools-desc {
+  margin-bottom: 0;
+}
+
+@media (max-width: 520px) {
+  .user-data-tools {
+    padding: 15px;
+  }
+
+  .user-data-tools > summary {
+    font-size: 0.9rem;
+  }
+}
+
 .advanced-tools {
   margin-top: 24px;
   padding: 18px;
@@ -4336,7 +4394,7 @@ button:disabled {
 }
 
 
-/* V3-10: 관리자 통계 대시보드 */
+/* V3-10~V3-11: 관리자 통계 대시보드 */
 .admin-stats-card {
   margin-bottom: 18px;
   padding: 22px;

@@ -15,7 +15,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>오늘의 운세코드</title>
 <link href="manifest.json" rel="manifest"/>
-<link href="./style.css?v=20260528-v310" rel="stylesheet"/>
+<link href="./style.css?v=20260528-v311" rel="stylesheet"/>
 </head>
 <body>
 <canvas id="matrix"></canvas>
@@ -365,7 +365,7 @@
       파트너를 선택하면 현재 파트너 프로필이 표시됩니다.
     </div>
 <div class="partner-dex-grid" id="partnerDexGrid"></div>
-</section></details></div></section><details class="advanced-tools" id="advancedTools"><summary>고급 설정 / 개발자 도구 열기</summary><p class="advanced-tools-desc">서버 저장, 백업, 프로필 관리, 개발 점검표는 필요할 때만 열어서 확인할 수 있습니다.</p><div class="advanced-tools-inner"><section aria-label="프로필 저장 구조" class="profile-card" id="profileCard">
+</section></details></div></section><details class="user-data-tools" id="userDataTools"><summary>내 데이터 관리 열기</summary><p class="user-data-tools-desc">프로필, Google 계정 저장, 백업처럼 사용자가 직접 필요할 때만 쓰는 기능입니다.</p><div class="user-data-tools-inner"><section aria-label="프로필 저장 구조" class="profile-card" id="profileCard">
 <div class="profile-card-top">
 <div>
 <span class="small-label">PROFILE STORAGE</span>
@@ -373,7 +373,7 @@
 </div>
 <strong class="profile-current-badge" id="profileCurrentBadge">기본 프로필</strong>
 </div>
-<p class="profile-desc">프로필을 나눠서 파트너, 출석, 이전 운세 기록을 따로 관리합니다.</p>
+<p class="profile-desc">가족이나 테스트용으로 프로필을 나눠서 파트너, 출석, 이전 운세 기록을 따로 관리할 수 있습니다.</p>
 <div class="profile-control-box">
 <label class="profile-select-field">
 <span>현재 프로필</span>
@@ -418,17 +418,17 @@
 </div>
 </div>
 <div class="profile-message" id="profileMessage">
-      V2-8에서 쓰던 데이터는 첫 실행 시 기본 프로필로 자동 이전됩니다. V2-10부터 프로필 이름 변경, 복사, 삭제가 가능하고, V2-11에서는 로그인 저장 구조를 점검합니다.
+      프로필을 나누고 싶을 때만 사용하세요. 평소에는 기본 프로필 그대로 사용해도 괜찮습니다.
     </div>
-</section><section aria-label="Firebase 계정 저장 테스트" class="cloud-save-card" id="cloudSaveCard">
+</section><section aria-label="Google 계정 저장 관리" class="cloud-save-card" id="cloudSaveCard">
 <div class="cloud-save-top">
 <div>
-<span class="small-label">FIRESTORE SAVE TEST</span>
-<h2>서버 저장 / 불러오기</h2>
+<span class="small-label">ACCOUNT DATA</span>
+<h2>계정 저장 관리</h2>
 </div>
 <strong class="cloud-save-badge" id="cloudSaveStatus">로그인 대기</strong>
 </div>
-<p class="cloud-save-desc">고급 설정용 영역입니다. 계정 데이터 저장 상태를 확인하거나 수동으로 서버 저장/불러오기를 실행합니다.</p>
+<p class="cloud-save-desc">Google 계정에 현재 기록을 저장하거나, 다른 브라우저에서 저장된 기록을 다시 불러올 수 있습니다.</p>
 <div class="cloud-save-grid">
 <div>
 <span>로그인 사용자</span>
@@ -443,19 +443,19 @@
 <strong id="cloudSaveLocalState">확인 중</strong>
 </div>
 <div>
-<span>서버 데이터</span>
+<span>계정 저장 데이터</span>
 <strong id="cloudSaveServerState">확인 전</strong>
 </div>
 <div>
-<span>최근 서버 저장</span>
+<span>최근 계정 저장</span>
 <strong id="cloudLastSaved">기록 없음</strong>
 </div>
 </div>
 <div class="cloud-compare-box">
 <div class="cloud-compare-top">
 <div>
-<span>서버 / 브라우저 데이터 비교</span>
-<p>자동 동기화 전에 어느 쪽 데이터가 있는지 먼저 확인합니다.</p>
+<span>계정 / 현재 브라우저 데이터 비교</span>
+<p>저장하거나 불러오기 전에 어느 쪽 데이터가 있는지 먼저 확인합니다.</p>
 </div>
 <strong id="cloudCompareStatus">비교 대기</strong>
 </div>
@@ -468,7 +468,7 @@
 <p><span>파트너</span><strong id="cloudLocalPartnerState">확인 중</strong></p>
 </div>
 <div class="cloud-compare-column">
-<h3>Firestore 서버</h3>
+<h3>Google 계정 저장</h3>
 <p><span>프로필</span><strong id="cloudServerProfileCount">확인 전</strong></p>
 <p><span>운세 기록</span><strong id="cloudServerHistoryCount">확인 전</strong></p>
 <p><span>출석</span><strong id="cloudServerAttendanceState">확인 전</strong></p>
@@ -476,25 +476,77 @@
 </div>
 </div>
 <div class="cloud-direction-hint" id="cloudDataDirectionHint">
-        Google 로그인 후 서버/브라우저 데이터를 비교할 수 있습니다.
+        Google 로그인 후 계정 저장 데이터와 현재 브라우저 데이터를 비교할 수 있습니다.
       </div>
 </div>
 <div class="cloud-save-action-box">
 <div>
-<strong>수동 저장 / 불러오기</strong>
-<p>먼저 ‘서버/브라우저 비교’를 눌러 상태를 확인하세요. 저장은 서버를 현재 브라우저 데이터로 갱신하고, 불러오기는 브라우저 데이터를 서버 데이터로 교체합니다.</p>
+<strong>계정 저장 / 불러오기</strong>
+<p>먼저 비교를 눌러 상태를 확인하세요. 저장은 현재 브라우저 기록을 Google 계정에 저장하고, 불러오기는 계정 저장 기록을 이 브라우저로 가져옵니다.</p>
 </div>
 <div class="cloud-save-buttons">
-<button class="small-button" id="cloudCompareBtn" type="button">서버/브라우저 비교</button>
-<button class="small-button" id="cloudSaveBtn" type="button">현재 데이터를 서버에 저장</button>
-<button class="small-button" id="cloudLoadBtn" type="button">서버에서 불러오기</button>
-<button class="small-button" id="cloudRefreshBtn" type="button">서버 상태 확인</button>
+<button class="small-button" id="cloudCompareBtn" type="button">계정/브라우저 비교</button>
+<button class="small-button" id="cloudSaveBtn" type="button">현재 기록을 계정에 저장</button>
+<button class="small-button" id="cloudLoadBtn" type="button">계정에서 불러오기</button>
+<button class="small-button" id="cloudRefreshBtn" type="button">계정 저장 확인</button>
 </div>
 </div>
 <div class="cloud-save-message" id="cloudSaveMessage">
-      Google 로그인 후 서버/브라우저 비교를 먼저 진행할 수 있습니다. 저장 전에는 백업 파일을 받아두면 더 안전합니다.
+      Google 로그인 후 계정/브라우저 비교를 먼저 진행할 수 있습니다. 저장 전에는 백업 파일을 받아두면 더 안전합니다.
     </div>
-</section><section aria-label="로그인 후 서버 상태 자동 확인" class="cloud-auto-check-card" id="autoCheckCard">
+</section><section aria-label="데이터 관리 센터" class="data-manager-card" id="dataManagerCard">
+<div class="data-manager-top">
+<div>
+<span class="small-label">MY DATA BACKUP</span>
+<h2>내 기록 백업 / 복원</h2>
+</div>
+<strong class="data-status-badge" id="dataManagerStatus">확인 중</strong>
+</div>
+<p class="data-manager-desc">
+      현재 선택된 프로필의 파트너, 출석, 도감, 이전 운세 기록을 파일로 저장하거나 다시 불러올 수 있습니다.
+    </p>
+<div class="data-summary-grid">
+<div>
+<span>현재 프로필</span>
+<strong id="dataProfileState">확인 중</strong>
+</div>
+<div>
+<span>파트너</span>
+<strong id="dataPartnerState">확인 중</strong>
+</div>
+<div>
+<span>운세 기록</span>
+<strong id="dataHistoryState">확인 중</strong>
+</div>
+<div>
+<span>도감</span>
+<strong id="dataDexState">확인 중</strong>
+</div>
+<div>
+<span>출석</span>
+<strong id="dataAttendanceState">확인 중</strong>
+</div>
+<div>
+<span>점검표</span>
+<strong id="dataChecklistState">확인 중</strong>
+</div>
+</div>
+<div class="data-action-box">
+<div>
+<strong>내 기록 백업 / 복원</strong>
+<p>브라우저를 바꾸거나 기록을 옮기기 전에 백업을 받아두면 안전합니다.</p>
+</div>
+<div class="data-action-buttons">
+<button class="small-button" id="backupDataBtn" type="button">백업 파일 다운로드</button>
+<button class="small-button" id="importDataBtn" type="button">백업 파일 불러오기</button>
+<button class="small-button danger-button" id="resetAllDataBtn" type="button">저장 데이터 전체 초기화</button>
+</div>
+<input accept="application/json,.json" class="hidden" id="dataImportFile" type="file"/>
+</div>
+<div class="data-manager-message" id="dataManagerMessage">
+      아직 실행한 작업이 없습니다.
+    </div>
+</section></div></details><details class="advanced-tools hidden" id="advancedTools"><summary>관리자 도구 열기</summary><p class="advanced-tools-desc">통계, 동기화 점검, 개발 점검표처럼 관리자에게만 필요한 기능입니다. 일반 사용자 화면에서는 숨김 처리됩니다.</p><div class="advanced-tools-inner"><section aria-label="로그인 후 서버 상태 자동 확인" class="cloud-auto-check-card" id="autoCheckCard">
 <div class="cloud-auto-check-top">
 <div>
 <span class="small-label">AUTO SERVER CHECK</span>
@@ -503,7 +555,7 @@
 <strong class="auto-check-badge" id="autoCheckStatus">로그인 대기</strong>
 </div>
 <p class="cloud-auto-check-desc">
-      V3-8에서는 고급 설정 안에서 서버 상태 자동 확인과 동기화 추천 기능을 계속 사용할 수 있습니다.
+      관리자용 점검 기능입니다. 서버 상태 자동 확인과 동기화 추천 기능을 확인할 수 있습니다.
     </p>
 <div class="auto-check-grid">
 <div>
@@ -542,7 +594,7 @@
 <strong class="sync-choice-badge" id="syncChoiceStatus">로그인 대기</strong>
 </div>
 <p class="sync-choice-desc">
-      고급 설정용 기능입니다. 선택한 동기화 방식에 따라 서버 저장 또는 서버 불러오기를 추천합니다.
+      관리자용 점검 기능입니다. 선택한 동기화 방식에 따라 계정 저장 또는 계정 불러오기를 추천합니다.
     </p>
 <div class="sync-choice-grid">
 <div>
@@ -614,58 +666,6 @@
 <div class="sync-choice-message" id="syncChoiceMessage">
       Google 로그인 후 서버 상태를 확인하면 저장된 동기화 설정 기준으로 추천이 표시됩니다.
     </div>
-</section><section aria-label="데이터 관리 센터" class="data-manager-card" id="dataManagerCard">
-<div class="data-manager-top">
-<div>
-<span class="small-label">DATA MANAGER</span>
-<h2>데이터 백업 / 복원</h2>
-</div>
-<strong class="data-status-badge" id="dataManagerStatus">확인 중</strong>
-</div>
-<p class="data-manager-desc">
-      현재 선택된 프로필의 파트너, 출석, 도감, 이전 운세 기록을 백업 파일로 저장하거나 다시 불러올 수 있습니다.
-    </p>
-<div class="data-summary-grid">
-<div>
-<span>현재 프로필</span>
-<strong id="dataProfileState">확인 중</strong>
-</div>
-<div>
-<span>파트너</span>
-<strong id="dataPartnerState">확인 중</strong>
-</div>
-<div>
-<span>운세 기록</span>
-<strong id="dataHistoryState">확인 중</strong>
-</div>
-<div>
-<span>도감</span>
-<strong id="dataDexState">확인 중</strong>
-</div>
-<div>
-<span>출석</span>
-<strong id="dataAttendanceState">확인 중</strong>
-</div>
-<div>
-<span>점검표</span>
-<strong id="dataChecklistState">확인 중</strong>
-</div>
-</div>
-<div class="data-action-box">
-<div>
-<strong>백업 / 복원</strong>
-<p>GitHub Pages를 다시 올리기 전이나 브라우저를 바꾸기 전에 백업을 받아두면 안전합니다.</p>
-</div>
-<div class="data-action-buttons">
-<button class="small-button" id="backupDataBtn" type="button">백업 파일 다운로드</button>
-<button class="small-button" id="importDataBtn" type="button">백업 파일 불러오기</button>
-<button class="small-button danger-button" id="resetAllDataBtn" type="button">저장 데이터 전체 초기화</button>
-</div>
-<input accept="application/json,.json" class="hidden" id="dataImportFile" type="file"/>
-</div>
-<div class="data-manager-message" id="dataManagerMessage">
-      아직 실행한 작업이 없습니다.
-    </div>
 </section><section aria-label="로그인 저장 구조 점검" class="login-check-card" id="loginCheckCard">
 <div class="login-check-top">
 <div>
@@ -675,7 +675,7 @@
 <strong class="login-ready-badge" id="loginReadyBadge">확인 중</strong>
 </div>
 <p class="login-check-desc">
-      아직 진짜 로그인은 아니지만, 현재 프로필 데이터를 나중에 로그인 계정에 저장할 수 있는 하나의 묶음으로 확인합니다.
+      관리자용 점검 화면입니다. 현재 프로필 데이터가 계정 저장 구조에 맞는지 확인합니다.
     </p>
 <div class="login-summary-grid">
 <div>
@@ -738,7 +738,7 @@
 </section><section aria-label="관리자 전용 통계 대시보드" class="admin-stats-card hidden" id="adminStatsCard">
 <div class="admin-stats-top">
 <div>
-<span class="small-label">ADMIN DASHBOARD V3-10 TEST</span>
+<span class="small-label">ADMIN DASHBOARD V3-11</span>
 <h2>관리자 통계 대시보드</h2>
 </div>
 <strong class="admin-stats-badge" id="adminStatsStatus">로그인 필요</strong>
@@ -809,65 +809,62 @@
 <span class="small-label">DEVELOPMENT CHECKLIST</span>
 <h2>업데이트 점검표</h2>
 </div>
-<strong class="version-badge" id="devVersionBadge">V3-10</strong>
+<strong class="version-badge" id="devVersionBadge">V3-11</strong>
 </div>
 <p class="dev-check-desc">
       개발 중에는 아래 항목을 직접 눌러보고 체크하세요. 체크 상태는 이 브라우저에 저장됩니다.
     </p>
 <div class="dev-check-progress">
-<span id="devChecklistProgress">0 / 13 확인 완료</span>
+<span id="devChecklistProgress">0 / 12 확인 완료</span>
 <div aria-hidden="true" class="dev-progress-bar">
 <div id="devChecklistFill"></div>
 </div>
 </div>
 <div class="dev-check-list"><label class="dev-check-item">
-<input data-check-id="v310-version-visible" type="checkbox"/>
-<span>화면에 현재 버전 V3-10이 보인다.</span>
+<input data-check-id="v311-version-visible" type="checkbox"/>
+<span>화면에 현재 버전 V3-11이 보인다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v310-first-screen-simple" type="checkbox"/>
-<span>첫 화면은 V3-9처럼 운세 입력 중심으로 심플하게 유지된다.</span>
+<input data-check-id="v311-first-screen-simple" type="checkbox"/>
+<span>첫 화면은 V3-10처럼 운세 입력 중심으로 심플하게 유지된다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v310-fortune-flow-ok" type="checkbox"/>
+<input data-check-id="v311-fortune-flow-ok" type="checkbox"/>
 <span>운세 분석 버튼을 눌렀을 때 결과 화면이 정상 출력된다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v310-result-buttons-ok" type="checkbox"/>
+<input data-check-id="v311-result-buttons-ok" type="checkbox"/>
 <span>결과 하단의 다시 입력하기 / 내 파트너 보기 / 이전 운세 보기 버튼이 그대로 작동한다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v310-advanced-closed" type="checkbox"/>
-<span>고급 설정 / 개발자 도구는 기본으로 접혀 있다.</span>
+<input data-check-id="v311-user-data-visible" type="checkbox"/>
+<span>일반 주소에서 내 데이터 관리 영역은 보이고, 사용자용 문구로 표시된다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v310-admin-login-needed" type="checkbox"/>
-<span>로그인 전에는 관리자 통계 새로고침을 사용할 수 없다.</span>
+<input data-check-id="v311-admin-tools-hidden" type="checkbox"/>
+<span>일반 주소에서는 관리자 도구 영역이 보이지 않는다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v310-admin-save-email" type="checkbox"/>
-<span>Google 로그인 후 현재 계정을 관리자 표시 계정으로 저장할 수 있다.</span>
+<input data-check-id="v311-admin-setup-visible" type="checkbox"/>
+<span>?admin=1 주소에서는 관리자 도구와 관리자 통계 대시보드가 보인다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v310-admin-refresh" type="checkbox"/>
+<input data-check-id="v311-admin-refresh" type="checkbox"/>
 <span>관리자 표시 계정에서 통계 새로고침 버튼을 누르면 오늘 / 7일 / 전체 카드가 갱신된다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v310-admin-no-personal-data" type="checkbox"/>
+<input data-check-id="v311-no-personal-data" type="checkbox"/>
 <span>통계에는 이름 / 생년월일 / 이메일 같은 운세 입력 개인정보가 표시되지 않는다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v310-kakao-device" type="checkbox"/>
-<span>모바일 / PC / 카카오톡 접속 수 항목이 관리자 통계에 준비되어 있다.</span>
-</label><label class="dev-check-item">
-<input data-check-id="v310-login-still-ok" type="checkbox"/>
+<input data-check-id="v311-login-still-ok" type="checkbox"/>
 <span>기존 Google 로그인 / 로그아웃이 그대로 작동한다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v310-sub-still-ok" type="checkbox"/>
+<input data-check-id="v311-sub-still-ok" type="checkbox"/>
 <span>파트너 / 출석 / 이전 운세 / 도감 기능이 그대로 작동한다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v310-check-save" type="checkbox"/>
+<input data-check-id="v311-check-save" type="checkbox"/>
 <span>새로고침해도 개발 점검 체크 상태가 유지된다.</span>
 </label></div>
 <div class="dev-check-actions">
 <button class="small-button" id="resetChecklistBtn" type="button">점검표 초기화</button>
 </div>
-</section></div></details><div class="version-footer">오늘의 운세코드 V3-10 · 관리자 통계 테스트</div></main>
+</section></div></details><div class="version-footer">오늘의 운세코드 V3-11 · 사용자/관리자 화면 분리</div></main>
 <div class="level-toast hidden" id="levelToast">
 <strong id="levelToastTitle">LEVEL UP</strong>
 <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
-<script src="./app.js?v=20260528-v310"></script>
+<script src="./app.js?v=20260528-v311"></script>
 </body>
 </html>

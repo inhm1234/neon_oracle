@@ -177,6 +177,7 @@ const syncChoicePrimaryMode = document.getElementById("syncChoicePrimaryMode");
 const syncChoicePrimaryAction = document.getElementById("syncChoicePrimaryAction");
 const syncChoicePrimaryReason = document.getElementById("syncChoicePrimaryReason");
 const syncChoiceRunBtn = document.getElementById("syncChoiceRunBtn");
+const advancedTools = document.getElementById("advancedTools");
 const adminStatsCard = document.getElementById("adminStatsCard");
 const adminStatsStatus = document.getElementById("adminStatsStatus");
 const adminStatsUser = document.getElementById("adminStatsUser");
@@ -199,7 +200,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-10";
+const DEV_VERSION = "V3-11";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -300,6 +301,17 @@ function isCurrentUserAdminViewer() {
   const savedEmail = getAdminViewerEmail();
 
   return fixedEmails.includes(email) || Boolean(savedEmail && savedEmail === email);
+}
+
+function updateAdminToolsVisibility() {
+  if (!advancedTools) return;
+
+  const canSeeAdminTools = isCurrentUserAdminViewer() || isAdminStatsSetupMode();
+  advancedTools.classList.toggle("hidden", !canSeeAdminTools);
+
+  if (!canSeeAdminTools) {
+    advancedTools.open = false;
+  }
 }
 
 function getAdminStatsClientInfo() {
@@ -408,6 +420,8 @@ function renderAdminStatsGate(message = "관리자 Google 계정으로 로그인
 
   const setupMode = isAdminStatsSetupMode();
 
+  updateAdminToolsVisibility();
+
   if (adminStatsCard) {
     adminStatsCard.classList.toggle("hidden", !isAdmin && !setupMode);
     adminStatsCard.classList.toggle("admin-locked", !isAdmin);
@@ -427,7 +441,7 @@ function renderAdminStatsGate(message = "관리자 Google 계정으로 로그인
   }
 
   if (!isAdmin && !setupMode) {
-    setAdminStatsMessage("관리자 통계는 기본 화면에서 숨김 상태입니다. 관리자 설정 주소로 들어온 경우에만 준비 화면이 보입니다.");
+    setAdminStatsMessage("관리자 도구는 기본 화면에서 숨김 상태입니다. 관리자 설정 주소로 들어온 경우에만 준비 화면이 보입니다.");
     return;
   }
 
@@ -1604,7 +1618,7 @@ async function initFirebaseLoginTest() {
     setFirebaseLoginMessage(getBrowserEnvironment().isMobile ? "Firebase 연결 준비 완료. 모바일에서는 안정적인 리다이렉트 방식으로 Google 로그인을 진행합니다." : "Firebase 연결 준비 완료. Google 로그인 후 서버 저장 테스트를 진행하세요.");
     renderCloudSaveState();
     renderMobileLoginGuide();
-    renderAdminStatsGate("Firebase 연결 준비 완료. 관리자 통계는 관리자 계정 로그인 후 볼 수 있습니다.");
+    renderAdminStatsGate("Firebase 연결 준비 완료. 관리자 도구는 관리자 계정 로그인 후 볼 수 있습니다.");
     trackAdminStatsEvent("visit");
 
     if (firebaseGetRedirectResult) {
@@ -1641,7 +1655,7 @@ async function initFirebaseLoginTest() {
         setFirebaseLoginStatus("준비 완료");
         renderCloudSaveState();
         renderMobileLoginGuide();
-        renderAdminStatsGate("로그아웃 상태입니다. 관리자 통계는 로그인 후 볼 수 있습니다.");
+        renderAdminStatsGate("로그아웃 상태입니다. 관리자 도구는 로그인 후 볼 수 있습니다.");
         renderAutoCheckWaiting("로그아웃 상태입니다. 다시 로그인하면 서버 상태를 자동 확인합니다.");
         renderSyncChoiceWaiting("로그아웃 상태입니다. 로그인하면 선택형 동기화 추천을 볼 수 있습니다.");
       }
