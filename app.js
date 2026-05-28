@@ -200,7 +200,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-11";
+const DEV_VERSION = "V3-11.1.1";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -306,7 +306,9 @@ function isCurrentUserAdminViewer() {
 function updateAdminToolsVisibility() {
   if (!advancedTools) return;
 
-  const canSeeAdminTools = isCurrentUserAdminViewer() || isAdminStatsSetupMode();
+  // V3-11.1.1: 관리자 계정으로 로그인되어 있어도 일반 주소에서는 관리자 도구를 숨깁니다.
+  // 관리자 도구는 반드시 ?admin=1 주소에서만 열리도록 분리합니다.
+  const canSeeAdminTools = isAdminStatsSetupMode();
   advancedTools.classList.toggle("hidden", !canSeeAdminTools);
 
   if (!canSeeAdminTools) {
@@ -423,7 +425,8 @@ function renderAdminStatsGate(message = "관리자 Google 계정으로 로그인
   updateAdminToolsVisibility();
 
   if (adminStatsCard) {
-    adminStatsCard.classList.toggle("hidden", !isAdmin && !setupMode);
+    // V3-11.1.1: 통계 카드는 관리자 설정 주소(?admin=1)에서만 보입니다.
+    adminStatsCard.classList.toggle("hidden", !setupMode);
     adminStatsCard.classList.toggle("admin-locked", !isAdmin);
   }
 
