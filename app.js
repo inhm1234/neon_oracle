@@ -177,10 +177,29 @@ const syncChoicePrimaryMode = document.getElementById("syncChoicePrimaryMode");
 const syncChoicePrimaryAction = document.getElementById("syncChoicePrimaryAction");
 const syncChoicePrimaryReason = document.getElementById("syncChoicePrimaryReason");
 const syncChoiceRunBtn = document.getElementById("syncChoiceRunBtn");
+const adminStatsCard = document.getElementById("adminStatsCard");
+const adminStatsStatus = document.getElementById("adminStatsStatus");
+const adminStatsUser = document.getElementById("adminStatsUser");
+const adminStatsAdminEmail = document.getElementById("adminStatsAdminEmail");
+const adminStatsSecurity = document.getElementById("adminStatsSecurity");
+const adminStatsMessage = document.getElementById("adminStatsMessage");
+const adminStatsTodayVisits = document.getElementById("adminStatsTodayVisits");
+const adminStatsWeekVisits = document.getElementById("adminStatsWeekVisits");
+const adminStatsTotalVisits = document.getElementById("adminStatsTotalVisits");
+const adminStatsTodayAnalyze = document.getElementById("adminStatsTodayAnalyze");
+const adminStatsWeekAnalyze = document.getElementById("adminStatsWeekAnalyze");
+const adminStatsTotalAnalyze = document.getElementById("adminStatsTotalAnalyze");
+const adminStatsMobileRatio = document.getElementById("adminStatsMobileRatio");
+const adminStatsKakaoVisits = document.getElementById("adminStatsKakaoVisits");
+const adminStatsUpdated = document.getElementById("adminStatsUpdated");
+const adminStatsTableBody = document.getElementById("adminStatsTableBody");
+const adminStatsRefreshBtn = document.getElementById("adminStatsRefreshBtn");
+const adminStatsSaveAdminBtn = document.getElementById("adminStatsSaveAdminBtn");
+const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn");
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-9";
+const DEV_VERSION = "V3-10";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -190,6 +209,12 @@ const ATTENDANCE_KEY = "fortune_attendance_guest_v1";
 const ATTENDANCE_LOG_LIMIT = 10;
 const SYNC_OPTION_KEY = "fortune_sync_choice_mode_v1";
 const SYNC_OPTION_UPDATED_KEY = "fortune_sync_choice_updated_at_v1";
+const ADMIN_VIEWER_EMAIL_KEY = "fortune_admin_viewer_email_v1";
+const ADMIN_STATS_DAILY_COLLECTION = "adminStatsDaily";
+const ADMIN_STATS_TOTAL_COLLECTION = "adminStatsTotal";
+const ADMIN_STATS_TOTAL_DOC = "global";
+const ADMIN_STATS_VISIT_KEY_PREFIX = "fortune_stats_visit_reported_";
+const ADMIN_STATS_FIXED_EMAILS = [];
 const DATA_BACKUP_KEYS = [
   { key: PARTNER_KEY, label: "파트너" },
   { key: HISTORY_KEY, label: "이전 운세" },
@@ -224,11 +249,293 @@ let firebaseDoc = null;
 let firebaseGetDoc = null;
 let firebaseSetDoc = null;
 let firebaseServerTimestamp = null;
+let firebaseIncrement = null;
 let firebaseLoginReady = false;
 let isProfileSystemReady = false;
 let lastSyncDecision = null;
 
 
+
+function getAdminStatsDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function getAdminStatsDateKeys(days = 7) {
+  return Array.from({ length: days }, (_, index) => {
+    const date = new Date();
+    date.setDate(date.getDate() - index);
+    return getAdminStatsDateKey(date);
+  });
+}
+
+function getAdminViewerEmail() {
+  return (localStorage.getItem(ADMIN_VIEWER_EMAIL_KEY) || "").trim().toLowerCase();
+}
+
+function isAdminStatsSetupMode() {
+  const params = new URLSearchParams(window.location.search || "");
+  const hash = (window.location.hash || "").toLowerCase();
+  return params.get("admin") === "1" || hash.includes("admin");
+}
+
+function setAdminStatsMessage(message) {
+  if (adminStatsMessage) {
+    adminStatsMessage.textContent = message;
+  }
+}
+
+function getCurrentUserEmail() {
+  const user = firebaseAuth ? firebaseAuth.currentUser : null;
+  return user && user.email ? user.email.trim().toLowerCase() : "";
+}
+
+function isCurrentUserAdminViewer() {
+  const email = getCurrentUserEmail();
+  if (!email) return false;
+
+  const fixedEmails = ADMIN_STATS_FIXED_EMAILS.map((item) => String(item).trim().toLowerCase()).filter(Boolean);
+  const savedEmail = getAdminViewerEmail();
+
+  return fixedEmails.includes(email) || Boolean(savedEmail && savedEmail === email);
+}
+
+function getAdminStatsClientInfo() {
+  const env = getBrowserEnvironment();
+  const lower = (env.ua || "").toLowerCase();
+
+  return {
+    device: env.isMobile ? "mobile" : "desktop",
+    isKakao: lower.includes("kakaotalk"),
+    isEmbedded: env.isEmbedded
+  };
+}
+
+function buildAdminStatsIncrementPayload(type) {
+  if (!firebaseIncrement) return null;
+
+  const info = getAdminStatsClientInfo();
+  const payload = {
+    updatedAt: firebaseServerTimestamp ? firebaseServerTimestamp() : new Date().toISOString()
+  };
+
+  if (type === "visit") {
+    payload.visits = firebaseIncrement(1);
+    payload[info.device === "mobile" ? "mobileVisits" : "desktopVisits"] = firebaseIncrement(1);
+    if (info.isKakao) payload.kakaoVisits = firebaseIncrement(1);
+    if (info.isEmbedded) payload.embeddedVisits = firebaseIncrement(1);
+  }
+
+  if (type === "analyze") {
+    payload.analyzeClicks = firebaseIncrement(1);
+    payload[info.device === "mobile" ? "mobileAnalyzeClicks" : "desktopAnalyzeClicks"] = firebaseIncrement(1);
+    if (info.isKakao) payload.kakaoAnalyzeClicks = firebaseIncrement(1);
+    if (info.isEmbedded) payload.embeddedAnalyzeClicks = firebaseIncrement(1);
+  }
+
+  return payload;
+}
+
+async function trackAdminStatsEvent(type) {
+  if (!firebaseDb || !firebaseDoc || !firebaseSetDoc || !firebaseIncrement) return;
+
+  const todayKey = getAdminStatsDateKey();
+
+  if (type === "visit") {
+    const storageKey = `${ADMIN_STATS_VISIT_KEY_PREFIX}${todayKey}`;
+    if (localStorage.getItem(storageKey)) return;
+    localStorage.setItem(storageKey, new Date().toISOString());
+  }
+
+  const dailyPayload = buildAdminStatsIncrementPayload(type);
+  const totalPayload = buildAdminStatsIncrementPayload(type);
+
+  if (!dailyPayload || !totalPayload) return;
+
+  dailyPayload.date = todayKey;
+  totalPayload.scope = "all";
+
+  try {
+    await Promise.all([
+      firebaseSetDoc(firebaseDoc(firebaseDb, ADMIN_STATS_DAILY_COLLECTION, todayKey), dailyPayload, { merge: true }),
+      firebaseSetDoc(firebaseDoc(firebaseDb, ADMIN_STATS_TOTAL_COLLECTION, ADMIN_STATS_TOTAL_DOC), totalPayload, { merge: true })
+    ]);
+  } catch (error) {
+    console.warn("관리자 통계 기록 실패", error);
+  }
+}
+
+function getStatNumber(data, key) {
+  const value = data && data[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+function sumStats(list, key) {
+  return list.reduce((total, item) => total + getStatNumber(item, key), 0);
+}
+
+function formatStatNumber(value) {
+  return Number(value || 0).toLocaleString("ko-KR");
+}
+
+function formatStatRatio(part, total) {
+  if (!total) return "0%";
+  return `${Math.round((part / total) * 100)}%`;
+}
+
+function setAdminStatsEmptyValues() {
+  if (adminStatsTodayVisits) adminStatsTodayVisits.textContent = "0";
+  if (adminStatsWeekVisits) adminStatsWeekVisits.textContent = "0";
+  if (adminStatsTotalVisits) adminStatsTotalVisits.textContent = "0";
+  if (adminStatsTodayAnalyze) adminStatsTodayAnalyze.textContent = "0";
+  if (adminStatsWeekAnalyze) adminStatsWeekAnalyze.textContent = "0";
+  if (adminStatsTotalAnalyze) adminStatsTotalAnalyze.textContent = "0";
+  if (adminStatsMobileRatio) adminStatsMobileRatio.textContent = "0% / 0%";
+  if (adminStatsKakaoVisits) adminStatsKakaoVisits.textContent = "0";
+  if (adminStatsUpdated) adminStatsUpdated.textContent = "아직 없음";
+  if (adminStatsTableBody) {
+    adminStatsTableBody.innerHTML = `<tr><td colspan="5">아직 표시할 통계가 없습니다.</td></tr>`;
+  }
+}
+
+function renderAdminStatsGate(message = "관리자 Google 계정으로 로그인하면 통계 대시보드를 볼 수 있습니다.") {
+  const user = firebaseAuth ? firebaseAuth.currentUser : null;
+  const email = getCurrentUserEmail();
+  const savedEmail = getAdminViewerEmail();
+  const isAdmin = isCurrentUserAdminViewer();
+
+  const setupMode = isAdminStatsSetupMode();
+
+  if (adminStatsCard) {
+    adminStatsCard.classList.toggle("hidden", !isAdmin && !setupMode);
+    adminStatsCard.classList.toggle("admin-locked", !isAdmin);
+  }
+
+  if (adminStatsStatus) adminStatsStatus.textContent = isAdmin ? "관리자 확인" : user ? "관리자 등록 필요" : "로그인 필요";
+  if (adminStatsUser) adminStatsUser.textContent = email || "로그인 전";
+  if (adminStatsAdminEmail) adminStatsAdminEmail.textContent = savedEmail || "아직 등록 안 됨";
+  if (adminStatsSecurity) adminStatsSecurity.textContent = "UI 숨김 + Firestore 규칙 권장";
+
+  if (adminStatsRefreshBtn) adminStatsRefreshBtn.disabled = !isAdmin || !firebaseDb;
+  if (adminStatsSaveAdminBtn) adminStatsSaveAdminBtn.disabled = !user || !email;
+  if (adminStatsClearAdminBtn) adminStatsClearAdminBtn.disabled = !savedEmail;
+
+  if (!isAdmin) {
+    setAdminStatsEmptyValues();
+  }
+
+  if (!isAdmin && !setupMode) {
+    setAdminStatsMessage("관리자 통계는 기본 화면에서 숨김 상태입니다. 관리자 설정 주소로 들어온 경우에만 준비 화면이 보입니다.");
+    return;
+  }
+
+  setAdminStatsMessage(message);
+}
+
+function saveCurrentAccountAsAdminViewer() {
+  const email = getCurrentUserEmail();
+
+  if (!email) {
+    setAdminStatsMessage("먼저 Google 로그인을 완료해주세요.");
+    return;
+  }
+
+  const ok = confirm(`${email} 계정을 이 브라우저의 관리자 화면 표시 계정으로 저장할까요? 실제 보안은 Firestore 보안 규칙도 함께 설정해야 안전합니다.`);
+  if (!ok) return;
+
+  localStorage.setItem(ADMIN_VIEWER_EMAIL_KEY, email);
+  renderAdminStatsGate("현재 Google 계정을 관리자 화면 표시 계정으로 저장했습니다. 이제 통계 새로고침을 누를 수 있습니다.");
+  refreshAdminStatsDashboard();
+}
+
+function clearAdminViewerEmail() {
+  const ok = confirm("이 브라우저에 저장된 관리자 표시 계정을 해제할까요?");
+  if (!ok) return;
+
+  localStorage.removeItem(ADMIN_VIEWER_EMAIL_KEY);
+  renderAdminStatsGate("관리자 표시 계정을 해제했습니다.");
+}
+
+function renderAdminStatsDashboard(totalData, dailyDataList) {
+  const today = dailyDataList[0] || {};
+  const weekVisits = sumStats(dailyDataList, "visits");
+  const weekAnalyze = sumStats(dailyDataList, "analyzeClicks");
+  const weekMobile = sumStats(dailyDataList, "mobileVisits");
+  const weekDesktop = sumStats(dailyDataList, "desktopVisits");
+  const weekKakao = sumStats(dailyDataList, "kakaoVisits");
+  const weekDeviceTotal = weekMobile + weekDesktop;
+
+  if (adminStatsTodayVisits) adminStatsTodayVisits.textContent = formatStatNumber(getStatNumber(today, "visits"));
+  if (adminStatsWeekVisits) adminStatsWeekVisits.textContent = formatStatNumber(weekVisits);
+  if (adminStatsTotalVisits) adminStatsTotalVisits.textContent = formatStatNumber(getStatNumber(totalData, "visits"));
+  if (adminStatsTodayAnalyze) adminStatsTodayAnalyze.textContent = formatStatNumber(getStatNumber(today, "analyzeClicks"));
+  if (adminStatsWeekAnalyze) adminStatsWeekAnalyze.textContent = formatStatNumber(weekAnalyze);
+  if (adminStatsTotalAnalyze) adminStatsTotalAnalyze.textContent = formatStatNumber(getStatNumber(totalData, "analyzeClicks"));
+  if (adminStatsMobileRatio) adminStatsMobileRatio.textContent = `${formatStatRatio(weekMobile, weekDeviceTotal)} / ${formatStatRatio(weekDesktop, weekDeviceTotal)}`;
+  if (adminStatsKakaoVisits) adminStatsKakaoVisits.textContent = formatStatNumber(weekKakao);
+  if (adminStatsUpdated) adminStatsUpdated.textContent = formatSavedAt(new Date().toISOString());
+
+  if (adminStatsTableBody) {
+    adminStatsTableBody.innerHTML = dailyDataList.map((item) => {
+      const mobile = getStatNumber(item, "mobileVisits");
+      const desktop = getStatNumber(item, "desktopVisits");
+      const totalDevice = mobile + desktop;
+
+      return `
+        <tr>
+          <td>${escapeHtml(item.date || "-")}</td>
+          <td>${formatStatNumber(getStatNumber(item, "visits"))}</td>
+          <td>${formatStatNumber(getStatNumber(item, "analyzeClicks"))}</td>
+          <td>${formatStatRatio(mobile, totalDevice)} / ${formatStatRatio(desktop, totalDevice)}</td>
+          <td>${formatStatNumber(getStatNumber(item, "kakaoVisits"))}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+}
+
+async function refreshAdminStatsDashboard() {
+  renderAdminStatsGate("관리자 통계를 불러오는 중입니다.");
+
+  if (!isCurrentUserAdminViewer()) {
+    renderAdminStatsGate("관리자 표시 계정이 아닙니다. 관리자 Google 계정으로 로그인 후 현재 계정을 등록해주세요.");
+    return;
+  }
+
+  if (!firebaseDb || !firebaseDoc || !firebaseGetDoc) {
+    renderAdminStatsGate("Firestore 연결 준비가 끝나면 다시 시도해주세요.");
+    return;
+  }
+
+  try {
+    if (adminStatsStatus) adminStatsStatus.textContent = "불러오는 중";
+    if (adminStatsRefreshBtn) adminStatsRefreshBtn.disabled = true;
+
+    const dateKeys = getAdminStatsDateKeys(7);
+    const dailySnapshots = await Promise.all(
+      dateKeys.map((dateKey) => firebaseGetDoc(firebaseDoc(firebaseDb, ADMIN_STATS_DAILY_COLLECTION, dateKey)))
+    );
+    const totalSnapshot = await firebaseGetDoc(firebaseDoc(firebaseDb, ADMIN_STATS_TOTAL_COLLECTION, ADMIN_STATS_TOTAL_DOC));
+
+    const dailyDataList = dailySnapshots.map((snapshot, index) => ({
+      date: dateKeys[index],
+      ...(snapshot.exists() ? snapshot.data() : {})
+    }));
+    const totalData = totalSnapshot.exists() ? totalSnapshot.data() : {};
+
+    renderAdminStatsDashboard(totalData, dailyDataList);
+    renderAdminStatsGate("통계 대시보드를 갱신했습니다. 방문 수는 브라우저 기준 1일 1회로 기록됩니다.");
+    if (adminStatsStatus) adminStatsStatus.textContent = "갱신 완료";
+  } catch (error) {
+    console.error("관리자 통계 불러오기 실패", error);
+    renderAdminStatsGate(`통계 읽기에 실패했습니다. Firestore 보안 규칙 또는 관리자 권한을 확인해주세요. 오류: ${error.message || error.code || "알 수 없음"}`);
+    if (adminStatsStatus) adminStatsStatus.textContent = "읽기 실패";
+  } finally {
+    if (adminStatsRefreshBtn) adminStatsRefreshBtn.disabled = !isCurrentUserAdminViewer() || !firebaseDb;
+  }
+}
 
 function getCurrentSiteUrl() {
   return `${window.location.origin}${window.location.pathname}`;
@@ -1269,6 +1576,7 @@ async function initFirebaseLoginTest() {
     firebaseGetDoc = firestoreModule.getDoc;
     firebaseSetDoc = firestoreModule.setDoc;
     firebaseServerTimestamp = firestoreModule.serverTimestamp;
+    firebaseIncrement = firestoreModule.increment;
     firebaseProvider = new authModule.GoogleAuthProvider();
     firebaseSignInWithPopup = authModule.signInWithPopup;
     firebaseSignInWithRedirect = authModule.signInWithRedirect;
@@ -1296,6 +1604,8 @@ async function initFirebaseLoginTest() {
     setFirebaseLoginMessage(getBrowserEnvironment().isMobile ? "Firebase 연결 준비 완료. 모바일에서는 안정적인 리다이렉트 방식으로 Google 로그인을 진행합니다." : "Firebase 연결 준비 완료. Google 로그인 후 서버 저장 테스트를 진행하세요.");
     renderCloudSaveState();
     renderMobileLoginGuide();
+    renderAdminStatsGate("Firebase 연결 준비 완료. 관리자 통계는 관리자 계정 로그인 후 볼 수 있습니다.");
+    trackAdminStatsEvent("visit");
 
     if (firebaseGetRedirectResult) {
       try {
@@ -1305,6 +1615,8 @@ async function initFirebaseLoginTest() {
           setFirebaseLoginStatus("로그인 완료");
           setFirebaseLoginMessage("Google 로그인 연결이 정상 작동합니다. 이제 서버 저장 테스트를 진행할 수 있습니다.");
           renderCloudSaveState();
+          renderAdminStatsGate("관리자 권한을 확인했습니다.");
+          if (isCurrentUserAdminViewer()) refreshAdminStatsDashboard();
           runAutomaticCloudStatusCheck("login");
         }
       } catch (redirectError) {
@@ -1321,12 +1633,15 @@ async function initFirebaseLoginTest() {
         setFirebaseLoginMessage("Google 로그인 연결이 정상 작동합니다. 이제 서버 저장 테스트를 진행할 수 있습니다.");
         renderCloudSaveState();
         renderMobileLoginGuide();
+        renderAdminStatsGate("관리자 권한을 확인했습니다.");
+        if (isCurrentUserAdminViewer()) refreshAdminStatsDashboard();
         runAutomaticCloudStatusCheck("login");
       } else {
         renderFirebaseSignedOut();
         setFirebaseLoginStatus("준비 완료");
         renderCloudSaveState();
         renderMobileLoginGuide();
+        renderAdminStatsGate("로그아웃 상태입니다. 관리자 통계는 로그인 후 볼 수 있습니다.");
         renderAutoCheckWaiting("로그아웃 상태입니다. 다시 로그인하면 서버 상태를 자동 확인합니다.");
         renderSyncChoiceWaiting("로그아웃 상태입니다. 로그인하면 선택형 동기화 추천을 볼 수 있습니다.");
       }
@@ -2976,6 +3291,8 @@ async function analyzeFortune(event) {
     return;
   }
 
+  trackAdminStatsEvent("analyze");
+
   analyzeBtn.disabled = true;
   resultCard.classList.add("hidden");
   renderPartnerInsight(null);
@@ -4125,6 +4442,18 @@ if (fortuneHistoryList) {
   });
 }
 
+if (adminStatsRefreshBtn) {
+  adminStatsRefreshBtn.addEventListener("click", refreshAdminStatsDashboard);
+}
+
+if (adminStatsSaveAdminBtn) {
+  adminStatsSaveAdminBtn.addEventListener("click", saveCurrentAccountAsAdminViewer);
+}
+
+if (adminStatsClearAdminBtn) {
+  adminStatsClearAdminBtn.addEventListener("click", clearAdminViewerEmail);
+}
+
 if (checklistJumpBtn) {
   checklistJumpBtn.addEventListener("click", jumpToDevChecklist);
 }
@@ -4207,6 +4536,7 @@ renderDataManager();
 renderLoginStorageInspector();
 renderCloudSaveState();
 renderCloudCompareWaiting();
+renderAdminStatsGate();
 renderAutoCheckWaiting();
 renderSyncChoiceWaiting();
 renderMobileLoginGuide();

@@ -15,7 +15,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>오늘의 운세코드</title>
 <link href="manifest.json" rel="manifest"/>
-<link href="./style.css?v=20260527-v39" rel="stylesheet"/>
+<link href="./style.css?v=20260528-v310" rel="stylesheet"/>
 </head>
 <body>
 <canvas id="matrix"></canvas>
@@ -735,13 +735,81 @@
 <div class="login-inspector-message" id="loginInspectorMessage">
       V2-11에서는 진짜 로그인 연결 전, 현재 데이터 묶음이 로그인 저장에 적합한지 확인합니다.
     </div>
+</section><section aria-label="관리자 전용 통계 대시보드" class="admin-stats-card hidden" id="adminStatsCard">
+<div class="admin-stats-top">
+<div>
+<span class="small-label">ADMIN DASHBOARD V3-10 TEST</span>
+<h2>관리자 통계 대시보드</h2>
+</div>
+<strong class="admin-stats-badge" id="adminStatsStatus">로그인 필요</strong>
+</div>
+<p class="admin-stats-desc">
+      관리자 Google 계정으로 로그인했을 때만 확인하는 개발자용 통계 화면입니다. 방문 수는 브라우저 기준 1일 1회로 기록하고, 이름/생년월일 같은 개인정보는 통계에 저장하지 않습니다.
+    </p>
+<div class="admin-stats-gate-box">
+<div>
+<span>현재 로그인</span>
+<strong id="adminStatsUser">로그인 전</strong>
+</div>
+<div>
+<span>관리자 표시 계정</span>
+<strong id="adminStatsAdminEmail">아직 등록 안 됨</strong>
+</div>
+<div>
+<span>보안 방식</span>
+<strong id="adminStatsSecurity">UI 숨김 + Firestore 규칙 권장</strong>
+</div>
+</div>
+<div class="admin-stats-action-box">
+<div>
+<strong>관리자 계정 설정</strong>
+<p>먼저 Google로 로그인한 뒤, 현재 계정을 이 브라우저의 관리자 화면 표시 계정으로 저장하세요.</p>
+</div>
+<div class="admin-stats-buttons">
+<button class="small-button" id="adminStatsSaveAdminBtn" type="button">현재 계정을 관리자 표시 계정으로 저장</button>
+<button class="small-button" id="adminStatsRefreshBtn" type="button">통계 새로고침</button>
+<button class="small-button danger-button" id="adminStatsClearAdminBtn" type="button">관리자 표시 해제</button>
+</div>
+</div>
+<div class="admin-stats-grid">
+<div><span>오늘 방문</span><strong id="adminStatsTodayVisits">0</strong></div>
+<div><span>최근 7일 방문</span><strong id="adminStatsWeekVisits">0</strong></div>
+<div><span>전체 방문</span><strong id="adminStatsTotalVisits">0</strong></div>
+<div><span>오늘 분석 클릭</span><strong id="adminStatsTodayAnalyze">0</strong></div>
+<div><span>최근 7일 분석 클릭</span><strong id="adminStatsWeekAnalyze">0</strong></div>
+<div><span>전체 분석 클릭</span><strong id="adminStatsTotalAnalyze">0</strong></div>
+<div><span>모바일 / PC 비율</span><strong id="adminStatsMobileRatio">0% / 0%</strong></div>
+<div><span>최근 7일 카카오톡 접속</span><strong id="adminStatsKakaoVisits">0</strong></div>
+</div>
+<div class="admin-stats-table-box">
+<div class="admin-stats-table-top">
+<div>
+<span>최근 7일 상세</span>
+<p>날짜별 방문, 분석 클릭, 기기 비율, 카카오톡 접속을 확인합니다.</p>
+</div>
+<strong>최근 갱신: <b id="adminStatsUpdated">아직 없음</b></strong>
+</div>
+<div class="admin-stats-table-scroll">
+<table class="admin-stats-table">
+<thead>
+<tr><th>날짜</th><th>방문</th><th>분석 클릭</th><th>모바일 / PC</th><th>카카오톡</th></tr>
+</thead>
+<tbody id="adminStatsTableBody">
+<tr><td colspan="5">아직 표시할 통계가 없습니다.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="admin-stats-message" id="adminStatsMessage">
+      관리자 Google 계정으로 로그인하면 통계를 확인할 수 있습니다.
+    </div>
 </section><section aria-label="개발 점검 체크리스트" class="dev-check-card" id="devCheckCard">
 <div class="dev-check-top">
 <div>
 <span class="small-label">DEVELOPMENT CHECKLIST</span>
 <h2>업데이트 점검표</h2>
 </div>
-<strong class="version-badge" id="devVersionBadge">V3-9</strong>
+<strong class="version-badge" id="devVersionBadge">V3-10</strong>
 </div>
 <p class="dev-check-desc">
       개발 중에는 아래 항목을 직접 눌러보고 체크하세요. 체크 상태는 이 브라우저에 저장됩니다.
@@ -753,53 +821,53 @@
 </div>
 </div>
 <div class="dev-check-list"><label class="dev-check-item">
-<input data-check-id="v39-version-visible" type="checkbox"/>
-<span>화면에 현재 버전 V3-9가 보인다.</span>
+<input data-check-id="v310-version-visible" type="checkbox"/>
+<span>화면에 현재 버전 V3-10이 보인다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v39-input-first" type="checkbox"/>
-<span>첫 화면에서 운세 입력 영역이 가장 먼저 눈에 들어온다.</span>
+<input data-check-id="v310-first-screen-simple" type="checkbox"/>
+<span>첫 화면은 V3-9처럼 운세 입력 중심으로 심플하게 유지된다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v39-account-compact" type="checkbox"/>
-<span>Google 계정 저장 영역이 작고 간단하게 보인다.</span>
+<input data-check-id="v310-fortune-flow-ok" type="checkbox"/>
+<span>운세 분석 버튼을 눌렀을 때 결과 화면이 정상 출력된다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v39-sub-folded" type="checkbox"/>
-<span>파트너 / 출석 / 이전 운세 / 도감이 기본으로 접혀 있다.</span>
+<input data-check-id="v310-result-buttons-ok" type="checkbox"/>
+<span>결과 하단의 다시 입력하기 / 내 파트너 보기 / 이전 운세 보기 버튼이 그대로 작동한다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v39-dex-open" type="checkbox"/>
-<span>파트너 도감은 사용자가 열었을 때만 자세히 보인다.</span>
+<input data-check-id="v310-advanced-closed" type="checkbox"/>
+<span>고급 설정 / 개발자 도구는 기본으로 접혀 있다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v39-advanced-closed" type="checkbox"/>
-<span>고급 설정 / 개발자 도구가 기본으로 접혀 있다.</span>
+<input data-check-id="v310-admin-login-needed" type="checkbox"/>
+<span>로그인 전에는 관리자 통계 새로고침을 사용할 수 없다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v39-fortune-still-ok" type="checkbox"/>
-<span>운세 분석 기능이 그대로 작동한다.</span>
+<input data-check-id="v310-admin-save-email" type="checkbox"/>
+<span>Google 로그인 후 현재 계정을 관리자 표시 계정으로 저장할 수 있다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v39-result-service-view" type="checkbox"/>
-<span>분석 후 결과 화면에 핵심 요약 카드와 다음 행동 버튼이 보인다.</span>
+<input data-check-id="v310-admin-refresh" type="checkbox"/>
+<span>관리자 표시 계정에서 통계 새로고침 버튼을 누르면 오늘 / 7일 / 전체 카드가 갱신된다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v39-sub-still-ok" type="checkbox"/>
-<span>서브 콘텐츠를 열면 파트너 / 출석 / 기록 기능이 그대로 작동한다.</span>
+<input data-check-id="v310-admin-no-personal-data" type="checkbox"/>
+<span>통계에는 이름 / 생년월일 / 이메일 같은 운세 입력 개인정보가 표시되지 않는다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v39-login-still-ok" type="checkbox"/>
-<span>PC 브라우저에서 Google 로그인 / 로그아웃이 그대로 작동한다.</span>
+<input data-check-id="v310-kakao-device" type="checkbox"/>
+<span>모바일 / PC / 카카오톡 접속 수 항목이 관리자 통계에 준비되어 있다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v39-mobile-guide-ok" type="checkbox"/>
-<span>카카오톡 같은 앱 내부 브라우저에서 Google 로그인 안내가 먼저 보인다.</span>
+<input data-check-id="v310-login-still-ok" type="checkbox"/>
+<span>기존 Google 로그인 / 로그아웃이 그대로 작동한다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v39-mobile-browser-ok" type="checkbox"/>
-<span>모바일 일반 브라우저에서는 리다이렉트 방식으로 Google 로그인을 시도한다.</span>
+<input data-check-id="v310-sub-still-ok" type="checkbox"/>
+<span>파트너 / 출석 / 이전 운세 / 도감 기능이 그대로 작동한다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v39-check-save" type="checkbox"/>
+<input data-check-id="v310-check-save" type="checkbox"/>
 <span>새로고침해도 개발 점검 체크 상태가 유지된다.</span>
 </label></div>
 <div class="dev-check-actions">
 <button class="small-button" id="resetChecklistBtn" type="button">점검표 초기화</button>
 </div>
-</section></div></details><div class="version-footer">오늘의 운세코드 V3-9 · 결과 화면 서비스화</div></main>
+</section></div></details><div class="version-footer">오늘의 운세코드 V3-10 · 관리자 통계 테스트</div></main>
 <div class="level-toast hidden" id="levelToast">
 <strong id="levelToastTitle">LEVEL UP</strong>
 <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
-<script src="./app.js?v=20260527-v39"></script>
+<script src="./app.js?v=20260528-v310"></script>
 </body>
 </html>
