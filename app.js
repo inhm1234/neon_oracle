@@ -213,7 +213,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-14.1";
+const DEV_VERSION = "V3-14.1.1";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -270,6 +270,7 @@ let firebaseServerTimestamp = null;
 let firebaseIncrement = null;
 let firebaseLoginReady = false;
 let oracleRoamTimer = null;
+let oracleRoamIndex = 0;
 let oracleLastImportantAt = 0;
 let isProfileSystemReady = false;
 let lastSyncDecision = null;
@@ -2140,7 +2141,7 @@ function clampOracleValue(value, min, max) {
 
 function isOracleRoamingAllowed() {
   if (!oracleGuide) return false;
-  if (window.matchMedia && window.matchMedia("(max-width: 1080px)").matches) return false;
+  if (window.matchMedia && window.matchMedia("(max-width: 720px)").matches) return false;
   if (document.body.classList.contains("scanning")) return false;
   if (oracleGuide.classList.contains("oracle-thinking")) return false;
   return true;
@@ -2223,7 +2224,8 @@ function roamOracleGuideOnce() {
   }
 
   const points = getOracleRoamPoints();
-  const next = points[Math.floor(Math.random() * points.length)];
+  oracleRoamIndex = (oracleRoamIndex + 1) % points.length;
+  const next = points[oracleRoamIndex];
   moveOracleGuideTo(next);
 }
 
@@ -2248,9 +2250,11 @@ function initOracleRoaming() {
 
   startRoaming();
   window.setTimeout(startRoaming, 600);
+  window.setTimeout(roamOracleGuideOnce, 1400);
+  window.setTimeout(roamOracleGuideOnce, 3200);
 
   if (oracleRoamTimer) window.clearInterval(oracleRoamTimer);
-  oracleRoamTimer = window.setInterval(roamOracleGuideOnce, 7600);
+  oracleRoamTimer = window.setInterval(roamOracleGuideOnce, 5200);
 }
 
 function initOracleGuide() {

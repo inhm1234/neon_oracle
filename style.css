@@ -4951,7 +4951,7 @@ body {
   color: rgba(239, 252, 255, 0.46);
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 720px) {
   body {
     padding-bottom: 170px;
   }
@@ -5157,7 +5157,7 @@ body {
   100% { opacity: 0; transform: translateY(-8px) scale(1.08); }
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 720px) {
   .oracle-guide.oracle-roaming {
     left: 50% !important;
     top: auto !important;
