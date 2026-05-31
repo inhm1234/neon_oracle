@@ -4644,3 +4644,74 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 }
+
+/* V3-13: 로그인 사용자 기본 정보 저장 / 자동 입력 */
+.default-profile-box {
+  margin: 16px 0 18px;
+  padding: 15px 14px;
+  border: 1px solid rgba(142, 245, 255, 0.2);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(142, 245, 255, 0.1), transparent 58%),
+    rgba(0, 0, 0, 0.16);
+  text-align: left;
+}
+
+.default-profile-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.default-profile-top strong {
+  color: #dffcff;
+  font-size: 0.98rem;
+}
+
+.default-profile-badge {
+  flex: 0 0 auto;
+  padding: 6px 9px;
+  border: 1px solid rgba(255, 225, 132, 0.26);
+  border-radius: 999px;
+  color: #fff1b8;
+  background: rgba(255, 225, 132, 0.08);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+
+.default-profile-desc,
+.default-profile-status {
+  color: rgba(239, 252, 255, 0.62);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.default-profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 9px;
+}
+
+.default-profile-actions .small-button {
+  width: auto;
+}
+
+.default-profile-box.has-default {
+  border-color: rgba(255, 225, 132, 0.28);
+  background:
+    radial-gradient(circle at top left, rgba(255, 225, 132, 0.1), transparent 58%),
+    rgba(0, 0, 0, 0.16);
+}
+
+@media (max-width: 480px) {
+  .default-profile-top {
+    flex-direction: column;
+  }
+
+  .default-profile-actions .small-button {
+    width: 100%;
+  }
+}

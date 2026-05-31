@@ -5,6 +5,12 @@ const userNameEl = document.getElementById("userName");
 const genderEl = document.getElementById("gender");
 const birthDateEl = document.getElementById("birthDate");
 const birthTimeEl = document.getElementById("birthTime");
+const defaultProfileBox = document.getElementById("defaultProfileBox");
+const defaultProfileBadge = document.getElementById("defaultProfileBadge");
+const defaultProfileStatus = document.getElementById("defaultProfileStatus");
+const defaultProfileSaveBtn = document.getElementById("defaultProfileSaveBtn");
+const defaultProfileLoadBtn = document.getElementById("defaultProfileLoadBtn");
+const defaultProfileClearBtn = document.getElementById("defaultProfileClearBtn");
 
 const statusText = document.getElementById("statusText");
 const resultCard = document.getElementById("resultCard");
@@ -200,7 +206,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-12";
+const DEV_VERSION = "V3-13";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -210,6 +216,9 @@ const ATTENDANCE_KEY = "fortune_attendance_guest_v1";
 const ATTENDANCE_LOG_LIMIT = 10;
 const SYNC_OPTION_KEY = "fortune_sync_choice_mode_v1";
 const SYNC_OPTION_UPDATED_KEY = "fortune_sync_choice_updated_at_v1";
+const DEFAULT_PROFILE_KEY = "fortune_default_profile_v1";
+const DEFAULT_PROFILE_FIELD = "defaultFortuneProfile";
+const DEFAULT_PROFILE_SCHEMA_VERSION = "default_profile_v1";
 const ADMIN_VIEWER_EMAIL_KEY = "fortune_admin_viewer_email_v1";
 const ADMIN_STATS_DAILY_COLLECTION = "adminStatsDaily";
 const ADMIN_STATS_TOTAL_COLLECTION = "adminStatsTotal";
@@ -221,7 +230,8 @@ const DATA_BACKUP_KEYS = [
   { key: HISTORY_KEY, label: "이전 운세" },
   { key: DEX_KEY, label: "파트너 도감" },
   { key: ATTENDANCE_KEY, label: "출석" },
-  { key: CHECKLIST_KEY, label: "개발 점검표" }
+  { key: CHECKLIST_KEY, label: "개발 점검표" },
+  { key: DEFAULT_PROFILE_KEY, label: "기본 정보" }
 ];
 const PROFILE_STORE_KEY = "fortune_profile_store_v1";
 const PROFILE_ACTIVE_KEY = "fortune_active_profile_v1";
@@ -1314,6 +1324,257 @@ function getCloudUserDocRef() {
   return firebaseDoc(firebaseDb, "users", user.uid);
 }
 
+function setDefaultProfileStatus(message) {
+  if (defaultProfileStatus) {
+    defaultProfileStatus.textContent = message;
+  }
+}
+
+function normalizeDefaultProfile(data) {
+  if (!data || typeof data !== "object") return null;
+
+  return {
+    schemaVersion: data.schemaVersion || DEFAULT_PROFILE_SCHEMA_VERSION,
+    name: String(data.name || "").trim().slice(0, 30),
+    gender: ["none", "male", "female"].includes(data.gender) ? data.gender : "none",
+    birthDate: String(data.birthDate || data.date || "").trim(),
+    birthTime: String(data.birthTime || data.time || "unknown").trim() || "unknown",
+    savedAt: data.savedAt || data.updatedAt || "",
+    updatedAt: data.updatedAt || data.savedAt || ""
+  };
+}
+
+function getDefaultProfileOptionValue(selectEl, value, fallback) {
+  if (!selectEl) return fallback;
+  const values = Array.from(selectEl.options || []).map((option) => option.value);
+  return values.includes(value) ? value : fallback;
+}
+
+function loadLocalDefaultProfile() {
+  try {
+    return normalizeDefaultProfile(JSON.parse(localStorage.getItem(DEFAULT_PROFILE_KEY)));
+  } catch (error) {
+    localStorage.removeItem(DEFAULT_PROFILE_KEY);
+    return null;
+  }
+}
+
+function hasDefaultProfileData(data) {
+  return Boolean(data && (data.name || data.birthDate || data.gender !== "none" || data.birthTime !== "unknown"));
+}
+
+function buildDefaultProfileFromForm() {
+  return {
+    schemaVersion: DEFAULT_PROFILE_SCHEMA_VERSION,
+    name: userNameEl ? userNameEl.value.trim().slice(0, 30) : "",
+    gender: genderEl ? genderEl.value : "none",
+    birthDate: birthDateEl ? birthDateEl.value : "",
+    birthTime: birthTimeEl ? birthTimeEl.value : "unknown",
+    savedAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+}
+
+function applyDefaultProfileToForm(data, sourceLabel = "저장된 기본 정보") {
+  const profile = normalizeDefaultProfile(data);
+  if (!hasDefaultProfileData(profile)) return false;
+
+  if (userNameEl) userNameEl.value = profile.name || "";
+  if (genderEl) genderEl.value = getDefaultProfileOptionValue(genderEl, profile.gender, "none");
+  if (birthDateEl && profile.birthDate) birthDateEl.value = profile.birthDate;
+  if (birthTimeEl) birthTimeEl.value = getDefaultProfileOptionValue(birthTimeEl, profile.birthTime, "unknown");
+
+  setDefaultProfileStatus(`${sourceLabel}를 입력칸에 불러왔습니다. 내용이 다르면 수정 후 다시 저장하면 됩니다.`);
+  renderDefaultProfileState();
+  return true;
+}
+
+function saveLocalDefaultProfile(data) {
+  const profile = normalizeDefaultProfile(data);
+  if (!profile) return null;
+
+  localStorage.setItem(DEFAULT_PROFILE_KEY, JSON.stringify(profile));
+  persistActiveProfileData();
+  renderDefaultProfileState();
+  return profile;
+}
+
+function renderDefaultProfileState() {
+  if (!defaultProfileBox || !defaultProfileBadge) return;
+
+  const local = loadLocalDefaultProfile();
+  const user = firebaseAuth ? firebaseAuth.currentUser : null;
+  const hasLocal = hasDefaultProfileData(local);
+
+  defaultProfileBox.classList.toggle("has-default", hasLocal);
+
+  if (hasLocal && user) {
+    defaultProfileBadge.textContent = "저장됨 · 로그인";
+  } else if (hasLocal) {
+    defaultProfileBadge.textContent = "브라우저 저장됨";
+  } else if (user) {
+    defaultProfileBadge.textContent = "로그인됨";
+  } else {
+    defaultProfileBadge.textContent = "저장 전";
+  }
+
+  if (defaultProfileLoadBtn) {
+    defaultProfileLoadBtn.disabled = !hasLocal && !user;
+  }
+
+  if (defaultProfileClearBtn) {
+    defaultProfileClearBtn.disabled = !hasLocal && !user;
+  }
+}
+
+async function saveDefaultProfileToCloud(profile) {
+  const ref = getCloudUserDocRef();
+
+  if (!ref || !firebaseSetDoc) {
+    return false;
+  }
+
+  await firebaseSetDoc(ref, {
+    [DEFAULT_PROFILE_FIELD]: {
+      ...profile,
+      cloudSavedAt: firebaseServerTimestamp ? firebaseServerTimestamp() : new Date().toISOString()
+    },
+    updatedAt: firebaseServerTimestamp ? firebaseServerTimestamp() : new Date().toISOString()
+  }, { merge: true });
+
+  return true;
+}
+
+async function loadDefaultProfileFromCloud({ apply = true, silent = false } = {}) {
+  const ref = getCloudUserDocRef();
+
+  if (!ref || !firebaseGetDoc) {
+    return null;
+  }
+
+  try {
+    const snapshot = await firebaseGetDoc(ref);
+    if (!snapshot.exists()) return null;
+
+    const data = snapshot.data();
+    const profile = normalizeDefaultProfile(data[DEFAULT_PROFILE_FIELD]);
+
+    if (!hasDefaultProfileData(profile)) return null;
+
+    saveLocalDefaultProfile(profile);
+    if (apply) {
+      applyDefaultProfileToForm(profile, "Google 계정 기본 정보");
+    } else {
+      renderDefaultProfileState();
+    }
+
+    if (!silent) {
+      setDefaultProfileStatus("Google 계정에 저장된 기본 정보를 불러왔습니다. 수정 후 다시 저장할 수 있습니다.");
+    }
+
+    return profile;
+  } catch (error) {
+    console.error("기본 정보 불러오기 실패", error);
+    if (!silent) {
+      setDefaultProfileStatus(`기본 정보를 불러오지 못했습니다. ${error.message || error.code || "알 수 없음"}`);
+    }
+    return null;
+  }
+}
+
+async function saveDefaultProfileFromForm() {
+  const profile = buildDefaultProfileFromForm();
+
+  if (!profile.birthDate) {
+    setDefaultProfileStatus("생년월일을 입력한 뒤 기본 정보로 저장할 수 있습니다.");
+    statusText.textContent = "생년월일을 입력한 뒤 기본 정보로 저장해주세요.";
+    return;
+  }
+
+  saveLocalDefaultProfile(profile);
+
+  const user = firebaseAuth ? firebaseAuth.currentUser : null;
+  if (!user) {
+    setDefaultProfileStatus("이 브라우저에 기본 정보를 저장했습니다. Google 로그인 후 다시 저장하면 계정에도 저장됩니다.");
+    statusText.textContent = "기본 정보를 이 브라우저에 저장했습니다.";
+    return;
+  }
+
+  try {
+    if (defaultProfileSaveBtn) defaultProfileSaveBtn.disabled = true;
+    setDefaultProfileStatus("Google 계정에 기본 정보를 저장하는 중입니다.");
+    await saveDefaultProfileToCloud(profile);
+    setDefaultProfileStatus("기본 정보를 Google 계정과 이 브라우저에 저장했습니다. 다음 접속부터 자동 입력됩니다.");
+    statusText.textContent = "기본 정보를 Google 계정에 저장했습니다.";
+  } catch (error) {
+    console.error("기본 정보 저장 실패", error);
+    setDefaultProfileStatus(`브라우저에는 저장했지만 Google 계정 저장은 실패했습니다. ${error.message || error.code || "알 수 없음"}`);
+    statusText.textContent = "브라우저 기본 정보 저장은 완료됐지만, 계정 저장은 실패했습니다.";
+  } finally {
+    if (defaultProfileSaveBtn) defaultProfileSaveBtn.disabled = false;
+    renderDefaultProfileState();
+  }
+}
+
+async function loadDefaultProfileToForm() {
+  const user = firebaseAuth ? firebaseAuth.currentUser : null;
+
+  if (user) {
+    const cloudProfile = await loadDefaultProfileFromCloud({ apply: true, silent: false });
+    if (cloudProfile) {
+      statusText.textContent = "Google 계정 기본 정보를 불러왔습니다.";
+      return;
+    }
+  }
+
+  const local = loadLocalDefaultProfile();
+  if (applyDefaultProfileToForm(local, "브라우저 기본 정보")) {
+    statusText.textContent = "브라우저에 저장된 기본 정보를 불러왔습니다.";
+    return;
+  }
+
+  setDefaultProfileStatus("아직 저장된 기본 정보가 없습니다. 생년월일을 입력한 뒤 현재 입력값 저장을 눌러주세요.");
+  statusText.textContent = "아직 저장된 기본 정보가 없습니다.";
+}
+
+async function clearDefaultProfile() {
+  const ok = confirm("저장된 기본 정보를 삭제할까요? Google 계정에 저장된 기본 정보도 함께 비웁니다.");
+  if (!ok) return;
+
+  localStorage.removeItem(DEFAULT_PROFILE_KEY);
+  persistActiveProfileData();
+
+  const ref = getCloudUserDocRef();
+  if (ref && firebaseSetDoc) {
+    try {
+      await firebaseSetDoc(ref, {
+        [DEFAULT_PROFILE_FIELD]: null,
+        updatedAt: firebaseServerTimestamp ? firebaseServerTimestamp() : new Date().toISOString()
+      }, { merge: true });
+      setDefaultProfileStatus("저장된 기본 정보를 삭제했습니다.");
+    } catch (error) {
+      console.error("기본 정보 계정 삭제 실패", error);
+      setDefaultProfileStatus("브라우저 기본 정보는 삭제했지만, Google 계정 삭제는 실패했습니다. 잠시 후 다시 시도해주세요.");
+    }
+  } else {
+    setDefaultProfileStatus("이 브라우저에 저장된 기본 정보를 삭제했습니다.");
+  }
+
+  renderDefaultProfileState();
+  renderDataManager();
+  renderLoginStorageInspector();
+  statusText.textContent = "기본 정보를 삭제했습니다.";
+}
+
+function initDefaultProfile() {
+  renderDefaultProfileState();
+
+  const local = loadLocalDefaultProfile();
+  if (applyDefaultProfileToForm(local, "브라우저 기본 정보")) {
+    setDefaultProfileStatus("브라우저에 저장된 기본 정보를 자동 입력했습니다. 내용이 다르면 수정 후 다시 저장하세요.");
+  }
+}
+
 function renderCloudSaveState() {
   if (!cloudSaveStatus || !cloudSaveUser || !cloudSaveProfile || !cloudSaveLocalState) return;
 
@@ -1365,6 +1626,7 @@ function buildCloudSaveDocument(user) {
     activeProfileName: activeProfile ? activeProfile.name : "기본 프로필",
     profileStore,
     currentStorage: getCurrentLegacyStorage(),
+    [DEFAULT_PROFILE_FIELD]: loadLocalDefaultProfile(),
     summary: getCurrentDataSummary(),
     loginReadyData: buildLoginReadyDataBundle()
   };
@@ -1389,7 +1651,13 @@ function restoreProfileStoreFromCloud(data) {
   localStorage.setItem(PROFILE_STORE_KEY, JSON.stringify(profileStore));
   localStorage.setItem(PROFILE_ACTIVE_KEY, targetProfileId);
   applyProfileStorage(profileStore.profiles[targetProfileId].storage || {});
+
+  const defaultProfile = normalizeDefaultProfile(data[DEFAULT_PROFILE_FIELD]);
+  if (hasDefaultProfileData(defaultProfile) && !localStorage.getItem(DEFAULT_PROFILE_KEY)) {
+    saveLocalDefaultProfile(defaultProfile);
+  }
 }
+
 
 async function refreshCloudServerState() {
   renderCloudSaveState();
@@ -1635,6 +1903,7 @@ async function initFirebaseLoginTest() {
           renderAdminStatsGate("관리자 권한을 확인했습니다.");
           if (isCurrentUserAdminViewer()) refreshAdminStatsDashboard();
           runAutomaticCloudStatusCheck("login");
+          loadDefaultProfileFromCloud({ apply: true, silent: true });
         }
       } catch (redirectError) {
         console.error("Google 리다이렉트 로그인 결과 확인 실패", redirectError);
@@ -1653,11 +1922,13 @@ async function initFirebaseLoginTest() {
         renderAdminStatsGate("관리자 권한을 확인했습니다.");
         if (isCurrentUserAdminViewer()) refreshAdminStatsDashboard();
         runAutomaticCloudStatusCheck("login");
+        loadDefaultProfileFromCloud({ apply: true, silent: true });
       } else {
         renderFirebaseSignedOut();
         setFirebaseLoginStatus("준비 완료");
         renderCloudSaveState();
         renderMobileLoginGuide();
+        renderDefaultProfileState();
         renderAdminStatsGate("로그아웃 상태입니다. 관리자 도구는 로그인 후 볼 수 있습니다.");
         renderAutoCheckWaiting("로그아웃 상태입니다. 다시 로그인하면 서버 상태를 자동 확인합니다.");
         renderSyncChoiceWaiting("로그아웃 상태입니다. 로그인하면 선택형 동기화 추천을 볼 수 있습니다.");
@@ -1709,6 +1980,7 @@ async function handleFirebaseSignIn() {
     renderCloudSaveState();
     renderMobileLoginGuide();
     runAutomaticCloudStatusCheck("login");
+    loadDefaultProfileFromCloud({ apply: true, silent: true });
   } catch (error) {
     console.error("Google 로그인 실패", error);
     const code = error.code || "알 수 없는 오류";
@@ -3990,7 +4262,8 @@ function buildLoginSchemaPreview() {
             [HISTORY_KEY]: "이전 운세 기록",
             [DEX_KEY]: "파트너 도감 데이터",
             [ATTENDANCE_KEY]: "출석 데이터",
-            [CHECKLIST_KEY]: "개발 점검표 데이터"
+            [CHECKLIST_KEY]: "개발 점검표 데이터",
+            [DEFAULT_PROFILE_KEY]: "기본 정보 데이터"
           }
         }
       }
@@ -4196,6 +4469,7 @@ function refreshAllViewsAfterDataChange() {
   renderPartnerDex();
   renderDataManager();
   renderLoginStorageInspector();
+  renderDefaultProfileState();
 }
 
 function importBackupFile(file) {
@@ -4302,6 +4576,18 @@ if (deleteProfileBtn) {
 
 if (form) {
   form.addEventListener("submit", analyzeFortune);
+}
+
+if (defaultProfileSaveBtn) {
+  defaultProfileSaveBtn.addEventListener("click", saveDefaultProfileFromForm);
+}
+
+if (defaultProfileLoadBtn) {
+  defaultProfileLoadBtn.addEventListener("click", loadDefaultProfileToForm);
+}
+
+if (defaultProfileClearBtn) {
+  defaultProfileClearBtn.addEventListener("click", clearDefaultProfile);
 }
 
 if (restartInputBtn) {
@@ -4545,6 +4831,7 @@ if (canvas && ctx) {
 
 clearOldCachesAndWorkers();
 initProfileSystem();
+initDefaultProfile();
 initDevChecklist();
 renderPartner();
 renderFortuneHistory();
