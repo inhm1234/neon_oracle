@@ -5029,35 +5029,53 @@ body {
 }
 
 
-/* V3-14.1: 살아있는 파트너 이동/포즈 테스트 */
+/* V3-14.1.2: 살아있는 파트너 행동 상태 테스트 */
 .oracle-guide.oracle-roaming {
   right: auto;
   bottom: auto;
   transition:
-    left 1.15s cubic-bezier(0.22, 0.78, 0.24, 1),
-    top 1.15s cubic-bezier(0.22, 0.78, 0.24, 1),
-    filter 0.35s ease;
+    left var(--oracle-move-duration, 6.6s) cubic-bezier(0.33, 0, 0.2, 1),
+    top var(--oracle-move-duration, 6.6s) cubic-bezier(0.33, 0, 0.2, 1),
+    filter 0.45s ease;
+}
+
+.oracle-guide.oracle-moving {
+  filter:
+    drop-shadow(0 22px 32px rgba(0, 0, 0, 0.28))
+    drop-shadow(0 0 18px rgba(142, 245, 255, 0.12));
+}
+
+.oracle-guide.oracle-moving .oracle-guide-bubble {
+  opacity: 0.92;
 }
 
 .oracle-guide.oracle-roaming .oracle-guide-orb {
-  transition: transform 0.35s ease;
+  transition: transform 0.7s ease, opacity 0.7s ease;
+}
+
+.oracle-guide.oracle-pose-idle .oracle-guide-orb {
+  animation: oracleCalmBreathe 4.8s infinite ease-in-out;
 }
 
 .oracle-guide.oracle-pose-walk .oracle-guide-orb .partner-character {
-  animation: oracleTinyWalk 0.72s infinite ease-in-out;
+  animation: oracleTinyWalk 1.05s infinite ease-in-out;
+}
+
+.oracle-guide.oracle-pose-walk.oracle-moving .oracle-guide-orb {
+  animation: oracleWalkDrift 2.4s infinite ease-in-out;
 }
 
 .oracle-guide.oracle-pose-fly .oracle-guide-orb {
-  animation: oracleFlyAround 1.85s infinite ease-in-out;
+  animation: oracleFlyAround 2.6s infinite ease-in-out;
 }
 
 .oracle-guide.oracle-pose-fly .character-wing {
   opacity: 0.95;
-  animation: oracleWingFlutter 0.38s infinite ease-in-out;
+  animation: oracleWingFlutter 0.64s infinite ease-in-out;
 }
 
 .oracle-guide.oracle-pose-sleep .oracle-guide-orb {
-  animation: oracleSleepFloat 2.8s infinite ease-in-out;
+  animation: oracleSleepFloat 3.4s infinite ease-in-out;
 }
 
 .oracle-guide.oracle-pose-sleep .character-eye {
@@ -5080,25 +5098,28 @@ body {
   color: rgba(255, 241, 184, 0.82);
   font-size: 0.72rem;
   letter-spacing: 0.08em;
-  animation: oracleZzz 1.8s infinite ease-in-out;
+  animation: oracleZzz 2.1s infinite ease-in-out;
 }
 
 .oracle-guide.oracle-pose-back .oracle-guide-orb .partner-character {
   transform: scale(0.78) rotateY(180deg);
+  transition: transform 0.9s ease;
 }
 
 .oracle-guide.oracle-pose-back .character-face,
 .oracle-guide.oracle-pose-back .character-cheek,
 .oracle-guide.oracle-pose-back .character-mark {
   opacity: 0.18;
+  transition: opacity 0.45s ease;
 }
 
 .oracle-guide.oracle-pose-lie .oracle-guide-orb .partner-character {
   transform: scale(0.78) rotate(74deg);
+  transition: transform 0.9s ease;
 }
 
 .oracle-guide.oracle-pose-lie .oracle-guide-orb {
-  animation: oracleLieFloat 2.4s infinite ease-in-out;
+  animation: oracleLieFloat 3.2s infinite ease-in-out;
 }
 
 .oracle-guide.oracle-pose-shy .character-cheek {
@@ -5107,28 +5128,38 @@ body {
 }
 
 .oracle-guide.oracle-pose-shy .oracle-guide-orb .partner-character {
-  animation: oracleShy 1.2s infinite ease-in-out;
+  animation: oracleShy 1.8s infinite ease-in-out;
 }
 
 .oracle-guide.oracle-pose-peek .oracle-guide-orb .partner-character {
-  animation: oraclePeek 1.15s infinite ease-in-out;
+  animation: oraclePeek 1.65s infinite ease-in-out;
+}
+
+@keyframes oracleCalmBreathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-6px) scale(1.02); }
 }
 
 @keyframes oracleTinyWalk {
   0%, 100% { transform: scale(0.78) translateX(0) rotate(0deg); }
-  25% { transform: scale(0.78) translateX(-3px) rotate(-3deg); }
+  25% { transform: scale(0.78) translateX(-2px) rotate(-2deg); }
   50% { transform: scale(0.78) translateX(0) rotate(0deg); }
-  75% { transform: scale(0.78) translateX(3px) rotate(3deg); }
+  75% { transform: scale(0.78) translateX(2px) rotate(2deg); }
+}
+
+@keyframes oracleWalkDrift {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
 @keyframes oracleFlyAround {
   0%, 100% { transform: translateY(0) rotate(-2deg); }
-  50% { transform: translateY(-16px) rotate(4deg); }
+  50% { transform: translateY(-18px) rotate(5deg); }
 }
 
 @keyframes oracleWingFlutter {
   0%, 100% { transform: scaleY(1) rotate(-16deg); }
-  50% { transform: scaleY(0.72) rotate(-24deg); }
+  50% { transform: scaleY(0.78) rotate(-22deg); }
 }
 
 @keyframes oracleSleepFloat {
@@ -5143,12 +5174,12 @@ body {
 
 @keyframes oracleShy {
   0%, 100% { transform: scale(0.78) rotate(0deg); }
-  50% { transform: scale(0.78) rotate(-6deg); }
+  50% { transform: scale(0.78) rotate(-5deg); }
 }
 
 @keyframes oraclePeek {
   0%, 100% { transform: scale(0.78) translateY(0); }
-  45% { transform: scale(0.78) translateY(-9px); }
+  45% { transform: scale(0.78) translateY(-8px); }
 }
 
 @keyframes oracleZzz {
@@ -5173,6 +5204,14 @@ body {
   .oracle-guide.oracle-pose-shy .oracle-guide-orb .partner-character,
   .oracle-guide.oracle-pose-peek .oracle-guide-orb .partner-character {
     transform: scale(0.66);
+    animation: none;
+  }
+
+  .oracle-guide.oracle-pose-idle .oracle-guide-orb,
+  .oracle-guide.oracle-pose-fly .oracle-guide-orb,
+  .oracle-guide.oracle-pose-sleep .oracle-guide-orb,
+  .oracle-guide.oracle-pose-lie .oracle-guide-orb,
+  .oracle-guide.oracle-pose-walk.oracle-moving .oracle-guide-orb {
     animation: none;
   }
 }

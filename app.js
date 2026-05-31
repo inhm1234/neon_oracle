@@ -213,7 +213,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-14.1.1";
+const DEV_VERSION = "V3-14.1.2";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -270,8 +270,10 @@ let firebaseServerTimestamp = null;
 let firebaseIncrement = null;
 let firebaseLoginReady = false;
 let oracleRoamTimer = null;
+let oracleActionTimer = null;
 let oracleRoamIndex = 0;
 let oracleLastImportantAt = 0;
+let oracleIsMoving = false;
 let isProfileSystemReady = false;
 let lastSyncDecision = null;
 
@@ -2169,92 +2171,225 @@ function setOraclePose(pose = "idle") {
 
 function resetOracleRoamingPosition() {
   if (!oracleGuide) return;
-  oracleGuide.classList.remove("oracle-roaming");
+  oracleIsMoving = false;
+  oracleGuide.classList.remove("oracle-roaming", "oracle-moving");
   oracleGuide.style.left = "";
   oracleGuide.style.top = "";
   oracleGuide.style.right = "";
   oracleGuide.style.bottom = "";
+  oracleGuide.style.removeProperty("--oracle-move-duration");
   setOraclePose("idle");
 }
 
-function moveOracleGuideTo(point) {
-  if (!oracleGuide || !isOracleRoamingAllowed()) {
-    resetOracleRoamingPosition();
-    return;
-  }
+function lockOracleCurrentPosition() {
+  if (!oracleGuide) return null;
 
   const rect = oracleGuide.getBoundingClientRect();
+  oracleGuide.classList.add("oracle-roaming");
+  oracleGuide.style.left = `${Math.round(rect.left)}px`;
+  oracleGuide.style.top = `${Math.round(rect.top)}px`;
+  oracleGuide.style.right = "auto";
+  oracleGuide.style.bottom = "auto";
+  return rect;
+}
+
+function getOracleTargetPosition(point) {
+  const rect = oracleGuide ? oracleGuide.getBoundingClientRect() : { width: 300, height: 150 };
   const width = rect.width || 300;
   const height = rect.height || 150;
   const padding = 22;
   const maxX = Math.max(padding, window.innerWidth - width - padding);
   const maxY = Math.max(padding, window.innerHeight - height - padding);
-  const x = clampOracleValue(Math.round(maxX * point.x), padding, maxX);
-  const y = clampOracleValue(Math.round(maxY * point.y), padding, maxY);
 
-  oracleGuide.classList.add("oracle-roaming");
-  oracleGuide.style.left = `${x}px`;
-  oracleGuide.style.top = `${y}px`;
-  oracleGuide.style.right = "auto";
-  oracleGuide.style.bottom = "auto";
-  setOraclePose(point.pose || "idle");
-
-  if (point.message && Date.now() - oracleLastImportantAt > 9000) {
-    setOracleGuideMessage(point.message, point.title || "파트너 오라클", "talk");
-  }
+  return {
+    x: clampOracleValue(Math.round(maxX * point.x), padding, maxX),
+    y: clampOracleValue(Math.round(maxY * point.y), padding, maxY)
+  };
 }
 
-function getOracleRoamPoints() {
+function sayOracleAmbient(message, title = "파트너 오라클", minGap = 13000) {
+  if (!message) return;
+  if (Date.now() - oracleLastImportantAt < minGap) return;
+  setOracleGuideMessage(message, title, "talk");
+}
+
+function moveOracleGuideTo(point, options = {}) {
+  if (!oracleGuide || !isOracleRoamingAllowed()) {
+    resetOracleRoamingPosition();
+    return 0;
+  }
+
+  const duration = options.duration || point.duration || 5600;
+  const travelPose = options.travelPose || point.travelPose || point.pose || "walk";
+  const finishPose = options.finishPose || point.finishPose || "idle";
+  const target = getOracleTargetPosition(point);
+
+  window.clearTimeout(oracleActionTimer);
+  lockOracleCurrentPosition();
+
+  oracleIsMoving = true;
+  oracleGuide.classList.add("oracle-roaming", "oracle-moving");
+  oracleGuide.style.setProperty("--oracle-move-duration", `${duration}ms`);
+  setOraclePose(travelPose);
+
+  if (point.message) {
+    sayOracleAmbient(point.message, point.title || "파트너 오라클", 12000);
+  }
+
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      if (!oracleGuide || !isOracleRoamingAllowed()) return;
+      oracleGuide.style.left = `${target.x}px`;
+      oracleGuide.style.top = `${target.y}px`;
+      oracleGuide.style.right = "auto";
+      oracleGuide.style.bottom = "auto";
+    });
+  });
+
+  oracleActionTimer = window.setTimeout(() => {
+    if (!oracleGuide) return;
+    oracleIsMoving = false;
+    oracleGuide.classList.remove("oracle-moving");
+    setOraclePose(finishPose);
+  }, duration + 120);
+
+  return duration;
+}
+
+function getOracleRoamActions() {
   return [
-    { x: 0.84, y: 0.78, pose: "idle", message: "여기서 조용히 지켜보고 있을게요." },
-    { x: 0.08, y: 0.62, pose: "walk", message: "잠깐 산책 중이에요. 입력하면 바로 읽어드릴게요." },
-    { x: 0.78, y: 0.16, pose: "fly", message: "위쪽 기운도 살짝 보고 왔어요." },
-    { x: 0.10, y: 0.22, pose: "peek", message: "혹시 오늘 운세 볼 준비 됐나요?" },
-    { x: 0.70, y: 0.52, pose: "back", message: "잠깐 뒤돌아서 신호를 듣고 있어요." },
-    { x: 0.18, y: 0.76, pose: "sleep", message: "조금 졸려도 운세는 잘 읽을 수 있어요..." },
-    { x: 0.58, y: 0.12, pose: "shy", message: "오늘은 왠지 좋은 말부터 해주고 싶어요." },
-    { x: 0.48, y: 0.80, pose: "lie", message: "잠깐 누워서 별빛을 읽는 중이에요." }
+    {
+      type: "stay",
+      pose: "idle",
+      duration: 7200,
+      message: "저는 여기서 조용히 기다리고 있을게요."
+    },
+    {
+      type: "stay",
+      pose: "peek",
+      duration: 5600,
+      message: "혹시 오늘 운세 볼 준비 됐나요?"
+    },
+    {
+      type: "move",
+      x: 0.10,
+      y: 0.62,
+      travelPose: "walk",
+      finishPose: "idle",
+      duration: 6400,
+      waitAfter: 6200,
+      message: "천천히 걸어가는 중이에요."
+    },
+    {
+      type: "stay",
+      pose: "back",
+      duration: 6200,
+      message: "잠깐 뒤돌아서 오늘의 신호를 듣고 있어요."
+    },
+    {
+      type: "move",
+      x: 0.78,
+      y: 0.17,
+      travelPose: "fly",
+      finishPose: "shy",
+      duration: 7200,
+      waitAfter: 6500,
+      message: "위쪽 별빛도 살짝 보고 올게요."
+    },
+    {
+      type: "stay",
+      pose: "sleep",
+      duration: 8200,
+      message: "조금 졸려도 운세는 잘 읽을 수 있어요..."
+    },
+    {
+      type: "move",
+      x: 0.18,
+      y: 0.75,
+      travelPose: "walk",
+      finishPose: "lie",
+      duration: 6900,
+      waitAfter: 7600,
+      message: "이번엔 아래쪽으로 천천히 가볼게요."
+    },
+    {
+      type: "stay",
+      pose: "shy",
+      duration: 5800,
+      message: "오늘은 왠지 좋은 말부터 해주고 싶어요."
+    },
+    {
+      type: "move",
+      x: 0.82,
+      y: 0.74,
+      travelPose: "fly",
+      finishPose: "idle",
+      duration: 7600,
+      waitAfter: 7200,
+      message: "다시 가까운 곳으로 돌아갈게요."
+    }
   ];
 }
 
-function roamOracleGuideOnce() {
+function runOracleRoamAction() {
+  if (!oracleGuide) return;
+
   if (!isOracleRoamingAllowed()) {
     resetOracleRoamingPosition();
+    oracleRoamTimer = window.setTimeout(runOracleRoamAction, 4200);
     return;
   }
 
-  const points = getOracleRoamPoints();
-  oracleRoamIndex = (oracleRoamIndex + 1) % points.length;
-  const next = points[oracleRoamIndex];
-  moveOracleGuideTo(next);
+  const actions = getOracleRoamActions();
+  const action = actions[oracleRoamIndex % actions.length];
+  oracleRoamIndex += 1;
+
+  let nextDelay = action.duration || 7000;
+
+  if (action.type === "move") {
+    nextDelay = moveOracleGuideTo(action, action) + (action.waitAfter || 6500);
+  } else {
+    lockOracleCurrentPosition();
+    oracleGuide.classList.remove("oracle-moving");
+    oracleIsMoving = false;
+    setOraclePose(action.pose || "idle");
+    sayOracleAmbient(action.message, action.title || "파트너 오라클", 12500);
+  }
+
+  oracleRoamTimer = window.setTimeout(runOracleRoamAction, Math.max(5200, nextDelay));
+}
+
+function roamOracleGuideOnce() {
+  runOracleRoamAction();
 }
 
 function initOracleRoaming() {
   if (!oracleGuide) return;
 
-  const startRoaming = () => {
-    if (isOracleRoamingAllowed()) {
-      const points = getOracleRoamPoints();
-      moveOracleGuideTo(points[0]);
-    } else {
+  const restartRoaming = () => {
+    window.clearTimeout(oracleRoamTimer);
+    window.clearTimeout(oracleActionTimer);
+
+    if (!isOracleRoamingAllowed()) {
       resetOracleRoamingPosition();
+      oracleRoamTimer = window.setTimeout(restartRoaming, 4200);
+      return;
     }
+
+    lockOracleCurrentPosition();
+    setOraclePose("idle");
+    oracleRoamTimer = window.setTimeout(runOracleRoamAction, 3200);
   };
 
-  window.addEventListener("resize", startRoaming);
+  window.addEventListener("resize", restartRoaming);
   window.addEventListener("scroll", () => {
-    if (isOracleRoamingAllowed() && Math.random() < 0.16) {
+    if (!isOracleRoamingAllowed() || oracleIsMoving) return;
+    if (Math.random() < 0.08) {
       setOraclePose("peek");
     }
   }, { passive: true });
 
-  startRoaming();
-  window.setTimeout(startRoaming, 600);
-  window.setTimeout(roamOracleGuideOnce, 1400);
-  window.setTimeout(roamOracleGuideOnce, 3200);
-
-  if (oracleRoamTimer) window.clearInterval(oracleRoamTimer);
-  oracleRoamTimer = window.setInterval(roamOracleGuideOnce, 5200);
+  restartRoaming();
 }
 
 function initOracleGuide() {
