@@ -5027,3 +5027,162 @@ body {
     width: 100%;
   }
 }
+
+
+/* V3-14.1: 살아있는 파트너 이동/포즈 테스트 */
+.oracle-guide.oracle-roaming {
+  right: auto;
+  bottom: auto;
+  transition:
+    left 1.15s cubic-bezier(0.22, 0.78, 0.24, 1),
+    top 1.15s cubic-bezier(0.22, 0.78, 0.24, 1),
+    filter 0.35s ease;
+}
+
+.oracle-guide.oracle-roaming .oracle-guide-orb {
+  transition: transform 0.35s ease;
+}
+
+.oracle-guide.oracle-pose-walk .oracle-guide-orb .partner-character {
+  animation: oracleTinyWalk 0.72s infinite ease-in-out;
+}
+
+.oracle-guide.oracle-pose-fly .oracle-guide-orb {
+  animation: oracleFlyAround 1.85s infinite ease-in-out;
+}
+
+.oracle-guide.oracle-pose-fly .character-wing {
+  opacity: 0.95;
+  animation: oracleWingFlutter 0.38s infinite ease-in-out;
+}
+
+.oracle-guide.oracle-pose-sleep .oracle-guide-orb {
+  animation: oracleSleepFloat 2.8s infinite ease-in-out;
+}
+
+.oracle-guide.oracle-pose-sleep .character-eye {
+  animation: none;
+  transform: scaleY(0.12);
+}
+
+.oracle-guide.oracle-pose-sleep .character-mouth {
+  width: 14px;
+  height: 4px;
+  border-bottom-width: 2px;
+  opacity: 0.7;
+}
+
+.oracle-guide.oracle-pose-sleep .oracle-guide-bubble::after {
+  content: "Zzz";
+  position: absolute;
+  right: 13px;
+  top: -17px;
+  color: rgba(255, 241, 184, 0.82);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  animation: oracleZzz 1.8s infinite ease-in-out;
+}
+
+.oracle-guide.oracle-pose-back .oracle-guide-orb .partner-character {
+  transform: scale(0.78) rotateY(180deg);
+}
+
+.oracle-guide.oracle-pose-back .character-face,
+.oracle-guide.oracle-pose-back .character-cheek,
+.oracle-guide.oracle-pose-back .character-mark {
+  opacity: 0.18;
+}
+
+.oracle-guide.oracle-pose-lie .oracle-guide-orb .partner-character {
+  transform: scale(0.78) rotate(74deg);
+}
+
+.oracle-guide.oracle-pose-lie .oracle-guide-orb {
+  animation: oracleLieFloat 2.4s infinite ease-in-out;
+}
+
+.oracle-guide.oracle-pose-shy .character-cheek {
+  transform: scale(1.35);
+  background: rgba(255, 117, 178, 0.58);
+}
+
+.oracle-guide.oracle-pose-shy .oracle-guide-orb .partner-character {
+  animation: oracleShy 1.2s infinite ease-in-out;
+}
+
+.oracle-guide.oracle-pose-peek .oracle-guide-orb .partner-character {
+  animation: oraclePeek 1.15s infinite ease-in-out;
+}
+
+@keyframes oracleTinyWalk {
+  0%, 100% { transform: scale(0.78) translateX(0) rotate(0deg); }
+  25% { transform: scale(0.78) translateX(-3px) rotate(-3deg); }
+  50% { transform: scale(0.78) translateX(0) rotate(0deg); }
+  75% { transform: scale(0.78) translateX(3px) rotate(3deg); }
+}
+
+@keyframes oracleFlyAround {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-16px) rotate(4deg); }
+}
+
+@keyframes oracleWingFlutter {
+  0%, 100% { transform: scaleY(1) rotate(-16deg); }
+  50% { transform: scaleY(0.72) rotate(-24deg); }
+}
+
+@keyframes oracleSleepFloat {
+  0%, 100% { transform: translateY(0) rotate(-2deg); opacity: 0.95; }
+  50% { transform: translateY(7px) rotate(2deg); opacity: 0.82; }
+}
+
+@keyframes oracleLieFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+
+@keyframes oracleShy {
+  0%, 100% { transform: scale(0.78) rotate(0deg); }
+  50% { transform: scale(0.78) rotate(-6deg); }
+}
+
+@keyframes oraclePeek {
+  0%, 100% { transform: scale(0.78) translateY(0); }
+  45% { transform: scale(0.78) translateY(-9px); }
+}
+
+@keyframes oracleZzz {
+  0% { opacity: 0; transform: translateY(5px) scale(0.9); }
+  35% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-8px) scale(1.08); }
+}
+
+@media (max-width: 1080px) {
+  .oracle-guide.oracle-roaming {
+    left: 50% !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: 14px !important;
+    transform: translateX(-50%);
+    transition: none;
+  }
+
+  .oracle-guide.oracle-pose-back .oracle-guide-orb .partner-character,
+  .oracle-guide.oracle-pose-lie .oracle-guide-orb .partner-character,
+  .oracle-guide.oracle-pose-walk .oracle-guide-orb .partner-character,
+  .oracle-guide.oracle-pose-shy .oracle-guide-orb .partner-character,
+  .oracle-guide.oracle-pose-peek .oracle-guide-orb .partner-character {
+    transform: scale(0.66);
+    animation: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .oracle-guide.oracle-pose-back .oracle-guide-orb .partner-character,
+  .oracle-guide.oracle-pose-lie .oracle-guide-orb .partner-character,
+  .oracle-guide.oracle-pose-walk .oracle-guide-orb .partner-character,
+  .oracle-guide.oracle-pose-shy .oracle-guide-orb .partner-character,
+  .oracle-guide.oracle-pose-peek .oracle-guide-orb .partner-character {
+    transform: scale(0.58);
+  }
+}

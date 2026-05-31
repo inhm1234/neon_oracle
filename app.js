@@ -213,7 +213,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-14.0";
+const DEV_VERSION = "V3-14.1";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -269,6 +269,8 @@ let firebaseSetDoc = null;
 let firebaseServerTimestamp = null;
 let firebaseIncrement = null;
 let firebaseLoginReady = false;
+let oracleRoamTimer = null;
+let oracleLastImportantAt = 0;
 let isProfileSystemReady = false;
 let lastSyncDecision = null;
 
@@ -2090,6 +2092,10 @@ function setOracleGuideMessage(message, title = "파트너 오라클", state = "
     oracleGuide.classList.remove("oracle-idle", "oracle-thinking", "oracle-success", "oracle-caution", "oracle-talk");
     oracleGuide.classList.add(`oracle-${state}`);
   }
+
+  if (["thinking", "success", "caution"].includes(state)) {
+    oracleLastImportantAt = Date.now();
+  }
 }
 
 function updateOracleGuideCharacter() {
@@ -2127,6 +2133,126 @@ function setOracleGuideFromResult(result, partnerReaction = null) {
   }
 }
 
+
+function clampOracleValue(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function isOracleRoamingAllowed() {
+  if (!oracleGuide) return false;
+  if (window.matchMedia && window.matchMedia("(max-width: 1080px)").matches) return false;
+  if (document.body.classList.contains("scanning")) return false;
+  if (oracleGuide.classList.contains("oracle-thinking")) return false;
+  return true;
+}
+
+function clearOraclePose() {
+  if (!oracleGuide) return;
+  oracleGuide.classList.remove(
+    "oracle-pose-idle",
+    "oracle-pose-walk",
+    "oracle-pose-fly",
+    "oracle-pose-sleep",
+    "oracle-pose-back",
+    "oracle-pose-lie",
+    "oracle-pose-shy",
+    "oracle-pose-peek"
+  );
+}
+
+function setOraclePose(pose = "idle") {
+  if (!oracleGuide) return;
+  clearOraclePose();
+  oracleGuide.classList.add(`oracle-pose-${pose}`);
+}
+
+function resetOracleRoamingPosition() {
+  if (!oracleGuide) return;
+  oracleGuide.classList.remove("oracle-roaming");
+  oracleGuide.style.left = "";
+  oracleGuide.style.top = "";
+  oracleGuide.style.right = "";
+  oracleGuide.style.bottom = "";
+  setOraclePose("idle");
+}
+
+function moveOracleGuideTo(point) {
+  if (!oracleGuide || !isOracleRoamingAllowed()) {
+    resetOracleRoamingPosition();
+    return;
+  }
+
+  const rect = oracleGuide.getBoundingClientRect();
+  const width = rect.width || 300;
+  const height = rect.height || 150;
+  const padding = 22;
+  const maxX = Math.max(padding, window.innerWidth - width - padding);
+  const maxY = Math.max(padding, window.innerHeight - height - padding);
+  const x = clampOracleValue(Math.round(maxX * point.x), padding, maxX);
+  const y = clampOracleValue(Math.round(maxY * point.y), padding, maxY);
+
+  oracleGuide.classList.add("oracle-roaming");
+  oracleGuide.style.left = `${x}px`;
+  oracleGuide.style.top = `${y}px`;
+  oracleGuide.style.right = "auto";
+  oracleGuide.style.bottom = "auto";
+  setOraclePose(point.pose || "idle");
+
+  if (point.message && Date.now() - oracleLastImportantAt > 9000) {
+    setOracleGuideMessage(point.message, point.title || "파트너 오라클", "talk");
+  }
+}
+
+function getOracleRoamPoints() {
+  return [
+    { x: 0.84, y: 0.78, pose: "idle", message: "여기서 조용히 지켜보고 있을게요." },
+    { x: 0.08, y: 0.62, pose: "walk", message: "잠깐 산책 중이에요. 입력하면 바로 읽어드릴게요." },
+    { x: 0.78, y: 0.16, pose: "fly", message: "위쪽 기운도 살짝 보고 왔어요." },
+    { x: 0.10, y: 0.22, pose: "peek", message: "혹시 오늘 운세 볼 준비 됐나요?" },
+    { x: 0.70, y: 0.52, pose: "back", message: "잠깐 뒤돌아서 신호를 듣고 있어요." },
+    { x: 0.18, y: 0.76, pose: "sleep", message: "조금 졸려도 운세는 잘 읽을 수 있어요..." },
+    { x: 0.58, y: 0.12, pose: "shy", message: "오늘은 왠지 좋은 말부터 해주고 싶어요." },
+    { x: 0.48, y: 0.80, pose: "lie", message: "잠깐 누워서 별빛을 읽는 중이에요." }
+  ];
+}
+
+function roamOracleGuideOnce() {
+  if (!isOracleRoamingAllowed()) {
+    resetOracleRoamingPosition();
+    return;
+  }
+
+  const points = getOracleRoamPoints();
+  const next = points[Math.floor(Math.random() * points.length)];
+  moveOracleGuideTo(next);
+}
+
+function initOracleRoaming() {
+  if (!oracleGuide) return;
+
+  const startRoaming = () => {
+    if (isOracleRoamingAllowed()) {
+      const points = getOracleRoamPoints();
+      moveOracleGuideTo(points[0]);
+    } else {
+      resetOracleRoamingPosition();
+    }
+  };
+
+  window.addEventListener("resize", startRoaming);
+  window.addEventListener("scroll", () => {
+    if (isOracleRoamingAllowed() && Math.random() < 0.16) {
+      setOraclePose("peek");
+    }
+  }, { passive: true });
+
+  startRoaming();
+  window.setTimeout(startRoaming, 600);
+
+  if (oracleRoamTimer) window.clearInterval(oracleRoamTimer);
+  oracleRoamTimer = window.setInterval(roamOracleGuideOnce, 7600);
+}
+
 function initOracleGuide() {
   updateOracleGuideCharacter();
   setOracleGuideMessage("정보를 입력하면 제가 오늘의 흐름을 읽어드릴게요.", "파트너 오라클", "idle");
@@ -2140,9 +2266,17 @@ function initOracleGuide() {
 
   inputHints.forEach(({ el, message }) => {
     if (!el) return;
-    el.addEventListener("focus", () => setOracleGuideMessage(message, "파트너 오라클", "talk"));
-    el.addEventListener("change", () => setOracleGuideMessage("좋아요. 수정한 정보는 운세를 보면 자동으로 기억해둘게요.", "파트너 오라클", "talk"));
+    el.addEventListener("focus", () => {
+      setOraclePose("peek");
+      setOracleGuideMessage(message, "파트너 오라클", "talk");
+    });
+    el.addEventListener("change", () => {
+      setOraclePose("shy");
+      setOracleGuideMessage("좋아요. 수정한 정보는 운세를 보면 자동으로 기억해둘게요.", "파트너 오라클", "talk");
+    });
   });
+
+  initOracleRoaming();
 }
 
 const relationMeta = {
@@ -3472,6 +3606,7 @@ function renderResult(result, partnerReaction = null) {
   finalAdvice.textContent = result.fortunes.advice;
 
   renderPartnerInsight(partnerReaction);
+  setOraclePose("shy");
   setOracleGuideFromResult(result, partnerReaction);
   resultCard.classList.remove("hidden");
 }
@@ -3705,6 +3840,7 @@ async function analyzeFortune(event) {
   analyzeBtn.disabled = true;
   resultCard.classList.add("hidden");
   renderPartnerInsight(null);
+  setOraclePose("fly");
   setOracleGuideMessage("잠깐만요. 오늘의 흐름을 차근차근 읽어보고 있어요.", "운세 분석 중", "thinking");
   if (oracleGuideOrb) oracleGuideOrb.classList.add("analyzing");
   document.body.classList.add("scanning");
