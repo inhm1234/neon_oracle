@@ -11,6 +11,13 @@ const defaultProfileStatus = document.getElementById("defaultProfileStatus");
 const defaultProfileSaveBtn = document.getElementById("defaultProfileSaveBtn");
 const defaultProfileLoadBtn = document.getElementById("defaultProfileLoadBtn");
 const defaultProfileClearBtn = document.getElementById("defaultProfileClearBtn");
+const oracleGuide = document.getElementById("oracleGuide");
+const oracleGuideOrb = document.getElementById("oracleGuideOrb");
+const oracleGuideSymbol = document.getElementById("oracleGuideSymbol");
+const oracleGuideTitle = document.getElementById("oracleGuideTitle");
+const oracleGuideMessage = document.getElementById("oracleGuideMessage");
+const oracleResultNarration = document.getElementById("oracleResultNarration");
+const oracleResultText = document.getElementById("oracleResultText");
 
 const statusText = document.getElementById("statusText");
 const resultCard = document.getElementById("resultCard");
@@ -206,7 +213,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-13.1";
+const DEV_VERSION = "V3-14.0";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -1958,6 +1965,7 @@ async function initFirebaseLoginTest() {
     authModule.onAuthStateChanged(firebaseAuth, (user) => {
       if (user) {
         renderFirebaseSignedIn(user);
+        setOracleGuideMessage("로그인 확인됐어요. 저장된 기본 정보가 있으면 제가 자동으로 불러와둘게요.", "로그인 완료", "talk");
         setFirebaseLoginStatus("로그인 완료");
         setFirebaseLoginMessage("Google 로그인 연결이 정상 작동합니다. 이제 서버 저장 테스트를 진행할 수 있습니다.");
         renderCloudSaveState();
@@ -2069,6 +2077,72 @@ async function handleFirebaseSignOut() {
   } finally {
     if (firebaseSignOutBtn) firebaseSignOutBtn.disabled = false;
   }
+}
+
+
+function setOracleGuideMessage(message, title = "파트너 오라클", state = "idle") {
+  if (!oracleGuideMessage) return;
+
+  if (oracleGuideTitle) oracleGuideTitle.textContent = title;
+  oracleGuideMessage.textContent = message;
+
+  if (oracleGuide) {
+    oracleGuide.classList.remove("oracle-idle", "oracle-thinking", "oracle-success", "oracle-caution", "oracle-talk");
+    oracleGuide.classList.add(`oracle-${state}`);
+  }
+}
+
+function updateOracleGuideCharacter() {
+  if (!oracleGuideOrb) return;
+
+  const partner = typeof loadPartner === "function" ? loadPartner() : null;
+  const template = partner ? getPartnerTemplate(partner.id) : getPartnerTemplate("lumy");
+  const level = partner ? getLevel(partner.exp || 0) : 5;
+  const stageIndex = getStageIndex(level);
+  const moodClass = partner && partner.mood ? ` mood-${partner.mood}` : " mood-warm";
+
+  oracleGuideOrb.className = `oracle-guide-orb partner-orb partner-${template.id} stage-${stageIndex + 1}${moodClass}`;
+  if (oracleGuideSymbol) {
+    oracleGuideSymbol.textContent = template.symbols[stageIndex] || template.symbols[0];
+  }
+  if (oracleGuideTitle) {
+    oracleGuideTitle.textContent = partner ? template.name : "파트너 오라클";
+  }
+}
+
+function setOracleGuideFromResult(result, partnerReaction = null) {
+  if (!result) return;
+
+  const partner = typeof loadPartner === "function" ? loadPartner() : null;
+  const template = partner ? getPartnerTemplate(partner.id) : null;
+  const title = template ? template.name : "파트너 오라클";
+  const summary = result.summary ? result.summary.message : result.fortunes.advice;
+  const reactionText = partnerReaction && partnerReaction.text ? partnerReaction.text : summary;
+  const message = `${result.summary ? result.summary.flow : "오늘의 흐름을 읽었어요."} ${reactionText}`;
+
+  setOracleGuideMessage(message, title, "success");
+
+  if (oracleResultText) {
+    oracleResultText.textContent = `${title}: ${result.summary ? result.summary.flow : "오늘의 흐름을 정리했어요."} 오늘의 핵심은 “${result.summary ? result.summary.keyword : "균형"}”이에요. ${summary}`;
+  }
+}
+
+function initOracleGuide() {
+  updateOracleGuideCharacter();
+  setOracleGuideMessage("정보를 입력하면 제가 오늘의 흐름을 읽어드릴게요.", "파트너 오라클", "idle");
+
+  const inputHints = [
+    { el: userNameEl, message: "닉네임은 선택이에요. 저장된 정보가 있으면 다음부터 자동으로 채워드릴게요." },
+    { el: genderEl, message: "성별은 선택하지 않아도 괜찮아요. 더 편한 방식으로 운세를 볼 수 있어요." },
+    { el: birthDateEl, message: "생년월일은 오늘의 운세 흐름을 읽는 가장 중요한 정보예요." },
+    { el: birthTimeEl, message: "태어난 시간을 몰라도 괜찮아요. 모름으로 두면 간이 분석으로 읽어드릴게요." }
+  ];
+
+  inputHints.forEach(({ el, message }) => {
+    if (!el) return;
+    el.addEventListener("focus", () => setOracleGuideMessage(message, "파트너 오라클", "talk"));
+    el.addEventListener("change", () => setOracleGuideMessage("좋아요. 수정한 정보는 운세를 보면 자동으로 기억해둘게요.", "파트너 오라클", "talk"));
+  });
 }
 
 const relationMeta = {
@@ -2935,6 +3009,7 @@ function renderPartner() {
     renderPartnerDex();
     renderAttendance();
     renderDataManager();
+    updateOracleGuideCharacter();
     return;
   }
 
@@ -2969,6 +3044,7 @@ function renderPartner() {
   partnerExpFill.style.width = `${expPercent}%`;
 
   partnerSpeech.textContent = partner.speech || randomItem(template.greetings);
+  updateOracleGuideCharacter();
   renderPartnerMoodHint(partner);
   renderPartnerDex();
   renderAttendance();
@@ -3396,6 +3472,7 @@ function renderResult(result, partnerReaction = null) {
   finalAdvice.textContent = result.fortunes.advice;
 
   renderPartnerInsight(partnerReaction);
+  setOracleGuideFromResult(result, partnerReaction);
   resultCard.classList.remove("hidden");
 }
 
@@ -3628,6 +3705,8 @@ async function analyzeFortune(event) {
   analyzeBtn.disabled = true;
   resultCard.classList.add("hidden");
   renderPartnerInsight(null);
+  setOracleGuideMessage("잠깐만요. 오늘의 흐름을 차근차근 읽어보고 있어요.", "운세 분석 중", "thinking");
+  if (oracleGuideOrb) oracleGuideOrb.classList.add("analyzing");
   document.body.classList.add("scanning");
 
   try {
@@ -3649,18 +3728,22 @@ async function analyzeFortune(event) {
     }
 
     statusText.textContent = "출생 정보를 읽는 중...";
+    setOracleGuideMessage("먼저 입력한 정보를 확인하고 있어요. 오늘의 운세 기준점을 잡는 중이에요.", "운세 분석 중", "thinking");
     await wait(450);
 
     statusText.textContent = "파트너 오라클과 연결하는 중...";
+    setOracleGuideMessage("이제 제가 직접 오늘의 기운을 읽어볼게요. 조금만 기다려주세요.", "파트너 연결 중", "thinking");
     await wait(450);
 
     statusText.textContent = "천간·지지 흐름을 계산하는 중...";
     await wait(550);
 
     statusText.textContent = "오늘의 오행 균형을 분석하는 중...";
+    setOracleGuideMessage("오늘은 어떤 부분을 조심하면 좋을지 살펴보고 있어요.", "운세 분석 중", "thinking");
     await wait(550);
 
     statusText.textContent = "AI 운세 리포트를 생성하는 중...";
+    setOracleGuideMessage("거의 다 읽었어요. 곧 제가 핵심부터 알려드릴게요.", "결과 정리 중", "thinking");
     await wait(450);
 
     const result = makeResult(profile);
@@ -3679,9 +3762,11 @@ async function analyzeFortune(event) {
   } catch (error) {
     console.error(error);
     statusText.textContent = "분석 중 오류가 생겼습니다. 파일을 새로 덮어씌운 뒤 Ctrl + F5로 새로고침해주세요.";
+    setOracleGuideMessage("앗, 읽는 중에 잠깐 문제가 생겼어요. 새로고침 후 다시 시도해볼까요?", "분석 오류", "caution");
   } finally {
     document.body.classList.remove("scanning");
-    partnerOrb.classList.remove("analyzing");
+    if (partnerOrb) partnerOrb.classList.remove("analyzing");
+    if (oracleGuideOrb) oracleGuideOrb.classList.remove("analyzing");
     analyzeBtn.disabled = false;
   }
 }
@@ -4874,6 +4959,7 @@ if (canvas && ctx) {
 }
 
 clearOldCachesAndWorkers();
+initOracleGuide();
 initProfileSystem();
 initDefaultProfile();
 initDevChecklist();

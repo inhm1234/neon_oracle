@@ -45,11 +45,39 @@
 }
 </script>
 <link href="manifest.json" rel="manifest"/>
-<link href="./style.css?v=20260601-v313-test" rel="stylesheet"/>
+<link href="./style.css?v=20260601-v3140-test" rel="stylesheet"/>
 </head>
 <body>
 <canvas id="matrix"></canvas>
 <div class="background-glow"></div>
+<div class="oracle-guide" id="oracleGuide" aria-live="polite">
+  <div class="oracle-guide-orb partner-orb partner-lumy stage-2" id="oracleGuideOrb" aria-hidden="true">
+    <div class="partner-aura"></div>
+    <div class="partner-ring"></div>
+    <div class="partner-character">
+      <div class="character-halo"></div>
+      <div class="character-wing character-wing-left"></div>
+      <div class="character-wing character-wing-right"></div>
+      <div class="character-ear character-ear-left"></div>
+      <div class="character-ear character-ear-right"></div>
+      <div class="character-core">
+        <div class="character-mark" id="oracleGuideSymbol">✦</div>
+        <div class="character-face">
+          <span class="character-eye character-eye-left"></span>
+          <span class="character-eye character-eye-right"></span>
+          <span class="character-mouth"></span>
+        </div>
+        <div class="character-cheek character-cheek-left"></div>
+        <div class="character-cheek character-cheek-right"></div>
+      </div>
+      <div class="character-shadow"></div>
+    </div>
+  </div>
+  <div class="oracle-guide-bubble" id="oracleGuideBubble">
+    <span id="oracleGuideTitle">파트너 오라클</span>
+    <p id="oracleGuideMessage">정보를 입력하면 제가 오늘의 흐름을 읽어드릴게요.</p>
+  </div>
+</div>
 <main class="container">
 <div class="brand-label">AI ORACLE FORTUNE SYSTEM</div><h1 class="title" data-text="오늘의 운세코드">오늘의 운세코드</h1><p class="subtitle">
     생년월일과 태어난 시간을 바탕으로 오늘의 흐름을 가볍게 분석합니다.
@@ -175,6 +203,10 @@
 </div>
 <h2 id="resultTitle">오늘의 운세 분석 결과</h2>
 <div class="base-info" id="baseInfo"></div>
+<div class="oracle-result-narration" id="oracleResultNarration">
+<span>파트너가 읽어주는 오늘의 운세</span>
+<p id="oracleResultText">운세를 분석하면 파트너가 먼저 핵심을 읽어드립니다.</p>
+</div>
 <div class="today-summary-card" aria-label="오늘의 핵심 요약 카드">
 <div class="today-summary-head">
 <span class="small-label">TODAY SUMMARY</span>

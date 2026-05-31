@@ -4715,3 +4715,315 @@ button:disabled {
     width: 100%;
   }
 }
+
+/* V3-14.0: 캐릭터 상시 노출 + 사용자 화면 단순화 */
+body {
+  padding-bottom: 42px;
+}
+
+.oracle-guide {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 80;
+  width: min(300px, calc(100vw - 32px));
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  gap: 10px;
+  align-items: end;
+  pointer-events: none;
+  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.26));
+}
+
+.oracle-guide-orb.partner-orb {
+  width: 112px;
+  height: 112px;
+  pointer-events: none;
+}
+
+.oracle-guide-orb .partner-character {
+  transform: scale(0.78);
+}
+
+.oracle-guide-bubble {
+  position: relative;
+  margin-bottom: 14px;
+  padding: 13px 14px;
+  border: 1px solid rgba(142, 245, 255, 0.26);
+  border-radius: 18px 18px 18px 6px;
+  background:
+    radial-gradient(circle at top left, rgba(142, 245, 255, 0.12), transparent 62%),
+    rgba(5, 11, 24, 0.86);
+  color: rgba(239, 252, 255, 0.9);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 18px rgba(142, 245, 255, 0.12),
+    inset 0 0 14px rgba(142, 245, 255, 0.04);
+}
+
+.oracle-guide-bubble::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  bottom: 14px;
+  width: 14px;
+  height: 14px;
+  transform: rotate(45deg);
+  border-left: 1px solid rgba(142, 245, 255, 0.24);
+  border-bottom: 1px solid rgba(142, 245, 255, 0.24);
+  background: rgba(5, 11, 24, 0.9);
+}
+
+.oracle-guide-bubble span {
+  display: block;
+  margin-bottom: 5px;
+  color: #fff1b8;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+}
+
+.oracle-guide-bubble p {
+  margin: 0;
+  color: rgba(239, 252, 255, 0.88);
+  font-size: 0.8rem;
+  line-height: 1.55;
+  word-break: keep-all;
+}
+
+.oracle-guide.oracle-thinking .oracle-guide-bubble {
+  border-color: rgba(255, 225, 132, 0.34);
+  animation: oracleBubblePulse 1.4s infinite ease-in-out;
+}
+
+.oracle-guide.oracle-success .oracle-guide-bubble {
+  border-color: rgba(114, 240, 180, 0.34);
+  background:
+    radial-gradient(circle at top left, rgba(114, 240, 180, 0.13), transparent 62%),
+    rgba(5, 11, 24, 0.86);
+}
+
+.oracle-guide.oracle-caution .oracle-guide-bubble {
+  border-color: rgba(255, 147, 119, 0.36);
+}
+
+.oracle-guide.oracle-talk .oracle-guide-bubble {
+  animation: oracleTalkPop 0.3s ease;
+}
+
+.oracle-guide-orb .character-eye {
+  animation: oracleBlink 5.2s infinite ease-in-out;
+}
+
+@keyframes oracleBlink {
+  0%, 93%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.12); }
+}
+
+@keyframes oracleBubblePulse {
+  0%, 100% { transform: translateY(0); box-shadow: 0 0 18px rgba(142, 245, 255, 0.12); }
+  50% { transform: translateY(-3px); box-shadow: 0 0 24px rgba(255, 225, 132, 0.17); }
+}
+
+@keyframes oracleTalkPop {
+  from { transform: translateY(5px) scale(0.98); opacity: 0.76; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.oracle-result-narration {
+  margin: 0 0 18px;
+  padding: 16px 17px;
+  border: 1px solid rgba(255, 225, 132, 0.32);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 225, 132, 0.13), transparent 60%),
+    rgba(0, 0, 0, 0.18);
+  text-align: left;
+}
+
+.oracle-result-narration span {
+  display: block;
+  margin-bottom: 7px;
+  color: #fff1b8;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+}
+
+.oracle-result-narration p {
+  color: rgba(255, 247, 214, 0.92);
+  font-size: 0.94rem;
+  line-height: 1.7;
+  word-break: keep-all;
+}
+
+/* 사용자가 처음 보는 화면에서 데이터성 정보 줄이기 */
+.default-profile-box {
+  margin: 12px 0 16px;
+  padding: 11px 12px;
+  border-radius: 15px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.default-profile-box .small-label,
+.default-profile-desc {
+  display: none;
+}
+
+.default-profile-top {
+  margin-bottom: 6px;
+  align-items: center;
+}
+
+.default-profile-top strong {
+  font-size: 0.84rem;
+  color: rgba(239, 252, 255, 0.84);
+}
+
+.default-profile-status {
+  font-size: 0.72rem;
+  color: rgba(239, 252, 255, 0.5);
+}
+
+.default-profile-actions {
+  margin: 8px 0 4px;
+}
+
+.default-profile-actions .small-button {
+  padding: 6px 9px;
+  font-size: 0.66rem;
+}
+
+.user-account-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 10px 0 14px;
+  padding: 10px 12px;
+  border-radius: 16px;
+}
+
+.user-account-card .firebase-login-top {
+  margin: 0;
+}
+
+.user-account-card .firebase-login-top .small-label,
+.user-account-card .firebase-login-top h2,
+.user-account-card .compact-user-box,
+.user-account-card .firebase-login-message,
+.user-account-card .user-simple-desc {
+  display: none;
+}
+
+.user-account-card .compact-action-box {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.user-account-card .firebase-status-badge {
+  font-size: 0.68rem;
+  white-space: nowrap;
+}
+
+.user-account-card .small-button {
+  padding: 8px 11px;
+  font-size: 0.68rem;
+}
+
+.simple-explore-card,
+.user-data-tools,
+.seo-info-card {
+  display: none;
+}
+
+.container {
+  max-width: 720px;
+}
+
+.subtitle {
+  margin-bottom: 18px;
+}
+
+.notice {
+  margin: 12px 0 12px;
+  font-size: 0.74rem;
+  color: rgba(239, 252, 255, 0.46);
+}
+
+@media (max-width: 1080px) {
+  body {
+    padding-bottom: 170px;
+  }
+
+  .oracle-guide {
+    left: 50%;
+    right: auto;
+    bottom: 14px;
+    width: min(420px, calc(100vw - 24px));
+    grid-template-columns: 94px 1fr;
+    transform: translateX(-50%);
+  }
+
+  .oracle-guide-orb.partner-orb {
+    width: 94px;
+    height: 94px;
+  }
+
+  .oracle-guide-orb .partner-character {
+    transform: scale(0.66);
+  }
+
+  .oracle-guide-bubble {
+    margin-bottom: 8px;
+    padding: 11px 12px;
+  }
+
+  .oracle-guide-bubble p {
+    font-size: 0.76rem;
+    line-height: 1.48;
+  }
+}
+
+@media (max-width: 520px) {
+  body {
+    padding-bottom: 178px;
+  }
+
+  .oracle-guide {
+    grid-template-columns: 82px 1fr;
+    gap: 6px;
+  }
+
+  .oracle-guide-orb.partner-orb {
+    width: 82px;
+    height: 82px;
+  }
+
+  .oracle-guide-orb .partner-character {
+    transform: scale(0.58);
+  }
+
+  .oracle-guide-bubble span {
+    font-size: 0.64rem;
+  }
+
+  .oracle-guide-bubble p {
+    font-size: 0.72rem;
+  }
+
+  .user-account-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .user-account-card .compact-action-box,
+  .user-account-card .firebase-action-buttons {
+    justify-content: stretch;
+    width: 100%;
+  }
+
+  .user-account-card .firebase-action-buttons .small-button {
+    width: 100%;
+  }
+}
