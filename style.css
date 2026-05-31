@@ -4645,7 +4645,7 @@ button:disabled {
   }
 }
 
-/* V3-13: 로그인 사용자 기본 정보 저장 / 자동 입력 */
+/* V3-13.1: 로그인 사용자 기본 정보 자동 저장 / 자동 입력 */
 .default-profile-box {
   margin: 16px 0 18px;
   padding: 15px 14px;

@@ -206,7 +206,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-13";
+const DEV_VERSION = "V3-13.1";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -1469,7 +1469,7 @@ async function loadDefaultProfileFromCloud({ apply = true, silent = false } = {}
     }
 
     if (!silent) {
-      setDefaultProfileStatus("Google 계정에 저장된 기본 정보를 불러왔습니다. 수정 후 다시 저장할 수 있습니다.");
+      setDefaultProfileStatus("Google 계정에 저장된 기본 정보를 자동으로 불러왔습니다. 내용이 다르면 수정 후 운세 분석을 누르면 자동 저장됩니다.");
     }
 
     return profile;
@@ -1533,7 +1533,7 @@ async function loadDefaultProfileToForm() {
     return;
   }
 
-  setDefaultProfileStatus("아직 저장된 기본 정보가 없습니다. 생년월일을 입력한 뒤 현재 입력값 저장을 눌러주세요.");
+  setDefaultProfileStatus("아직 저장된 기본 정보가 없습니다. 한 번 입력하고 운세를 분석하면 다음부터 자동 입력됩니다.");
   statusText.textContent = "아직 저장된 기본 정보가 없습니다.";
 }
 
@@ -1571,7 +1571,50 @@ function initDefaultProfile() {
 
   const local = loadLocalDefaultProfile();
   if (applyDefaultProfileToForm(local, "브라우저 기본 정보")) {
-    setDefaultProfileStatus("브라우저에 저장된 기본 정보를 자동 입력했습니다. 내용이 다르면 수정 후 다시 저장하세요.");
+    setDefaultProfileStatus("브라우저에 저장된 기본 정보를 자동 입력했습니다. 내용이 다르면 수정 후 운세 분석을 누르면 자동 저장됩니다.");
+  }
+}
+
+async function syncDefaultProfileAfterLogin() {
+  renderDefaultProfileState();
+
+  const cloudProfile = await loadDefaultProfileFromCloud({ apply: true, silent: true });
+  if (cloudProfile) {
+    setDefaultProfileStatus("Google 계정에 저장된 기본 정보를 자동으로 불러왔습니다. 내용이 다르면 수정 후 운세 분석을 누르면 자동 저장됩니다.");
+    return;
+  }
+
+  const local = loadLocalDefaultProfile();
+  if (hasDefaultProfileData(local)) {
+    applyDefaultProfileToForm(local, "브라우저 기본 정보");
+    setDefaultProfileStatus("Google 계정에는 아직 저장된 기본 정보가 없습니다. 현재 입력값으로 운세를 분석하면 계정에도 자동 저장됩니다.");
+    return;
+  }
+
+  setDefaultProfileStatus("저장된 기본 정보가 아직 없습니다. 한 번 입력하고 운세를 분석하면 다음부터 자동 입력됩니다.");
+  renderDefaultProfileState();
+}
+
+async function autoSaveDefaultProfileAfterAnalyze() {
+  const profile = buildDefaultProfileFromForm();
+  if (!profile.birthDate) return;
+
+  saveLocalDefaultProfile(profile);
+
+  const user = firebaseAuth ? firebaseAuth.currentUser : null;
+  if (!user) {
+    setDefaultProfileStatus("현재 입력값을 이 브라우저 기본 정보로 자동 저장했습니다. Google 로그인 후 운세를 보면 계정에도 자동 저장됩니다.");
+    return;
+  }
+
+  try {
+    await saveDefaultProfileToCloud(profile);
+    setDefaultProfileStatus("현재 입력값을 Google 계정 기본 정보로 자동 저장했습니다. 다음 로그인부터 자동 입력됩니다.");
+  } catch (error) {
+    console.error("기본 정보 자동 저장 실패", error);
+    setDefaultProfileStatus(`브라우저에는 자동 저장했지만 Google 계정 저장은 실패했습니다. ${error.message || error.code || "알 수 없음"}`);
+  } finally {
+    renderDefaultProfileState();
   }
 }
 
@@ -1903,7 +1946,7 @@ async function initFirebaseLoginTest() {
           renderAdminStatsGate("관리자 권한을 확인했습니다.");
           if (isCurrentUserAdminViewer()) refreshAdminStatsDashboard();
           runAutomaticCloudStatusCheck("login");
-          loadDefaultProfileFromCloud({ apply: true, silent: true });
+          syncDefaultProfileAfterLogin();
         }
       } catch (redirectError) {
         console.error("Google 리다이렉트 로그인 결과 확인 실패", redirectError);
@@ -1922,7 +1965,7 @@ async function initFirebaseLoginTest() {
         renderAdminStatsGate("관리자 권한을 확인했습니다.");
         if (isCurrentUserAdminViewer()) refreshAdminStatsDashboard();
         runAutomaticCloudStatusCheck("login");
-        loadDefaultProfileFromCloud({ apply: true, silent: true });
+        syncDefaultProfileAfterLogin();
       } else {
         renderFirebaseSignedOut();
         setFirebaseLoginStatus("준비 완료");
@@ -1980,7 +2023,7 @@ async function handleFirebaseSignIn() {
     renderCloudSaveState();
     renderMobileLoginGuide();
     runAutomaticCloudStatusCheck("login");
-    loadDefaultProfileFromCloud({ apply: true, silent: true });
+    syncDefaultProfileAfterLogin();
   } catch (error) {
     console.error("Google 로그인 실패", error);
     const code = error.code || "알 수 없는 오류";
@@ -3631,7 +3674,8 @@ async function analyzeFortune(event) {
     }
 
     saveFortuneHistory(profile, result, reaction);
-    statusText.textContent = "오늘의 운세 분석이 완료되었습니다. 파트너 반응과 이전 운세 기록도 저장되었습니다.";
+    await autoSaveDefaultProfileAfterAnalyze();
+    statusText.textContent = "오늘의 운세 분석이 완료되었습니다. 기본 정보와 이전 운세 기록도 자동 저장되었습니다.";
   } catch (error) {
     console.error(error);
     statusText.textContent = "분석 중 오류가 생겼습니다. 파일을 새로 덮어씌운 뒤 Ctrl + F5로 새로고침해주세요.";

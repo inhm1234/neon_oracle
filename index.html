@@ -102,13 +102,11 @@
 </div>
 <span class="default-profile-badge" id="defaultProfileBadge">저장 전</span>
 </div>
-<p class="default-profile-desc">Google 로그인 후 기본 정보를 저장하면 다음부터 이름, 성별, 생년월일, 태어난 시간이 자동으로 입력됩니다.</p>
+<p class="default-profile-desc">로그인하면 저장된 기본 정보가 자동으로 입력됩니다. 운세를 분석하면 현재 입력값이 다음 접속용 기본 정보로 자동 저장됩니다.</p>
 <div class="default-profile-actions">
-<button class="small-button" id="defaultProfileSaveBtn" type="button">현재 입력값 저장</button>
-<button class="small-button" id="defaultProfileLoadBtn" type="button">저장 정보 불러오기</button>
-<button class="small-button danger-button" id="defaultProfileClearBtn" type="button">삭제</button>
+<button class="small-button danger-button" id="defaultProfileClearBtn" type="button">저장 정보 삭제</button>
 </div>
-<p class="default-profile-status" id="defaultProfileStatus">로그인 전에는 이 브라우저에 저장되고, 로그인 후에는 Google 계정에도 저장됩니다.</p>
+<p class="default-profile-status" id="defaultProfileStatus">로그인 전에는 이 브라우저에, Google 로그인 후에는 계정에 자동 저장됩니다.</p>
 </div>
 <button id="analyzeBtn" type="submit">
         AI 운세 분석하기
@@ -802,7 +800,7 @@
 </section><section aria-label="관리자 전용 통계 대시보드" class="admin-stats-card hidden" id="adminStatsCard">
 <div class="admin-stats-top">
 <div>
-<span class="small-label">ADMIN DASHBOARD V3-13</span>
+<span class="small-label">ADMIN DASHBOARD V3-13.1</span>
 <h2>관리자 통계 대시보드</h2>
 </div>
 <strong class="admin-stats-badge" id="adminStatsStatus">로그인 필요</strong>
@@ -873,7 +871,7 @@
 <span class="small-label">DEVELOPMENT CHECKLIST</span>
 <h2>업데이트 점검표</h2>
 </div>
-<strong class="version-badge" id="devVersionBadge">V3-13</strong>
+<strong class="version-badge" id="devVersionBadge">V3-13.1</strong>
 </div>
 <p class="dev-check-desc">
       개발 중에는 아래 항목을 직접 눌러보고 체크하세요. 체크 상태는 이 브라우저에 저장됩니다.
@@ -886,7 +884,7 @@
 </div>
 <div class="dev-check-list"><label class="dev-check-item">
 <input data-check-id="v311-version-visible" type="checkbox"/>
-<span>화면에 현재 버전 V3-13이 보인다.</span>
+<span>화면에 현재 버전 V3-13.1이 보인다.</span>
 </label><label class="dev-check-item">
 <input data-check-id="v311-first-screen-simple" type="checkbox"/>
 <span>첫 화면은 V3-10처럼 운세 입력 중심으로 심플하게 유지된다.</span>
@@ -924,11 +922,11 @@
 <input data-check-id="v312-seo-info" type="checkbox"/>
 <span>일반 화면 아래쪽에 오늘의 운세코드 소개 영역이 보인다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v313-default-save" type="checkbox"/>
-<span>내 기본 정보에서 현재 입력값 저장 버튼을 누르면 이름 / 성별 / 생년월일 / 태어난 시간이 저장된다.</span>
+<input data-check-id="v3131-default-auto-save" type="checkbox"/>
+<span>운세를 분석하면 이름 / 성별 / 생년월일 / 태어난 시간이 자동 저장된다.</span>
 </label><label class="dev-check-item">
-<input data-check-id="v313-default-load" type="checkbox"/>
-<span>새로고침 또는 저장 정보 불러오기 후 기본 정보가 입력칸에 자동 반영된다.</span>
+<input data-check-id="v3131-default-auto-load" type="checkbox"/>
+<span>로그인 또는 새로고침 후 저장된 기본 정보가 입력칸에 자동 반영된다.</span>
 </label><label class="dev-check-item">
 <input data-check-id="v311-check-save" type="checkbox"/>
 <span>새로고침해도 개발 점검 체크 상태가 유지된다.</span>
@@ -936,7 +934,7 @@
 <div class="dev-check-actions">
 <button class="small-button" id="resetChecklistBtn" type="button">점검표 초기화</button>
 </div>
-</section></div></details><div class="version-footer">오늘의 운세코드 V3-13 test · 기본 정보 자동 입력 테스트</div></main>
+</section></div></details><div class="version-footer">오늘의 운세코드 V3-13.1 test · 기본 정보 자동 저장/입력 테스트</div></main>
 <div class="level-toast hidden" id="levelToast">
 <strong id="levelToastTitle">LEVEL UP</strong>
 <span id="levelToastText">파트너가 성장했습니다.</span>
