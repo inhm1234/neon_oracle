@@ -221,7 +221,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-14.3.3";
+const DEV_VERSION = "V3-14.3.4";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -3868,15 +3868,27 @@ function focusFortuneFormForRetry() {
 function openDrawerFromResult(drawer, message) {
   if (!drawer) return;
 
-  drawer.open = true;
+  const exploreCard = drawer.closest ? drawer.closest(".simple-explore-card") : document.getElementById("simpleExploreCard");
 
-  if (typeof drawer.scrollIntoView === "function") {
-    drawer.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (exploreCard) {
+    exploreCard.classList.add("result-drawer-open");
   }
+
+  drawer.open = true;
 
   if (statusText && message) {
     statusText.textContent = message;
   }
+
+  if (typeof setShareFeedback === "function" && message) {
+    setShareFeedback(`${message} 아래쪽으로 이동합니다.`, "success");
+  }
+
+  window.setTimeout(() => {
+    if (typeof drawer.scrollIntoView === "function") {
+      drawer.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, 60);
 }
 
 function buildShareTextFromLatestResult() {
@@ -3979,8 +3991,12 @@ async function shareLatestFortuneResult() {
     await copyLatestFortuneShareText();
   } catch (error) {
     console.error("운세 공유 실패", error);
-    if (statusText) statusText.textContent = "공유 문구를 복사하지 못했습니다. 다시 한 번 눌러주세요.";
+    const failMessage = "공유 문구를 복사하지 못했습니다. 다시 한 번 눌러주세요.";
+    if (statusText) statusText.textContent = failMessage;
+    setShareFeedback(failMessage, "error");
     setOracleGuideMessage("복사가 잠깐 막힌 것 같아요. 다시 한 번 눌러보면 될 수 있어요.", "복사 실패", "caution");
+  } finally {
+    setShareButtonWorking(false);
   }
 }
 

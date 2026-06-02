@@ -5574,3 +5574,31 @@ body {
   border-color: rgba(142, 245, 255, 0.28);
   color: #dffcff;
 }
+
+
+/* V3-14.3.4: 결과 하단 파트너/기록 버튼을 누르면 숨겨진 둘러보기 영역을 다시 표시합니다. */
+.simple-explore-card.result-drawer-open {
+  display: block;
+}
+
+.simple-explore-card.result-drawer-open .simple-explore-top {
+  margin-bottom: 10px;
+}
+
+.share-feedback-message.success {
+  border-color: rgba(255, 225, 132, 0.34);
+  color: #fff7d6;
+  background: rgba(255, 225, 132, 0.08);
+}
+
+.share-feedback-message.error {
+  border-color: rgba(255, 147, 119, 0.36);
+  color: #ffd8ce;
+  background: rgba(255, 147, 119, 0.08);
+}
+
+.share-feedback-message.working {
+  border-color: rgba(142, 245, 255, 0.28);
+  color: #dffcff;
+  background: rgba(142, 245, 255, 0.07);
+}
