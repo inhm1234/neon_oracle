@@ -43,6 +43,7 @@ const openPartnerResultBtn = document.getElementById("openPartnerResultBtn");
 const openHistoryResultBtn = document.getElementById("openHistoryResultBtn");
 const shareResultBtn = document.getElementById("shareResultBtn");
 const quickStartBtn = document.getElementById("quickStartBtn");
+const visitorGuideCard = document.getElementById("visitorGuideCard");
 const partnerDrawer = document.getElementById("partnerDrawer");
 const historyDrawer = document.getElementById("historyDrawer");
 
@@ -215,7 +216,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-14.2.1";
+const DEV_VERSION = "V3-14.2.2";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -1596,6 +1597,7 @@ async function syncDefaultProfileAfterLogin() {
   const cloudProfile = await loadDefaultProfileFromCloud({ apply: true, silent: true });
   if (cloudProfile) {
     setDefaultProfileStatus("Google 계정에 저장된 기본 정보를 자동으로 불러왔습니다. 내용이 다르면 수정 후 운세 분석을 누르면 자동 저장됩니다.");
+    renderVisitorGuideState();
     return;
   }
 
@@ -1603,6 +1605,7 @@ async function syncDefaultProfileAfterLogin() {
   if (hasDefaultProfileData(local)) {
     applyDefaultProfileToForm(local, "브라우저 기본 정보");
     setDefaultProfileStatus("Google 계정에는 아직 저장된 기본 정보가 없습니다. 현재 입력값으로 운세를 분석하면 계정에도 자동 저장됩니다.");
+    renderVisitorGuideState();
     return;
   }
 
@@ -1978,6 +1981,7 @@ async function initFirebaseLoginTest() {
         setFirebaseLoginMessage("Google 로그인 연결이 정상 작동합니다. 이제 서버 저장 테스트를 진행할 수 있습니다.");
         renderCloudSaveState();
         renderMobileLoginGuide();
+        renderVisitorGuideState();
         renderAdminStatsGate("관리자 권한을 확인했습니다.");
         if (isCurrentUserAdminViewer()) refreshAdminStatsDashboard();
         runAutomaticCloudStatusCheck("login");
@@ -1988,6 +1992,7 @@ async function initFirebaseLoginTest() {
         renderCloudSaveState();
         renderMobileLoginGuide();
         renderDefaultProfileState();
+        renderVisitorGuideState();
         renderAdminStatsGate("로그아웃 상태입니다. 관리자 도구는 로그인 후 볼 수 있습니다.");
         renderAutoCheckWaiting("로그아웃 상태입니다. 다시 로그인하면 서버 상태를 자동 확인합니다.");
         renderSyncChoiceWaiting("로그아웃 상태입니다. 로그인하면 선택형 동기화 추천을 볼 수 있습니다.");
@@ -2395,9 +2400,61 @@ function initOracleRoaming() {
   restartRoaming();
 }
 
+function hasReturningVisitorData() {
+  const savedDefaultProfile = loadLocalDefaultProfile();
+  if (hasDefaultProfileData(savedDefaultProfile)) return true;
+
+  const savedPartner = safeParseStorageValue(localStorage.getItem(PARTNER_KEY), null);
+  if (savedPartner && typeof savedPartner === "object" && savedPartner.id) return true;
+
+  const savedHistory = safeParseStorageValue(localStorage.getItem(HISTORY_KEY), []);
+  if (Array.isArray(savedHistory) && savedHistory.length > 0) return true;
+
+  const savedAttendance = safeParseStorageValue(localStorage.getItem(ATTENDANCE_KEY), null);
+  if (savedAttendance && Number(savedAttendance.totalClaims || 0) > 0) return true;
+
+  return false;
+}
+
+function shouldShowVisitorGuide() {
+  const user = firebaseAuth ? firebaseAuth.currentUser : null;
+  return !user && !hasReturningVisitorData();
+}
+
+function renderVisitorGuideState() {
+  if (!visitorGuideCard) return;
+
+  const showGuide = shouldShowVisitorGuide();
+  visitorGuideCard.classList.toggle("hidden", !showGuide);
+
+  if (!showGuide) {
+    visitorGuideCard.setAttribute("aria-hidden", "true");
+    return;
+  }
+
+  visitorGuideCard.removeAttribute("aria-hidden");
+}
+
+function getOracleOpeningMessage() {
+  if (shouldShowVisitorGuide()) {
+    return {
+      title: "처음 방문 안내",
+      message: "처음 오셨다면 생년월일만 입력해보세요. 제가 오늘의 흐름을 짧게 읽어드릴게요."
+    };
+  }
+
+  return {
+    title: "다시 만난 오라클",
+    message: "다시 오셨네요. 저장된 정보가 있으면 자동으로 불러오고, 오늘의 흐름부터 바로 읽어드릴게요."
+  };
+}
+
+
 function initOracleGuide() {
   updateOracleGuideCharacter();
-  setOracleGuideMessage("처음 오셨다면 생년월일만 입력해보세요. 제가 오늘의 흐름을 짧게 읽어드릴게요.", "처음 방문 안내", "idle");
+  renderVisitorGuideState();
+  const openingMessage = getOracleOpeningMessage();
+  setOracleGuideMessage(openingMessage.message, openingMessage.title, "idle");
 
   const inputHints = [
     { el: userNameEl, message: "닉네임은 선택이에요. 저장된 정보가 있으면 다음부터 자동으로 채워드릴게요." },
@@ -4098,6 +4155,7 @@ async function analyzeFortune(event) {
 
     saveFortuneHistory(profile, result, reaction);
     await autoSaveDefaultProfileAfterAnalyze();
+    renderVisitorGuideState();
     statusText.textContent = "오늘의 운세 분석이 완료되었습니다. 기본 정보와 이전 운세 기록도 자동 저장되었습니다.";
   } catch (error) {
     console.error(error);
@@ -5314,6 +5372,7 @@ clearOldCachesAndWorkers();
 initOracleGuide();
 initProfileSystem();
 initDefaultProfile();
+renderVisitorGuideState();
 initDevChecklist();
 renderPartner();
 renderFortuneHistory();
