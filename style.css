@@ -5327,6 +5327,83 @@ body {
   background: rgba(255, 225, 132, 0.08);
 }
 
+.share-preview-card {
+  margin-top: 14px;
+  padding: 16px;
+  border: 1px solid rgba(255, 225, 132, 0.26);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 225, 132, 0.12), transparent 58%),
+    rgba(0, 0, 0, 0.18);
+  text-align: left;
+}
+
+.share-preview-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.share-preview-top strong {
+  color: #fff7d6;
+  font-size: 0.98rem;
+}
+
+.share-preview-top b {
+  flex: 0 0 auto;
+  padding: 6px 9px;
+  border: 1px solid rgba(142, 245, 255, 0.28);
+  border-radius: 999px;
+  color: #aef7ff;
+  background: rgba(142, 245, 255, 0.08);
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+}
+
+.share-preview-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 11px;
+}
+
+.share-preview-grid div {
+  padding: 11px 12px;
+  border: 1px solid rgba(142, 245, 255, 0.14);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.share-preview-grid span {
+  display: block;
+  margin-bottom: 5px;
+  color: rgba(225, 248, 255, 0.48);
+  font-size: 0.68rem;
+}
+
+.share-preview-grid strong {
+  color: rgba(239, 252, 255, 0.92);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+#sharePreviewMessage {
+  margin-bottom: 9px;
+  color: rgba(239, 252, 255, 0.86);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.share-preview-hint {
+  display: block;
+  color: rgba(255, 241, 184, 0.66);
+  font-size: 0.74rem;
+  line-height: 1.45;
+  font-style: normal;
+}
+
 @media (max-width: 680px) {
   .visitor-guide-steps {
     grid-template-columns: 1fr;
@@ -5335,4 +5412,14 @@ body {
   .visitor-start-btn {
     width: 100%;
   }
+
+  .share-preview-top,
+  .share-preview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .share-preview-top {
+    display: grid;
+  }
 }
+

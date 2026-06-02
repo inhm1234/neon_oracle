@@ -42,6 +42,10 @@ const restartInputBtn = document.getElementById("restartInputBtn");
 const openPartnerResultBtn = document.getElementById("openPartnerResultBtn");
 const openHistoryResultBtn = document.getElementById("openHistoryResultBtn");
 const shareResultBtn = document.getElementById("shareResultBtn");
+const sharePreviewCode = document.getElementById("sharePreviewCode");
+const sharePreviewFlow = document.getElementById("sharePreviewFlow");
+const sharePreviewKeyword = document.getElementById("sharePreviewKeyword");
+const sharePreviewMessage = document.getElementById("sharePreviewMessage");
 const quickStartBtn = document.getElementById("quickStartBtn");
 const visitorGuideCard = document.getElementById("visitorGuideCard");
 const partnerDrawer = document.getElementById("partnerDrawer");
@@ -216,7 +220,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-14.2.2";
+const DEV_VERSION = "V3-14.3";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -3783,6 +3787,31 @@ function renderLucky(items) {
   `).join("");
 }
 
+function getPartnerShareName() {
+  try {
+    const partner = typeof loadPartner === "function" ? loadPartner() : null;
+    if (!partner) return "파트너 오라클";
+    return getPartnerTemplate(partner.id).name || "파트너 오라클";
+  } catch (error) {
+    return "파트너 오라클";
+  }
+}
+
+function renderSharePreview(result) {
+  if (!result) return;
+
+  const flow = result.summary ? result.summary.flow : "오늘의 흐름";
+  const keyword = result.summary ? result.summary.keyword : "균형";
+  const message = result.summary ? result.summary.message : result.fortunes.advice;
+
+  if (sharePreviewCode) sharePreviewCode.textContent = result.code || "#----";
+  if (sharePreviewFlow) sharePreviewFlow.textContent = flow;
+  if (sharePreviewKeyword) sharePreviewKeyword.textContent = keyword;
+  if (sharePreviewMessage) {
+    sharePreviewMessage.textContent = `오늘의 흐름은 “${flow}”, 핵심 키워드는 “${keyword}”이에요. ${message}`;
+  }
+}
+
 function renderResult(result, partnerReaction = null) {
   analysisCode.textContent = result.code;
   completeRate.textContent = result.complete;
@@ -3804,6 +3833,7 @@ function renderResult(result, partnerReaction = null) {
 
   luckyItems.innerHTML = renderLucky(result.lucky);
   finalAdvice.textContent = result.fortunes.advice;
+  renderSharePreview(result);
 
   renderPartnerInsight(partnerReaction);
   setOraclePose("shy");
@@ -3858,15 +3888,18 @@ function buildShareTextFromLatestResult() {
   const flow = result.summary ? result.summary.flow : "오늘의 흐름을 확인했어요.";
   const keyword = result.summary ? result.summary.keyword : "균형";
   const message = result.summary ? result.summary.message : result.fortunes.advice;
+  const partnerNameText = getPartnerShareName();
 
   return [
-    `오늘의 운세코드 결과`,
+    `오늘의 운세코드`,
     `${result.title}`,
-    `흐름: ${flow}`,
-    `키워드: ${keyword}`,
-    `한마디: ${message}`,
+    `운세코드: ${result.code}`,
+    `오늘의 흐름: ${flow}`,
+    `오늘의 키워드: ${keyword}`,
+    `오늘의 한마디: ${message}`,
     ``,
-    `나도 보기: ${url}`
+    `${partnerNameText}가 읽어준 오늘의 운세예요.`,
+    `나도 확인하기: ${url}`
   ].join("\n");
 }
 
@@ -3881,7 +3914,7 @@ async function shareLatestFortuneResult() {
         url: getCurrentSiteUrl ? getCurrentSiteUrl() : window.location.href.split("#")[0]
       });
       if (statusText) statusText.textContent = "오늘 운세 공유창을 열었습니다.";
-      setOracleGuideMessage("좋아요. 오늘의 운세코드를 누군가에게 살짝 건네볼까요?", "공유 준비 완료", "talk");
+      setOracleGuideMessage("좋아요. 오늘의 운세코드를 친구에게 살짝 건네볼 준비가 됐어요.", "공유 준비 완료", "talk");
       return;
     }
 
@@ -3900,7 +3933,7 @@ async function shareLatestFortuneResult() {
     }
 
     if (statusText) statusText.textContent = "오늘 운세 공유 문구를 복사했습니다.";
-    setOracleGuideMessage("공유 문구를 복사해두었어요. 카톡이나 블로그에 붙여넣으면 됩니다.", "공유 문구 복사", "success");
+    setOracleGuideMessage("공유용 요약 문구를 복사해두었어요. 카톡이나 블로그에 붙여넣으면 됩니다.", "공유 문구 복사", "success");
   } catch (error) {
     console.error("운세 공유 실패", error);
     if (statusText) statusText.textContent = "공유가 취소되었거나 복사하지 못했습니다.";

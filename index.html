@@ -79,7 +79,7 @@
   </div>
 </div>
 <main class="container">
-<div class="brand-label">AI ORACLE FORTUNE SYSTEM</div><div class="top-version-badge" id="topVersionBadge">V3-14.2.2 test</div><h1 class="title" data-text="오늘의 운세코드">오늘의 운세코드</h1><p class="subtitle">
+<div class="brand-label">AI ORACLE FORTUNE SYSTEM</div><div class="top-version-badge" id="topVersionBadge">V3-14.3 test</div><h1 class="title" data-text="오늘의 운세코드">오늘의 운세코드</h1><p class="subtitle">
     생년월일과 태어난 시간을 바탕으로 오늘의 흐름을 가볍게 분석합니다.
   </p><section class="visitor-guide-card" id="visitorGuideCard" aria-label="처음 방문자 안내">
 <div class="visitor-guide-main">
@@ -279,16 +279,31 @@
 <h3>오늘의 행운 요소</h3>
 <div class="lucky-items" id="luckyItems"></div>
 </div>
+<div class="share-preview-card" id="sharePreviewCard" aria-label="공유용 운세 요약">
+<div class="share-preview-top">
+<div>
+<span class="small-label">SHARE PREVIEW</span>
+<strong>내 오늘의 운세코드</strong>
+</div>
+<b id="sharePreviewCode">#----</b>
+</div>
+<div class="share-preview-grid">
+<div><span>흐름</span><strong id="sharePreviewFlow">분석 대기</strong></div>
+<div><span>키워드</span><strong id="sharePreviewKeyword">--</strong></div>
+</div>
+<p id="sharePreviewMessage">운세를 분석하면 친구에게 보내기 좋은 짧은 요약이 만들어집니다.</p>
+<em class="share-preview-hint">공유 버튼을 누르면 이 요약 문구가 복사되거나 휴대폰 공유창으로 열립니다.</em>
+</div>
 <div class="result-next-actions" aria-label="운세 결과 다음 행동">
 <div>
 <span>다음 행동</span>
-<strong>결과를 저장했어요. 이제 원하는 기능으로 바로 이동할 수 있습니다.</strong>
+<strong>결과를 저장했어요. 오늘의 운세코드를 공유하거나 원하는 기능으로 이동할 수 있습니다.</strong>
 </div>
 <div class="result-action-buttons">
 <button class="small-button" id="restartInputBtn" type="button">다시 입력하기</button>
 <button class="small-button" id="openPartnerResultBtn" type="button">내 파트너 보기</button>
 <button class="small-button" id="openHistoryResultBtn" type="button">이전 운세 보기</button>
-<button class="small-button share-result-button" id="shareResultBtn" type="button">오늘 운세 공유하기</button>
+<button class="small-button share-result-button" id="shareResultBtn" type="button">오늘 운세코드 공유하기</button>
 </div>
 </div>
 </section><section class="simple-explore-card" id="simpleExploreCard"><div class="simple-explore-top"><div><span class="small-label">OPTIONAL CONTENTS</span><h2>더 둘러보기</h2><p>운세를 본 뒤 궁금한 기능만 열어보세요. 처음 화면은 운세 보기에 집중하도록 정리했습니다.</p></div></div><div class="simple-feature-grid"><details class="feature-drawer feature-drawer-1" id="partnerDrawer"><summary><div class="feature-summary-text"><span>내 파트너</span><strong>운세를 함께 보는 오라클</strong><em>파트너를 만나고 성장 상태를 확인합니다.</em></div><b>열기</b></summary><section class="partner-card">
@@ -910,11 +925,11 @@
 <div class="admin-stats-message" id="adminStatsMessage">
       관리자 Google 계정으로 로그인하면 통계를 확인할 수 있습니다.
     </div>
-</section></div></details><div class="version-footer">오늘의 운세코드 V3-14.2.2 test · 재방문자 안내 자동 생략</div></main>
+</section></div></details><div class="version-footer">오늘의 운세코드 V3-14.3 test · 공유 경험 강화</div></main>
 <div class="level-toast hidden" id="levelToast">
 <strong id="levelToastTitle">LEVEL UP</strong>
 <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
-<script src="./app.js?v=20260602-v31422-test"></script>
+<script src="./app.js?v=20260602-v3143-test"></script>
 </body>
 </html>
