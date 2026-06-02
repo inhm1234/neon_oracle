@@ -5242,7 +5242,7 @@ body {
 }
 
 
-/* V3-14.2: first visitor flow and result sharing */
+/* V3-14.2~14.3.1: first visitor flow and refined result actions */
 .visitor-guide-card {
   margin: 0 0 18px;
   padding: 18px;
@@ -5423,3 +5423,85 @@ body {
   }
 }
 
+
+
+/* V3-14.3.1: 공유 카드는 제거하고 SNS 버튼처럼 가볍게 정리 */
+.result-next-actions {
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 15px;
+  border-color: rgba(142, 245, 255, 0.16);
+  background:
+    linear-gradient(135deg, rgba(142, 245, 255, 0.07), rgba(216, 195, 255, 0.05)),
+    rgba(0, 0, 0, 0.16);
+  box-shadow:
+    0 0 18px rgba(142, 245, 255, 0.06),
+    inset 0 0 16px rgba(255, 255, 255, 0.025);
+}
+
+.result-next-actions span {
+  margin-bottom: 4px;
+  color: rgba(174, 247, 255, 0.56);
+  font-size: 0.64rem;
+}
+
+.result-next-actions strong {
+  color: rgba(239, 252, 255, 0.78);
+  font-size: 0.8rem;
+}
+
+.result-action-buttons {
+  justify-content: flex-start;
+  gap: 7px;
+}
+
+.result-action-buttons .small-button {
+  min-width: auto;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  background: rgba(255, 255, 255, 0.045);
+  border-color: rgba(142, 245, 255, 0.18);
+  color: rgba(239, 252, 255, 0.78);
+  box-shadow: none;
+}
+
+.result-action-buttons .small-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(142, 245, 255, 0.42);
+  background: rgba(142, 245, 255, 0.1);
+  color: #ffffff;
+}
+
+.result-action-buttons .share-result-button {
+  border-color: rgba(255, 225, 132, 0.42);
+  color: #fff7d6;
+  background:
+    radial-gradient(circle at top left, rgba(255, 225, 132, 0.16), transparent 60%),
+    rgba(255, 225, 132, 0.06);
+  box-shadow: 0 0 14px rgba(255, 225, 132, 0.08);
+}
+
+.result-action-buttons .share-result-button:hover {
+  border-color: rgba(255, 225, 132, 0.68);
+  background:
+    radial-gradient(circle at top left, rgba(255, 225, 132, 0.22), transparent 60%),
+    rgba(255, 225, 132, 0.1);
+}
+
+@media (max-width: 720px) {
+  .result-action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .result-action-buttons .small-button {
+    width: 100%;
+  }
+
+  .result-action-buttons .share-result-button {
+    grid-column: 1 / -1;
+  }
+}
