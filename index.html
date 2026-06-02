@@ -45,7 +45,7 @@
 }
 </script>
 <link href="manifest.json" rel="manifest"/>
-<link href="./style.css?v=20260602-v3142-test" rel="stylesheet"/>
+<link href="./style.css?v=20260602-v31421-test" rel="stylesheet"/>
 </head>
 <body>
 <canvas id="matrix"></canvas>
@@ -79,7 +79,7 @@
   </div>
 </div>
 <main class="container">
-<div class="brand-label">AI ORACLE FORTUNE SYSTEM</div><h1 class="title" data-text="오늘의 운세코드">오늘의 운세코드</h1><p class="subtitle">
+<div class="brand-label">AI ORACLE FORTUNE SYSTEM</div><div class="top-version-badge" id="topVersionBadge">V3-14.2.1 test</div><h1 class="title" data-text="오늘의 운세코드">오늘의 운세코드</h1><p class="subtitle">
     생년월일과 태어난 시간을 바탕으로 오늘의 흐름을 가볍게 분석합니다.
   </p><section class="visitor-guide-card" aria-label="처음 방문자 안내">
 <div class="visitor-guide-main">
@@ -653,7 +653,7 @@
 <div class="data-manager-message" id="dataManagerMessage">
       아직 실행한 작업이 없습니다.
     </div>
-</section></div></details><details class="advanced-tools hidden" id="advancedTools"><summary>관리자 도구 열기</summary><p class="advanced-tools-desc">통계, 동기화 점검, 개발 점검표처럼 관리자에게만 필요한 기능입니다. 일반 사용자 화면에서는 숨김 처리됩니다.</p><div class="advanced-tools-inner"><section aria-label="로그인 후 서버 상태 자동 확인" class="cloud-auto-check-card" id="autoCheckCard">
+</section></div></details><details class="advanced-tools hidden" id="advancedTools"><summary>관리자 도구 열기</summary><p class="advanced-tools-desc">통계와 동기화 점검처럼 관리자에게만 필요한 기능입니다. 일반 사용자 화면에서는 숨김 처리됩니다.</p><div class="advanced-tools-inner"><section aria-label="로그인 후 서버 상태 자동 확인" class="cloud-auto-check-card" id="autoCheckCard">
 <div class="cloud-auto-check-top">
 <div>
 <span class="small-label">AUTO SERVER CHECK</span>
@@ -845,7 +845,7 @@
 </section><section aria-label="관리자 전용 통계 대시보드" class="admin-stats-card hidden" id="adminStatsCard">
 <div class="admin-stats-top">
 <div>
-<span class="small-label">ADMIN DASHBOARD V3-13.1</span>
+<span class="small-label">ADMIN DASHBOARD</span>
 <h2>관리자 통계 대시보드</h2>
 </div>
 <strong class="admin-stats-badge" id="adminStatsStatus">로그인 필요</strong>
@@ -910,80 +910,11 @@
 <div class="admin-stats-message" id="adminStatsMessage">
       관리자 Google 계정으로 로그인하면 통계를 확인할 수 있습니다.
     </div>
-</section><section aria-label="개발 점검 체크리스트" class="dev-check-card" id="devCheckCard">
-<div class="dev-check-top">
-<div>
-<span class="small-label">DEVELOPMENT CHECKLIST</span>
-<h2>업데이트 점검표</h2>
-</div>
-<strong class="version-badge" id="devVersionBadge">V3-13.1</strong>
-</div>
-<p class="dev-check-desc">
-      개발 중에는 아래 항목을 직접 눌러보고 체크하세요. 체크 상태는 이 브라우저에 저장됩니다.
-    </p>
-<div class="dev-check-progress">
-<span id="devChecklistProgress">0 / 16 확인 완료</span>
-<div aria-hidden="true" class="dev-progress-bar">
-<div id="devChecklistFill"></div>
-</div>
-</div>
-<div class="dev-check-list"><label class="dev-check-item">
-<input data-check-id="v311-version-visible" type="checkbox"/>
-<span>화면에 현재 버전 V3-13.1이 보인다.</span>
-</label><label class="dev-check-item">
-<input data-check-id="v311-first-screen-simple" type="checkbox"/>
-<span>첫 화면은 V3-10처럼 운세 입력 중심으로 심플하게 유지된다.</span>
-</label><label class="dev-check-item">
-<input data-check-id="v311-fortune-flow-ok" type="checkbox"/>
-<span>운세 분석 버튼을 눌렀을 때 결과 화면이 정상 출력된다.</span>
-</label><label class="dev-check-item">
-<input data-check-id="v311-result-buttons-ok" type="checkbox"/>
-<span>결과 하단의 다시 입력하기 / 내 파트너 보기 / 이전 운세 보기 버튼이 그대로 작동한다.</span>
-</label><label class="dev-check-item">
-<input data-check-id="v311-user-data-visible" type="checkbox"/>
-<span>일반 주소에서 내 데이터 관리 영역은 보이고, 사용자용 문구로 표시된다.</span>
-</label><label class="dev-check-item">
-<input data-check-id="v311-admin-tools-hidden" type="checkbox"/>
-<span>일반 주소에서는 관리자 도구 영역이 보이지 않는다.</span>
-</label><label class="dev-check-item">
-<input data-check-id="v311-admin-setup-visible" type="checkbox"/>
-<span>?admin=1 주소에서는 관리자 도구와 관리자 통계 대시보드가 보인다.</span>
-</label><label class="dev-check-item">
-<input data-check-id="v311-admin-refresh" type="checkbox"/>
-<span>관리자 표시 계정에서 통계 새로고침 버튼을 누르면 오늘 / 7일 / 전체 카드가 갱신된다.</span>
-</label><label class="dev-check-item">
-<input data-check-id="v311-no-personal-data" type="checkbox"/>
-<span>통계에는 이름 / 생년월일 / 이메일 같은 운세 입력 개인정보가 표시되지 않는다.</span>
-</label><label class="dev-check-item">
-<input data-check-id="v311-login-still-ok" type="checkbox"/>
-<span>기존 Google 로그인 / 로그아웃이 그대로 작동한다.</span>
-</label><label class="dev-check-item">
-<input data-check-id="v311-sub-still-ok" type="checkbox"/>
-<span>파트너 / 출석 / 이전 운세 / 도감 기능이 그대로 작동한다.</span>
-</label><label class="dev-check-item">
-<input data-check-id="v312-seo-title" type="checkbox"/>
-<span>브라우저 탭 제목이 검색용 문구로 표시된다.</span>
-</label><label class="dev-check-item">
-<input data-check-id="v312-seo-info" type="checkbox"/>
-<span>일반 화면 아래쪽에 오늘의 운세코드 소개 영역이 보인다.</span>
-</label><label class="dev-check-item">
-<input data-check-id="v3131-default-auto-save" type="checkbox"/>
-<span>운세를 분석하면 이름 / 성별 / 생년월일 / 태어난 시간이 자동 저장된다.</span>
-</label><label class="dev-check-item">
-<input data-check-id="v3131-default-auto-load" type="checkbox"/>
-<span>로그인 또는 새로고침 후 저장된 기본 정보가 입력칸에 자동 반영된다.</span>
-</label><label class="dev-check-item">
-<input data-check-id="v311-check-save" type="checkbox"/>
-<span>새로고침해도 개발 점검 체크 상태가 유지된다.</span>
-</label></div>
-<div class="dev-check-actions">
-<button class="small-button" id="resetChecklistBtn" type="button">점검표 초기화</button>
-</div>
-</section></div></details><div class="version-footer">오늘의 운세코드 V3-14.2 test · 첫 방문자 흐름 / 공유 준비 테스트</div></main>
+</section></div></details><div class="version-footer">오늘의 운세코드 V3-14.2.1 test · 점검표 축소 / 상단 버전 표시</div></main>
 <div class="level-toast hidden" id="levelToast">
 <strong id="levelToastTitle">LEVEL UP</strong>
 <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
-<script src="./app.js?v=20260602-v3142-test"></script>
+<script src="./app.js?v=20260602-v31421-test"></script>
 </body>
 </html>
