@@ -5505,3 +5505,41 @@ body {
     grid-column: 1 / -1;
   }
 }
+
+
+/* V3-14.3.2: 결과 화면에서는 파트너 말풍선이 결과 카드를 가리지 않도록 축소 */
+@media (min-width: 721px) {
+  body.result-mode .oracle-guide {
+    left: auto !important;
+    top: auto !important;
+    right: 18px !important;
+    bottom: 18px !important;
+    width: 112px;
+    grid-template-columns: 1fr;
+    gap: 0;
+    transform: none !important;
+    opacity: 0.92;
+  }
+
+  body.result-mode .oracle-guide-bubble {
+    display: none;
+  }
+
+  body.result-mode .oracle-guide-orb.partner-orb {
+    width: 102px;
+    height: 102px;
+  }
+
+  body.result-mode .oracle-guide-orb .partner-character,
+  body.result-mode .oracle-guide.oracle-pose-back .oracle-guide-orb .partner-character,
+  body.result-mode .oracle-guide.oracle-pose-lie .oracle-guide-orb .partner-character,
+  body.result-mode .oracle-guide.oracle-pose-walk .oracle-guide-orb .partner-character,
+  body.result-mode .oracle-guide.oracle-pose-shy .oracle-guide-orb .partner-character,
+  body.result-mode .oracle-guide.oracle-pose-peek .oracle-guide-orb .partner-character {
+    transform: scale(0.7);
+  }
+
+  body.result-mode .oracle-guide.oracle-roaming {
+    transition: opacity 0.25s ease, filter 0.25s ease;
+  }
+}

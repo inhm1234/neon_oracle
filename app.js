@@ -220,7 +220,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-14.3.1";
+const DEV_VERSION = "V3-14.3.2";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -3813,6 +3813,7 @@ function renderSharePreview(result) {
 }
 
 function renderResult(result, partnerReaction = null) {
+  document.body.classList.add("result-mode");
   analysisCode.textContent = result.code;
   completeRate.textContent = result.complete;
   latestShareResult = result;
@@ -3849,6 +3850,7 @@ function scrollToResultCard() {
 }
 
 function focusFortuneFormForRetry() {
+  document.body.classList.remove("result-mode");
   if (form && typeof form.scrollIntoView === "function") {
     form.scrollIntoView({ behavior: "smooth", block: "center" });
   }
@@ -3901,41 +3903,64 @@ function buildShareTextFromLatestResult() {
   ].join("\n");
 }
 
+function shouldUseNativeShare() {
+  const env = getBrowserEnvironment ? getBrowserEnvironment() : { isMobile: false };
+  return Boolean(env.isMobile && navigator.share && latestShareResult);
+}
+
+async function copyShareTextToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "readonly");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  textarea.style.top = "0";
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  document.execCommand("copy");
+  document.body.removeChild(textarea);
+}
+
+async function copyLatestFortuneShareText(message = "공유 문구를 복사했습니다. 카카오톡, 블로그, 문자에 붙여넣을 수 있어요.") {
+  const text = buildShareTextFromLatestResult();
+  await copyShareTextToClipboard(text);
+  if (statusText) statusText.textContent = message;
+  setOracleGuideMessage("공유 문구를 복사했어요. 원하는 곳에 가볍게 붙여넣으면 됩니다.", "복사 완료", "success");
+}
+
 async function shareLatestFortuneResult() {
   const text = buildShareTextFromLatestResult();
+  const url = getCurrentSiteUrl ? getCurrentSiteUrl() : window.location.href.split("#")[0];
 
   try {
-    if (navigator.share && latestShareResult) {
-      await navigator.share({
-        title: "오늘의 운세코드",
-        text,
-        url: getCurrentSiteUrl ? getCurrentSiteUrl() : window.location.href.split("#")[0]
-      });
-      if (statusText) statusText.textContent = "공유창을 열었습니다.";
-      setOracleGuideMessage("좋아요. 오늘 운세를 가볍게 공유해볼 수 있어요.", "공유 준비", "talk");
-      return;
+    if (shouldUseNativeShare()) {
+      try {
+        await navigator.share({
+          title: "오늘의 운세코드",
+          text,
+          url
+        });
+        if (statusText) statusText.textContent = "공유창을 열었습니다.";
+        setOracleGuideMessage("좋아요. 오늘 운세를 가볍게 공유해볼 수 있어요.", "공유 준비", "talk");
+        return;
+      } catch (shareError) {
+        console.warn("모바일 공유창이 닫혀서 복사 방식으로 전환합니다.", shareError);
+        await copyLatestFortuneShareText("공유창이 닫혀서 공유 문구를 대신 복사했습니다.");
+        return;
+      }
     }
 
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(text);
-    } else {
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      textarea.setAttribute("readonly", "readonly");
-      textarea.style.position = "fixed";
-      textarea.style.left = "-9999px";
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
-    }
-
-    if (statusText) statusText.textContent = "공유 문구를 복사했습니다.";
-    setOracleGuideMessage("공유 문구를 복사했어요. 원하는 곳에 가볍게 붙여넣으면 됩니다.", "복사 완료", "success");
+    await copyLatestFortuneShareText();
   } catch (error) {
     console.error("운세 공유 실패", error);
-    if (statusText) statusText.textContent = "공유가 취소되었거나 복사하지 못했습니다.";
-    setOracleGuideMessage("괜찮아요. 공유하지 않아도 오늘의 흐름은 여기 남겨둘게요.", "공유 취소", "talk");
+    if (statusText) statusText.textContent = "공유 문구를 복사하지 못했습니다. 다시 한 번 눌러주세요.";
+    setOracleGuideMessage("복사가 잠깐 막힌 것 같아요. 다시 한 번 눌러보면 될 수 있어요.", "복사 실패", "caution");
   }
 }
 
@@ -4130,6 +4155,7 @@ async function analyzeFortune(event) {
   trackAdminStatsEvent("analyze");
 
   analyzeBtn.disabled = true;
+  document.body.classList.remove("result-mode");
   resultCard.classList.add("hidden");
   renderPartnerInsight(null);
   setOraclePose("fly");
