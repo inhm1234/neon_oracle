@@ -45,7 +45,7 @@
 }
 </script>
 <link href="manifest.json" rel="manifest"/>
-<link href="./style.css?v=20260601-v31412-test" rel="stylesheet"/>
+<link href="./style.css?v=20260602-v3142-test" rel="stylesheet"/>
 </head>
 <body>
 <canvas id="matrix"></canvas>
@@ -81,7 +81,19 @@
 <main class="container">
 <div class="brand-label">AI ORACLE FORTUNE SYSTEM</div><h1 class="title" data-text="오늘의 운세코드">오늘의 운세코드</h1><p class="subtitle">
     생년월일과 태어난 시간을 바탕으로 오늘의 흐름을 가볍게 분석합니다.
-  </p><section class="input-card hero-input-card">
+  </p><section class="visitor-guide-card" aria-label="처음 방문자 안내">
+<div class="visitor-guide-main">
+<span class="small-label">FIRST VISIT GUIDE</span>
+<h2>처음 오셨다면, 30초만에 오늘의 운세를 확인해보세요</h2>
+<p>복잡한 가입 없이 생년월일을 입력하면 파트너 오라클이 오늘의 흐름을 짧게 읽어드립니다.</p>
+</div>
+<div class="visitor-guide-steps">
+<div><span>1</span><strong>생년월일 입력</strong><em>태어난 시간은 몰라도 괜찮아요.</em></div>
+<div><span>2</span><strong>AI 운세 분석</strong><em>오늘의 흐름과 조심할 점을 읽습니다.</em></div>
+<div><span>3</span><strong>파트너 해설</strong><em>캐릭터가 핵심을 쉽게 정리해줍니다.</em></div>
+</div>
+<button class="small-button visitor-start-btn" id="quickStartBtn" type="button">바로 입력하러 가기</button>
+</section><section class="input-card hero-input-card">
 <form id="fortuneForm">
 <div class="form-grid">
 <label class="field">
@@ -276,6 +288,7 @@
 <button class="small-button" id="restartInputBtn" type="button">다시 입력하기</button>
 <button class="small-button" id="openPartnerResultBtn" type="button">내 파트너 보기</button>
 <button class="small-button" id="openHistoryResultBtn" type="button">이전 운세 보기</button>
+<button class="small-button share-result-button" id="shareResultBtn" type="button">오늘 운세 공유하기</button>
 </div>
 </div>
 </section><section class="simple-explore-card" id="simpleExploreCard"><div class="simple-explore-top"><div><span class="small-label">OPTIONAL CONTENTS</span><h2>더 둘러보기</h2><p>운세를 본 뒤 궁금한 기능만 열어보세요. 처음 화면은 운세 보기에 집중하도록 정리했습니다.</p></div></div><div class="simple-feature-grid"><details class="feature-drawer feature-drawer-1" id="partnerDrawer"><summary><div class="feature-summary-text"><span>내 파트너</span><strong>운세를 함께 보는 오라클</strong><em>파트너를 만나고 성장 상태를 확인합니다.</em></div><b>열기</b></summary><section class="partner-card">
@@ -966,11 +979,11 @@
 <div class="dev-check-actions">
 <button class="small-button" id="resetChecklistBtn" type="button">점검표 초기화</button>
 </div>
-</section></div></details><div class="version-footer">오늘의 운세코드 V3-13.1 test · 기본 정보 자동 저장/입력 테스트</div></main>
+</section></div></details><div class="version-footer">오늘의 운세코드 V3-14.2 test · 첫 방문자 흐름 / 공유 준비 테스트</div></main>
 <div class="level-toast hidden" id="levelToast">
 <strong id="levelToastTitle">LEVEL UP</strong>
 <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
-<script src="./app.js?v=20260601-v31412-test"></script>
+<script src="./app.js?v=20260602-v3142-test"></script>
 </body>
 </html>

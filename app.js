@@ -41,6 +41,8 @@ const finalAdvice = document.getElementById("finalAdvice");
 const restartInputBtn = document.getElementById("restartInputBtn");
 const openPartnerResultBtn = document.getElementById("openPartnerResultBtn");
 const openHistoryResultBtn = document.getElementById("openHistoryResultBtn");
+const shareResultBtn = document.getElementById("shareResultBtn");
+const quickStartBtn = document.getElementById("quickStartBtn");
 const partnerDrawer = document.getElementById("partnerDrawer");
 const historyDrawer = document.getElementById("historyDrawer");
 
@@ -213,7 +215,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-14.1.2";
+const DEV_VERSION = "V3-14.2";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -276,6 +278,7 @@ let oracleLastImportantAt = 0;
 let oracleIsMoving = false;
 let isProfileSystemReady = false;
 let lastSyncDecision = null;
+let latestShareResult = null;
 
 
 
@@ -2394,7 +2397,7 @@ function initOracleRoaming() {
 
 function initOracleGuide() {
   updateOracleGuideCharacter();
-  setOracleGuideMessage("정보를 입력하면 제가 오늘의 흐름을 읽어드릴게요.", "파트너 오라클", "idle");
+  setOracleGuideMessage("처음 오셨다면 생년월일만 입력해보세요. 제가 오늘의 흐름을 짧게 읽어드릴게요.", "처음 방문 안내", "idle");
 
   const inputHints = [
     { el: userNameEl, message: "닉네임은 선택이에요. 저장된 정보가 있으면 다음부터 자동으로 채워드릴게요." },
@@ -3726,6 +3729,7 @@ function renderLucky(items) {
 function renderResult(result, partnerReaction = null) {
   analysisCode.textContent = result.code;
   completeRate.textContent = result.complete;
+  latestShareResult = result;
   resultTitle.textContent = result.title;
 
   baseInfo.innerHTML = renderChips(result.base);
@@ -3783,6 +3787,67 @@ function openDrawerFromResult(drawer, message) {
 
   if (statusText && message) {
     statusText.textContent = message;
+  }
+}
+
+function buildShareTextFromLatestResult() {
+  const url = getCurrentSiteUrl ? getCurrentSiteUrl() : window.location.href.split("#")[0];
+  const result = latestShareResult;
+
+  if (!result) {
+    return `오늘의 운세코드에서 오늘 운세를 확인해보세요.\n${url}`;
+  }
+
+  const flow = result.summary ? result.summary.flow : "오늘의 흐름을 확인했어요.";
+  const keyword = result.summary ? result.summary.keyword : "균형";
+  const message = result.summary ? result.summary.message : result.fortunes.advice;
+
+  return [
+    `오늘의 운세코드 결과`,
+    `${result.title}`,
+    `흐름: ${flow}`,
+    `키워드: ${keyword}`,
+    `한마디: ${message}`,
+    ``,
+    `나도 보기: ${url}`
+  ].join("\n");
+}
+
+async function shareLatestFortuneResult() {
+  const text = buildShareTextFromLatestResult();
+
+  try {
+    if (navigator.share && latestShareResult) {
+      await navigator.share({
+        title: "오늘의 운세코드",
+        text,
+        url: getCurrentSiteUrl ? getCurrentSiteUrl() : window.location.href.split("#")[0]
+      });
+      if (statusText) statusText.textContent = "오늘 운세 공유창을 열었습니다.";
+      setOracleGuideMessage("좋아요. 오늘의 운세코드를 누군가에게 살짝 건네볼까요?", "공유 준비 완료", "talk");
+      return;
+    }
+
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "readonly");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+    }
+
+    if (statusText) statusText.textContent = "오늘 운세 공유 문구를 복사했습니다.";
+    setOracleGuideMessage("공유 문구를 복사해두었어요. 카톡이나 블로그에 붙여넣으면 됩니다.", "공유 문구 복사", "success");
+  } catch (error) {
+    console.error("운세 공유 실패", error);
+    if (statusText) statusText.textContent = "공유가 취소되었거나 복사하지 못했습니다.";
+    setOracleGuideMessage("괜찮아요. 공유하지 않아도 오늘의 흐름은 여기 저장해둘게요.", "공유 취소", "talk");
   }
 }
 
@@ -5007,6 +5072,18 @@ if (openPartnerResultBtn) {
 if (openHistoryResultBtn) {
   openHistoryResultBtn.addEventListener("click", () => {
     openDrawerFromResult(historyDrawer, "이전 운세 기록 영역을 열었습니다.");
+  });
+}
+
+if (shareResultBtn) {
+  shareResultBtn.addEventListener("click", shareLatestFortuneResult);
+}
+
+if (quickStartBtn) {
+  quickStartBtn.addEventListener("click", () => {
+    scrollToFortuneForm();
+    setOraclePose("peek");
+    setOracleGuideMessage("좋아요. 생년월일만 먼저 입력하면 바로 읽어볼 수 있어요.", "바로 시작", "talk");
   });
 }
 

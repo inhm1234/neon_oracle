@@ -5225,3 +5225,99 @@ body {
     transform: scale(0.58);
   }
 }
+
+
+/* V3-14.2: first visitor flow and result sharing */
+.visitor-guide-card {
+  margin: 0 0 18px;
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+  border: 1px solid rgba(255, 225, 132, 0.24);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 225, 132, 0.12), transparent 56%),
+    rgba(0, 0, 0, 0.18);
+  box-shadow:
+    0 0 18px rgba(255, 225, 132, 0.08),
+    inset 0 0 18px rgba(255, 225, 132, 0.04);
+  text-align: left;
+}
+
+.visitor-guide-main h2 {
+  margin-bottom: 8px;
+  color: #fff1b8;
+  font-size: 1.08rem;
+  line-height: 1.45;
+}
+
+.visitor-guide-main p {
+  color: rgba(239, 252, 255, 0.72);
+  font-size: 0.86rem;
+  line-height: 1.65;
+}
+
+.visitor-guide-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.visitor-guide-steps div {
+  min-height: 112px;
+  padding: 12px;
+  border: 1px solid rgba(142, 245, 255, 0.14);
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.visitor-guide-steps span {
+  width: 26px;
+  height: 26px;
+  margin-bottom: 8px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #07111f;
+  background: #fff1b8;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.visitor-guide-steps strong {
+  display: block;
+  margin-bottom: 6px;
+  color: rgba(239, 252, 255, 0.94);
+  font-size: 0.86rem;
+}
+
+.visitor-guide-steps em {
+  display: block;
+  color: rgba(239, 252, 255, 0.58);
+  font-size: 0.74rem;
+  line-height: 1.45;
+  font-style: normal;
+}
+
+.visitor-start-btn {
+  justify-self: start;
+  border-color: rgba(255, 225, 132, 0.52);
+  color: #fff7d6;
+  background: rgba(255, 225, 132, 0.08);
+}
+
+.share-result-button {
+  border-color: rgba(255, 225, 132, 0.52);
+  color: #fff7d6;
+  background: rgba(255, 225, 132, 0.08);
+}
+
+@media (max-width: 680px) {
+  .visitor-guide-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .visitor-start-btn {
+    width: 100%;
+  }
+}
