@@ -5543,3 +5543,34 @@ body {
     transition: opacity 0.25s ease, filter 0.25s ease;
   }
 }
+
+/* V3-14.3.3: 공유 버튼 클릭 결과를 결과 카드 안에서 바로 보여줍니다. */
+.share-feedback-message {
+  width: 100%;
+  margin-top: 10px;
+  padding: 9px 11px;
+  border: 1px solid rgba(142, 245, 255, 0.16);
+  border-radius: 12px;
+  color: rgba(239, 252, 255, 0.68);
+  background: rgba(0, 0, 0, 0.14);
+  font-size: 0.76rem;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.share-feedback-message.success {
+  border-color: rgba(255, 225, 132, 0.34);
+  color: #fff7d6;
+  background: rgba(255, 225, 132, 0.08);
+}
+
+.share-feedback-message.error {
+  border-color: rgba(255, 147, 119, 0.36);
+  color: #ffd8ce;
+  background: rgba(255, 147, 119, 0.08);
+}
+
+.share-feedback-message.working {
+  border-color: rgba(142, 245, 255, 0.28);
+  color: #dffcff;
+}

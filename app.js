@@ -42,6 +42,7 @@ const restartInputBtn = document.getElementById("restartInputBtn");
 const openPartnerResultBtn = document.getElementById("openPartnerResultBtn");
 const openHistoryResultBtn = document.getElementById("openHistoryResultBtn");
 const shareResultBtn = document.getElementById("shareResultBtn");
+const shareFeedbackMessage = document.getElementById("shareFeedbackMessage");
 const sharePreviewCode = document.getElementById("sharePreviewCode");
 const sharePreviewFlow = document.getElementById("sharePreviewFlow");
 const sharePreviewKeyword = document.getElementById("sharePreviewKeyword");
@@ -220,7 +221,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-14.3.2";
+const DEV_VERSION = "V3-14.3.3";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -3927,16 +3928,35 @@ async function copyShareTextToClipboard(text) {
   document.body.removeChild(textarea);
 }
 
+function setShareFeedback(message, state = "info") {
+  if (shareFeedbackMessage) {
+    shareFeedbackMessage.textContent = message;
+    shareFeedbackMessage.classList.remove("success", "error", "working");
+    if (state) shareFeedbackMessage.classList.add(state);
+  }
+}
+
+function setShareButtonWorking(isWorking) {
+  if (!shareResultBtn) return;
+
+  shareResultBtn.disabled = isWorking;
+  shareResultBtn.textContent = isWorking ? "복사 중..." : "공유하기";
+}
+
 async function copyLatestFortuneShareText(message = "공유 문구를 복사했습니다. 카카오톡, 블로그, 문자에 붙여넣을 수 있어요.") {
   const text = buildShareTextFromLatestResult();
   await copyShareTextToClipboard(text);
   if (statusText) statusText.textContent = message;
+  setShareFeedback(message, "success");
   setOracleGuideMessage("공유 문구를 복사했어요. 원하는 곳에 가볍게 붙여넣으면 됩니다.", "복사 완료", "success");
 }
 
 async function shareLatestFortuneResult() {
   const text = buildShareTextFromLatestResult();
   const url = getCurrentSiteUrl ? getCurrentSiteUrl() : window.location.href.split("#")[0];
+
+  setShareButtonWorking(true);
+  setShareFeedback("공유 문구를 준비하는 중입니다.", "working");
 
   try {
     if (shouldUseNativeShare()) {
