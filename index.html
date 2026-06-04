@@ -14,7 +14,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>오늘의 운세코드 - 생년월일로 보는 오늘 운세 테스트</title>
-<meta name="description" content="생년월일과 태어난 시간으로 오늘의 흐름, 재물운, 연애운, 일운을 가볍게 확인하는 무료 운세 테스트입니다."/>
+<meta name="description" content="생년월일과 태어난 시간, 오늘 날짜 흐름을 AI 오라클 코드로 해석해 오늘의 방향을 쉽게 정리하는 무료 운세 리포트입니다."/>
 <meta name="keywords" content="오늘 운세, 무료 운세 테스트, 생년월일 운세, 오늘 재물운, 오늘 연애운, 운세코드, 사주 간이 테스트"/>
 <meta name="robots" content="index, follow"/>
 <meta name="author" content="오늘의 운세코드"/>
@@ -25,7 +25,7 @@
 <meta property="og:locale" content="ko_KR"/>
 <meta property="og:site_name" content="오늘의 운세코드"/>
 <meta property="og:title" content="오늘의 운세코드 - 생년월일로 보는 오늘 운세 테스트"/>
-<meta property="og:description" content="생년월일과 태어난 시간으로 오늘의 흐름, 재물운, 연애운, 일운을 가볍게 확인해보세요."/>
+<meta property="og:description" content="생년월일과 오늘 날짜 신호를 AI 오라클 코드로 해석해 오늘의 흐름을 확인해보세요."/>
 <meta property="og:url" content="https://inhm1234.github.io/neon_oracle/"/>
 <meta property="og:image" content="https://inhm1234.github.io/neon_oracle/icon-512.png"/>
 <meta name="twitter:card" content="summary"/>
@@ -38,14 +38,14 @@
   "@type": "WebApplication",
   "name": "오늘의 운세코드",
   "url": "https://inhm1234.github.io/neon_oracle/",
-  "description": "생년월일과 태어난 시간으로 오늘의 흐름, 재물운, 연애운, 일운을 가볍게 확인하는 무료 운세 테스트입니다.",
+  "description": "생년월일과 태어난 시간, 오늘 날짜 흐름을 AI 오라클 코드로 해석해 오늘의 방향을 쉽게 정리하는 무료 운세 리포트입니다.",
   "applicationCategory": "LifestyleApplication",
   "operatingSystem": "All",
   "inLanguage": "ko-KR"
 }
 </script>
 <link href="manifest.json" rel="manifest"/>
-<link href="./style.css?v=20260603-v314-stable" rel="stylesheet"/>
+<link href="./style.css?v=20260604-v315-test" rel="stylesheet"/>
 </head>
 <body>
 <canvas id="matrix"></canvas>
@@ -79,17 +79,17 @@
   </div>
 </div>
 <main class="container">
-<div class="brand-label">AI ORACLE FORTUNE SYSTEM</div><div class="top-version-badge" id="topVersionBadge">V3-14 stable</div><h1 class="title" data-text="오늘의 운세코드">오늘의 운세코드</h1><p class="subtitle">
-    생년월일과 태어난 시간을 바탕으로 오늘의 흐름을 가볍게 분석합니다.
+<div class="brand-label">AI ORACLE FORTUNE SYSTEM</div><div class="top-version-badge" id="topVersionBadge">V3-15 test</div><h1 class="title" data-text="오늘의 운세코드">오늘의 운세코드</h1><p class="subtitle">
+    AI 오라클이 생년월일과 오늘 날짜 신호를 코드화해, 오늘 주의 깊게 볼 방향을 쉽게 정리합니다.
   </p><section class="visitor-guide-card" id="visitorGuideCard" aria-label="처음 방문자 안내">
 <div class="visitor-guide-main">
 <span class="small-label">FIRST VISIT GUIDE</span>
 <h2>처음 오셨다면, 30초만에 오늘의 운세를 확인해보세요</h2>
-<p>복잡한 가입 없이 생년월일을 입력하면 파트너 오라클이 오늘의 흐름을 짧게 읽어드립니다.</p>
+<p>복잡한 가입 없이 생년월일을 입력하면 AI 오라클이 개인 코드와 오늘 신호를 비교해 오늘의 흐름을 읽어드립니다.</p>
 </div>
 <div class="visitor-guide-steps">
 <div><span>1</span><strong>생년월일 입력</strong><em>태어난 시간은 몰라도 괜찮아요.</em></div>
-<div><span>2</span><strong>AI 운세 분석</strong><em>오늘의 흐름과 조심할 점을 읽습니다.</em></div>
+<div><span>2</span><strong>AI 코드 스캔</strong><em>개인 코드와 오늘 신호를 비교합니다.</em></div>
 <div><span>3</span><strong>파트너 해설</strong><em>캐릭터가 핵심을 쉽게 정리해줍니다.</em></div>
 </div>
 <button class="small-button visitor-start-btn" id="quickStartBtn" type="button">바로 입력하러 가기</button>
@@ -132,7 +132,7 @@
 </label>
 </div>
 <p class="notice">
-        현재는 양력 생년월일 기준의 간이 분석입니다. 정밀 만세력, 음력 변환, 절기 기준 사주 계산은 추후 확장할 수 있습니다.
+        현재는 양력 생년월일과 오늘 날짜 흐름을 AI 오라클 코드로 해석하는 간이 리포트입니다. 정밀 만세력, 음력 변환, 절기 기준 사주 계산은 추후 확장할 수 있습니다.
       </p>
 <div class="default-profile-box" id="defaultProfileBox">
 <div class="default-profile-top">
@@ -149,7 +149,7 @@
 <p class="default-profile-status" id="defaultProfileStatus">로그인 전에는 이 브라우저에, Google 로그인 후에는 계정에 자동 저장됩니다.</p>
 </div>
 <button id="analyzeBtn" type="submit">
-        AI 운세 분석하기
+        AI 오라클 리포트 생성하기
       </button>
 </form>
 </section><div class="status-text" id="statusText">
@@ -217,7 +217,7 @@
 <div class="base-info" id="baseInfo"></div>
 <div class="oracle-result-narration" id="oracleResultNarration">
 <span>파트너가 읽어주는 오늘의 운세</span>
-<p id="oracleResultText">운세를 분석하면 파트너가 먼저 핵심을 읽어드립니다.</p>
+<p id="oracleResultText">AI 오라클 리포트를 생성하면 파트너가 먼저 핵심을 읽어드립니다.</p>
 </div>
 <div class="today-summary-card" aria-label="오늘의 핵심 요약 카드">
 <div class="today-summary-head">
@@ -282,7 +282,7 @@
 <div class="result-next-actions" aria-label="운세 결과 다음 행동">
 <div>
 <span>RESULT ACTIONS</span>
-<strong>오늘 운세가 준비됐어요. 공유하거나 필요한 기능만 가볍게 선택해보세요.</strong>
+<strong>AI 오라클 리포트가 준비됐어요. 공유하거나 필요한 기능만 가볍게 선택해보세요.</strong>
 </div>
 <div class="result-action-buttons">
 <button class="small-button share-result-button" id="shareResultBtn" type="button">공유하기</button>
@@ -911,11 +911,11 @@
 <div class="admin-stats-message" id="adminStatsMessage">
       관리자 Google 계정으로 로그인하면 통계를 확인할 수 있습니다.
     </div>
-</section></div></details><div class="version-footer">오늘의 운세코드 V3-14 stable · 결과/공유/파트너 흐름 안정화</div></main>
+</section></div></details><div class="version-footer">오늘의 운세코드 V3-15 test · AI 오라클 신뢰도 엔진 1차</div></main>
 <div class="level-toast hidden" id="levelToast">
 <strong id="levelToastTitle">LEVEL UP</strong>
 <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
-<script src="./app.js?v=20260603-v314-stable"></script>
+<script src="./app.js?v=20260604-v315-test"></script>
 </body>
 </html>

@@ -221,7 +221,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-14";
+const DEV_VERSION = "V3-15 test";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -2893,6 +2893,171 @@ const fortuneText = {
   }
 };
 
+
+// V3-15 test: AI 오라클 신뢰도 엔진 1차
+// 완전 랜덤이 아니라 생년월일, 태어난 시간, 성별 선택값, 오늘 날짜를 해시로 묶어
+// 같은 사람은 같은 날 일관되고, 다른 사람은 다른 결과가 나오도록 구성합니다.
+const oracleElementProfile = {
+  wood: {
+    code: "GROW",
+    label: "성장·확장 신호",
+    trait: "새로운 방향을 빨리 감지하고 가능성을 넓히는 흐름",
+    strength: "아이디어를 행동으로 옮길 때 운이 살아납니다.",
+    caution: "시작은 빠르지만 마무리가 흐려질 수 있습니다.",
+    money: "새로운 제안보다 실제로 남는 금액을 먼저 확인하는 것이 좋습니다.",
+    love: "먼저 다가가되 상대의 속도를 존중하면 관계가 편안해집니다.",
+    work: "기획, 시작, 방향 전환에 강점이 있습니다.",
+    health: "눈, 목, 어깨 긴장을 자주 풀어주는 것이 좋습니다."
+  },
+  fire: {
+    code: "SPARK",
+    label: "표현·반응 신호",
+    trait: "감정과 표현이 빠르게 올라오고 존재감이 드러나는 흐름",
+    strength: "말, 글, 발표처럼 밖으로 꺼낼 때 기회가 생깁니다.",
+    caution: "기분에 따라 판단이 빨라질 수 있습니다.",
+    money: "기분 지출보다 필요한 지출인지 한 번 더 확인하는 것이 좋습니다.",
+    love: "솔직한 표현은 좋지만, 강한 말투는 부드럽게 낮추는 편이 좋습니다.",
+    work: "설명, 홍보, 설득, 콘텐츠 작업에 강점이 있습니다.",
+    health: "수면 부족과 과열된 일정에 주의하면 좋습니다."
+  },
+  earth: {
+    code: "BASE",
+    label: "정리·기반 신호",
+    trait: "현실적인 기준을 세우고 흐름을 안정시키는 힘",
+    strength: "흩어진 일을 정리하고 기준을 만들 때 운이 쌓입니다.",
+    caution: "익숙한 방식에 너무 오래 머물 수 있습니다.",
+    money: "예산, 고정비, 반복 지출을 점검하면 손실을 줄일 수 있습니다.",
+    love: "큰 이벤트보다 꾸준한 배려가 관계를 안정시킵니다.",
+    work: "관리, 정리, 루틴, 운영 업무에 강점이 있습니다.",
+    health: "소화, 식사 리듬, 몸의 무거움을 살피면 좋습니다."
+  },
+  metal: {
+    code: "CUT",
+    label: "판단·선택 신호",
+    trait: "불필요한 것을 덜어내고 핵심을 고르는 흐름",
+    strength: "결정해야 할 일을 미루지 않을 때 흐름이 선명해집니다.",
+    caution: "기준이 강해져 말이 차갑게 들릴 수 있습니다.",
+    money: "가격 비교, 계약 조건, 숫자 확인에서 운이 살아납니다.",
+    love: "옳고 그름보다 상대가 받아들이기 쉬운 표현이 중요합니다.",
+    work: "판단, 검토, 계약, 품질 확인에 강점이 있습니다.",
+    health: "호흡, 피부, 건조함, 긴장성 피로를 살피면 좋습니다."
+  },
+  water: {
+    code: "FLOW",
+    label: "흐름·직감 신호",
+    trait: "상황을 읽고 조용히 방향을 바꾸는 감각",
+    strength: "무리하게 밀기보다 흐름을 읽을 때 좋은 선택이 나옵니다.",
+    caution: "생각이 많아져 실행이 늦어질 수 있습니다.",
+    money: "즉시 결정하기보다 조건을 더 알아보면 이득이 생길 수 있습니다.",
+    love: "말보다 분위기를 잘 읽는 힘이 있지만, 필요한 말은 짧게 꺼내는 것이 좋습니다.",
+    work: "조사, 분석, 상담, 자료 정리에 강점이 있습니다.",
+    health: "몸이 차가워지거나 컨디션이 가라앉지 않게 리듬을 챙기면 좋습니다."
+  }
+};
+
+const oraclePatternTypes = [
+  { code: "PULSE", name: "반응형", desc: "상황 변화에 빠르게 반응하고 기회를 즉시 감지하는 타입", action: "바로 움직이기보다 10분만 정리하고 시작하세요." },
+  { code: "FOCUS", name: "집중형", desc: "하나의 기준을 잡으면 깊게 파고드는 타입", action: "오늘은 할 일을 하나로 좁힐수록 결과가 좋아집니다." },
+  { code: "LINK", name: "연결형", desc: "사람과 정보 사이에서 흐름을 만드는 타입", action: "필요한 사람에게 짧게 연락해보면 흐름이 열릴 수 있습니다." },
+  { code: "BUILD", name: "축적형", desc: "작은 것을 쌓아 안정적인 결과로 만드는 타입", action: "큰 변화보다 미뤄둔 하나를 끝내는 것이 좋습니다." },
+  { code: "SHIFT", name: "전환형", desc: "막힌 흐름을 다른 방향으로 돌리는 데 강한 타입", action: "안 풀리는 일은 방법을 바꿔보는 쪽이 유리합니다." },
+  { code: "SENSE", name: "감지형", desc: "겉으로 드러나지 않은 분위기와 신호를 잘 읽는 타입", action: "오늘은 느낌만 믿기보다 작은 근거를 함께 확인하세요." },
+  { code: "DRIVE", name: "실행형", desc: "생각보다 행동으로 흐름을 여는 타입", action: "완벽히 준비되기 전이라도 작게 실행하면 운이 움직입니다." }
+];
+
+const oracleDaySignals = [
+  { code: "SYNC", label: "동기화", desc: "흩어진 흐름을 맞추고 기준을 다시 잡는 날", action: "일정, 연락, 지출 중 하나를 정리하세요." },
+  { code: "SCAN", label: "스캔", desc: "숨은 변수를 확인하고 다음 선택을 준비하는 날", action: "바로 결정하기보다 한 가지 정보를 더 확인하세요." },
+  { code: "BOOST", label: "부스트", desc: "표현과 실행 신호가 평소보다 강해지는 날", action: "머릿속 생각을 밖으로 꺼내세요." },
+  { code: "SHIELD", label: "보호", desc: "무리한 확장보다 손실을 줄이는 판단이 필요한 날", action: "큰 지출이나 중요한 말은 한 번 더 검토하세요." },
+  { code: "LINK", label: "연결", desc: "사람, 제안, 메시지에서 흐름이 열리는 날", action: "도움이 필요한 부분을 혼자 숨기지 마세요." },
+  { code: "RESET", label: "리셋", desc: "피로한 흐름을 덜어내고 다시 시작하기 좋은 날", action: "몸과 공간 중 하나를 가볍게 정리하세요." },
+  { code: "FOCUS", label: "집중", desc: "선택지를 줄이고 핵심에 에너지를 모아야 하는 날", action: "오늘의 1순위 하나만 먼저 처리하세요." },
+  { code: "WAIT", label: "대기", desc: "빠른 결정보다 흐름을 살피는 시간이 필요한 날", action: "답장을 보내기 전 문장을 한 번 더 읽어보세요." }
+];
+
+const oracleRelationReport = {
+  support: {
+    label: "지원 동기화",
+    text: "오늘의 신호가 개인 코드에 힘을 보태는 구조입니다.",
+    action: "혼자 해결하려는 태도보다 도움을 받아들이는 선택이 유리합니다.",
+    risk: "편해진 만큼 마지막 확인을 놓치기 쉽습니다."
+  },
+  output: {
+    label: "출력 활성화",
+    text: "개인 코드가 오늘의 신호를 밖으로 밀어내는 구조입니다.",
+    action: "말, 글, 제안, 실행처럼 표현되는 행동에서 운이 움직입니다.",
+    risk: "표현이 빨라지면 말이 앞설 수 있으니 핵심만 정리하세요."
+  },
+  control: {
+    label: "판단 주도",
+    text: "개인 코드가 오늘의 흐름을 정리하고 다루려는 구조입니다.",
+    action: "기준을 세우고 선택해야 할 일을 처리하기 좋습니다.",
+    risk: "내 기준이 강해져 상대의 반응을 놓칠 수 있습니다."
+  },
+  pressure: {
+    label: "부하 감지",
+    text: "오늘의 신호가 개인 코드에 압박으로 작용하기 쉬운 구조입니다.",
+    action: "속도를 줄이고 우선순위를 다시 잡을 때 흐름이 안정됩니다.",
+    risk: "조급함이 판단을 흐릴 수 있으니 즉흥 결정을 피하세요."
+  },
+  balance: {
+    label: "균형 유지",
+    text: "개인 코드와 오늘의 신호가 같은 결로 맞물리는 구조입니다.",
+    action: "새로운 시도보다 기존 루틴을 안정적으로 유지할 때 운이 쌓입니다.",
+    risk: "무난한 흐름에 미루는 습관이 끼어들 수 있습니다."
+  }
+};
+
+const oracleMoneyPhrases = [
+  "작은 지출이 반복될 수 있으니 결제 전 한 번 더 멈추는 것이 좋습니다.",
+  "새로운 수익보다 기존 돈의 흐름을 정리할 때 안정감이 생깁니다.",
+  "가격 비교, 환불 조건, 기간 제한 문구처럼 숫자와 조건을 확인하면 손실을 줄일 수 있습니다.",
+  "누군가의 제안이 있다면 바로 답하기보다 실제 이득과 부담을 나눠서 보세요.",
+  "오늘의 금전운은 크게 벌기보다 새는 돈을 막는 쪽에서 힘이 납니다.",
+  "작은 보상이나 할인처럼 예상 밖의 이득은 생길 수 있지만, 충동 소비로 바로 쓰지 않는 편이 좋습니다."
+];
+
+const oracleLovePhrases = [
+  "관계에서는 먼저 맞히려 하기보다 상대의 반응을 한 번 더 듣는 쪽이 좋습니다.",
+  "짧은 연락 하나가 분위기를 바꿀 수 있지만, 답을 재촉하면 흐름이 무거워질 수 있습니다.",
+  "가까운 사람에게는 설명보다 태도가 더 크게 전달되는 날입니다.",
+  "마음이 앞서면 말이 길어질 수 있으니 핵심을 부드럽게 전하세요.",
+  "새로운 만남보다 이미 이어진 관계의 온도를 확인하기 좋은 날입니다.",
+  "상대의 작은 도움이나 배려를 알아차리면 관계운이 편해집니다."
+];
+
+const oracleWorkPhrases = [
+  "업무나 사업에서는 새 일을 늘리기보다 우선순위를 다시 세우는 것이 좋습니다.",
+  "보류해둔 제안, 메시지, 자료 중 하나를 정리하면 흐름이 열릴 수 있습니다.",
+  "오늘은 빠른 실행보다 기준을 정하고 움직일 때 실수가 줄어듭니다.",
+  "아이디어가 있다면 완성본보다 초안으로 먼저 꺼내보는 편이 좋습니다.",
+  "누군가와 협의해야 하는 일은 혼자 결론내기 전에 의견을 맞추세요.",
+  "반복 업무와 확인 작업에서 의외로 중요한 단서가 보일 수 있습니다."
+];
+
+const oracleHealthPhrases = [
+  "몸의 신호는 작게 올 수 있습니다. 피로, 소화, 어깨 긴장 중 하나를 가볍게 체크하세요.",
+  "무리해서 컨디션을 끌어올리기보다 리듬을 안정시키는 쪽이 좋습니다.",
+  "물, 식사, 수면처럼 기본 관리가 오늘의 운세를 받쳐주는 기반입니다.",
+  "생각이 많아지면 몸도 같이 굳을 수 있으니 짧은 산책이나 스트레칭이 도움이 됩니다.",
+  "오늘은 에너지가 한 번에 올라오기보다 천천히 회복되는 흐름입니다.",
+  "늦은 시간의 과한 자극을 줄이면 내일 흐름까지 안정될 수 있습니다."
+];
+
+const oracleCheckpoints = [
+  "갑자기 온 연락",
+  "결제 직전의 망설임",
+  "미뤄둔 작은 정리",
+  "상대의 짧은 표정 변화",
+  "오늘 반복해서 떠오르는 생각",
+  "한 번 더 확인하고 싶은 숫자",
+  "몸이 먼저 보내는 피로 신호",
+  "우연히 다시 보게 된 메시지",
+  "괜히 서두르고 싶은 순간",
+  "도움을 요청할 수 있는 사람"
+];
+
 function getTodayKey() {
   const today = new Date();
   const year = today.getFullYear();
@@ -3727,46 +3892,166 @@ function getHash(text) {
   return Math.abs(hash);
 }
 
+function getDateElement(year, month, day) {
+  const target = new Date(year, month - 1, day);
+  const base = new Date(1900, 0, 1);
+  const diff = Math.floor((target - base) / 86400000);
+  const stem = stems[mod(diff + 6, 10)];
+  return stem[1];
+}
+
+function getTodayDateInfo() {
+  const today = new Date();
+  return {
+    year: today.getFullYear(),
+    month: today.getMonth() + 1,
+    day: today.getDate(),
+    weekday: today.getDay(),
+    key: getTodayKey()
+  };
+}
+
+function getDayOfYear(dateInfo) {
+  const start = new Date(dateInfo.year, 0, 0);
+  const current = new Date(dateInfo.year, dateInfo.month - 1, dateInfo.day);
+  return Math.floor((current - start) / 86400000);
+}
+
+function getSeededItem(list, seed, salt = 0) {
+  if (!Array.isArray(list) || !list.length) return "";
+  return list[mod(seed + salt * 97, list.length)];
+}
+
+function getElementScore(profile, yearInfo, monthElement, birthDayElement, timeElement) {
+  const score = { wood: 0, fire: 0, earth: 0, metal: 0, water: 0 };
+  const seed = getHash(`${profile.date}-${profile.time}-${profile.gender || "none"}-${profile.name || "guest"}`);
+
+  score[yearInfo.stemElement] += 1.2;
+  score[yearInfo.branchElement] += 0.8;
+  score[monthElement] += 1.8;
+  score[birthDayElement] += 2.2;
+
+  if (timeElement) {
+    score[timeElement] += 1.2;
+  }
+
+  // 성별 선택값은 성향을 단정하지 않고, 결과가 충분히 갈라지도록 하는 보정값으로만 사용합니다.
+  if (profile.gender && profile.gender !== "none") {
+    const genderElement = profile.gender === "male"
+      ? stems[mod(seed + 3, stems.length)][1]
+      : stems[mod(seed + 7, stems.length)][1];
+    score[genderElement] += 0.4;
+  }
+
+  return score;
+}
+
+function getDominantElements(score) {
+  return Object.entries(score).sort((a, b) => b[1] - a[1]);
+}
+
+function buildOracleFortunes({ profile, yearInfo, timeInfo, mainElement, subElement, todayElement, relation, pattern, daySignal, seed, todayInfo }) {
+  const elementProfile = oracleElementProfile[mainElement];
+  const subProfile = oracleElementProfile[subElement] || elementProfile;
+  const relationReport = oracleRelationReport[relation] || oracleRelationReport.balance;
+  const relationInfo = relationMeta[relation] || relationMeta.balance;
+  const monthText = `${todayInfo.month}월 ${todayInfo.day}일`;
+  const timeText = timeInfo ? `${timeInfo.name}시 신호까지 반영했습니다` : "태어난 시간은 모름으로 두고 핵심 날짜 신호만 반영했습니다";
+
+  const moneyDetail = getSeededItem(oracleMoneyPhrases, seed, 1);
+  const loveDetail = getSeededItem(oracleLovePhrases, seed, 2);
+  const workDetail = getSeededItem(oracleWorkPhrases, seed, 3);
+  const healthDetail = getSeededItem(oracleHealthPhrases, seed, 4);
+  const checkA = getSeededItem(oracleCheckpoints, seed, 5);
+  const checkB = getSeededItem(oracleCheckpoints, seed, 6);
+  const checkC = getSeededItem(oracleCheckpoints, seed, 7);
+
+  return {
+    total: `${monthText}의 오늘 신호는 ${elementName[todayElement]} 계열이고, 당신의 개인 코드는 ${elementProfile.label}에 가깝게 잡혔습니다. ${relationReport.text} 그래서 오늘은 "${relationInfo.short}"로 읽히며, ${relationReport.action}`,
+    money: `${elementProfile.money} ${moneyDetail}`,
+    love: `${subProfile.love} ${loveDetail}`,
+    work: `${elementProfile.work} ${workDetail}`,
+    health: `${elementProfile.health} ${healthDetail}`,
+    caution: `${relationReport.risk} 특히 오늘은 ${checkA}, ${checkB} 같은 작은 신호를 가볍게 넘기지 않는 편이 좋습니다.`,
+    advice: `오늘의 행동키: ${daySignal.action} 확인 포인트는 ${checkA}, ${checkB}, ${checkC}입니다. ${timeText}.`
+  };
+}
+
 function makeResult(profile) {
   const yearInfo = getYearInfo(profile.year);
   const monthElement = getMonthElement(profile.month);
+  const birthDayElement = getDateElement(profile.year, profile.month, profile.day);
   const timeInfo = getTimeInfo(profile.time);
   const timeElement = timeInfo ? timeInfo.element : null;
-  const mainElement = getMainElement(yearInfo.stemElement, monthElement, timeElement);
-  const todayElement = getTodayElement();
-  const relation = getRelation(mainElement, todayElement);
-  const text = fortuneText[relation];
-  const relationInfo = relationMeta[relation] || relationMeta.balance;
+  const todayInfo = getTodayDateInfo();
+  const todayElement = getDateElement(todayInfo.year, todayInfo.month, todayInfo.day);
+  const seed = getHash(`${profile.date}-${profile.time}-${profile.name || "guest"}-${profile.gender || "none"}-${todayInfo.key}`);
+  const personalSeed = getHash(`${profile.date}-${profile.time}-${profile.gender || "none"}`);
+  const todaySeed = getHash(`${todayInfo.key}-${todayInfo.weekday}-${todayElement}`);
 
-  const seed = getHash(`${profile.date}-${profile.time}-${profile.name}-${profile.gender}-${getTodayKey()}`);
+  const elementScore = getElementScore(profile, yearInfo, monthElement, birthDayElement, timeElement);
+  const rankedElements = getDominantElements(elementScore);
+  const mainElement = rankedElements[0][0];
+  const subElement = rankedElements[1] ? rankedElements[1][0] : mainElement;
+  const relation = getRelation(mainElement, todayElement);
+  const relationInfo = relationMeta[relation] || relationMeta.balance;
+  const relationReport = oracleRelationReport[relation] || oracleRelationReport.balance;
+  const elementProfile = oracleElementProfile[mainElement];
+  const subProfile = oracleElementProfile[subElement] || elementProfile;
+  const pattern = oraclePatternTypes[mod(personalSeed + profile.day + (timeInfo ? timeIndex[profile.time] : 0), oraclePatternTypes.length)];
+  const daySignal = oracleDaySignals[mod(todaySeed + getDayOfYear(todayInfo), oracleDaySignals.length)];
   const lucky = luckyData[mainElement];
   const luckyNumber = String((seed % 9) + 1);
+  const completeBase = timeInfo ? 91 : 78;
+  const complete = `${completeBase + (seed % 6)}%`;
+  const oracleCode = `#AI-${elementProfile.code}-${pattern.code}-${daySignal.code}-${String(seed % 1000).padStart(3, "0")}`;
+  const fortunes = buildOracleFortunes({
+    profile,
+    yearInfo,
+    timeInfo,
+    mainElement,
+    subElement,
+    todayElement,
+    relation,
+    pattern,
+    daySignal,
+    seed,
+    todayInfo
+  });
 
   return {
-    title: profile.name ? `${profile.name}님의 오늘 운세` : "오늘의 운세 분석 결과",
-    code: `#${yearInfo.ganji}-${seed % 10000}`,
-    complete: timeInfo ? "94%" : "82%",
+    title: profile.name ? `${profile.name}님의 AI 오라클 리포트` : "AI 오라클 리포트",
+    code: oracleCode,
+    complete,
     relation,
     mainElement,
     todayElement,
+    patternCode: pattern.code,
+    todaySignalCode: daySignal.code,
     summary: {
-      flow: relationInfo.short,
-      keyword: lucky[2],
-      message: text.advice
+      flow: `${relationReport.label} · ${daySignal.label}`,
+      keyword: `${pattern.name} / ${lucky[2]}`,
+      message: `${relationInfo.short}. ${pattern.action}`
     },
     base: [
-      ["출생 간지", yearInfo.ganji],
-      ["띠", `${yearInfo.animal}띠`],
-      ["중심 오행", elementName[mainElement]],
-      ["태어난 시간", timeInfo ? `${timeInfo.name}시 ${timeInfo.range}` : "시간 모름"]
+      ["개인 코드", `${elementProfile.code} · ${pattern.name}`],
+      ["오늘 신호", `${daySignal.code} · ${elementName[todayElement]}`],
+      ["동기화", relationReport.label],
+      ["분석 기준", timeInfo ? "출생일+시간+오늘" : "출생일+오늘"]
     ],
-    fortunes: text,
+    fortunes,
     lucky: [
       ["행운 색", lucky[0]],
       ["좋은 방향", lucky[1]],
       ["행운 숫자", luckyNumber],
-      ["키워드", lucky[2]]
-    ]
+      ["행동키", daySignal.label]
+    ],
+    oracleReport: {
+      personal: `${elementProfile.label} / 보조 ${subProfile.label}`,
+      pattern: `${pattern.name}: ${pattern.desc}`,
+      today: `${daySignal.label}: ${daySignal.desc}`,
+      sync: `${relationReport.label}: ${relationReport.text}`
+    }
   };
 }
 
@@ -3911,7 +4196,7 @@ function buildShareTextFromLatestResult() {
     `키워드: ${keyword}`,
     `한마디: ${message}`,
     ``,
-    `${partnerNameText}가 읽어준 오늘 운세예요.`,
+    `${partnerNameText}가 개인 코드와 오늘 신호를 읽어준 AI 오라클 리포트예요.`,
     `나도 보기: ${url}`
   ].join("\n");
 }
@@ -4195,7 +4480,7 @@ async function analyzeFortune(event) {
   resultCard.classList.add("hidden");
   renderPartnerInsight(null);
   setOraclePose("fly");
-  setOracleGuideMessage("잠깐만요. 오늘의 흐름을 차근차근 읽어보고 있어요.", "운세 분석 중", "thinking");
+  setOracleGuideMessage("입력한 정보를 AI 오라클 코드로 변환하는 중이에요. 같은 사람은 같은 날 같은 흐름으로 읽을게요.", "AI 오라클 스캔 중", "thinking");
   if (oracleGuideOrb) oracleGuideOrb.classList.add("analyzing");
   document.body.classList.add("scanning");
 
@@ -4217,23 +4502,23 @@ async function analyzeFortune(event) {
       partnerOrb.classList.add("analyzing");
     }
 
-    statusText.textContent = "출생 정보를 읽는 중...";
-    setOracleGuideMessage("먼저 입력한 정보를 확인하고 있어요. 오늘의 운세 기준점을 잡는 중이에요.", "운세 분석 중", "thinking");
+    statusText.textContent = "1/4 개인 출생 리듬을 스캔하는 중...";
+    setOracleGuideMessage("생년월일, 시간 좌표, 선택값을 묶어 개인 코드를 만들고 있어요.", "개인 코드 분석", "thinking");
     await wait(450);
 
-    statusText.textContent = "파트너 오라클과 연결하는 중...";
-    setOracleGuideMessage("이제 제가 직접 오늘의 기운을 읽어볼게요. 조금만 기다려주세요.", "파트너 연결 중", "thinking");
+    statusText.textContent = "2/4 오늘 날짜 신호를 수집하는 중...";
+    setOracleGuideMessage("오늘 날짜와 계절 흐름을 오늘의 신호 코드로 변환하고 있어요.", "오늘 신호 수집", "thinking");
     await wait(450);
 
-    statusText.textContent = "천간·지지 흐름을 계산하는 중...";
+    statusText.textContent = "3/4 개인 코드와 오늘 신호를 동기화하는 중...";
     await wait(550);
 
-    statusText.textContent = "오늘의 오행 균형을 분석하는 중...";
-    setOracleGuideMessage("오늘은 어떤 부분을 조심하면 좋을지 살펴보고 있어요.", "운세 분석 중", "thinking");
+    statusText.textContent = "4/4 분야별 운세 리포트를 조합하는 중...";
+    setOracleGuideMessage("재물, 관계, 일, 건강, 조심할 점을 같은 기준으로 나눠서 해석하고 있어요.", "분야별 리포트", "thinking");
     await wait(550);
 
-    statusText.textContent = "AI 운세 리포트를 생성하는 중...";
-    setOracleGuideMessage("거의 다 읽었어요. 곧 제가 핵심부터 알려드릴게요.", "결과 정리 중", "thinking");
+    statusText.textContent = "AI 오라클 리포트를 정리하는 중...";
+    setOracleGuideMessage("미래를 단정하지 않고, 오늘 주의 깊게 볼 방향으로 쉽게 번역하고 있어요.", "리포트 생성", "thinking");
     await wait(450);
 
     const result = makeResult(profile);
@@ -4249,7 +4534,7 @@ async function analyzeFortune(event) {
     saveFortuneHistory(profile, result, reaction);
     await autoSaveDefaultProfileAfterAnalyze();
     renderVisitorGuideState();
-    statusText.textContent = "오늘의 운세 분석이 완료되었습니다. 기본 정보와 이전 운세 기록도 자동 저장되었습니다.";
+    statusText.textContent = "AI 오라클 리포트가 완성되었습니다. 같은 정보와 같은 날짜는 같은 흐름으로 유지됩니다.";
   } catch (error) {
     console.error(error);
     statusText.textContent = "분석 중 오류가 생겼습니다. 파일을 새로 덮어씌운 뒤 Ctrl + F5로 새로고침해주세요.";
