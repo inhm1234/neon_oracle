@@ -29,6 +29,12 @@ const baseInfo = document.getElementById("baseInfo");
 const resultSummaryFlow = document.getElementById("resultSummaryFlow");
 const resultSummaryKeyword = document.getElementById("resultSummaryKeyword");
 const resultSummaryMessage = document.getElementById("resultSummaryMessage");
+const oracleBasisInput = document.getElementById("oracleBasisInput");
+const oracleBasisPersonal = document.getElementById("oracleBasisPersonal");
+const oracleBasisToday = document.getElementById("oracleBasisToday");
+const oracleBasisSync = document.getElementById("oracleBasisSync");
+const oracleBasisReason = document.getElementById("oracleBasisReason");
+const oracleBasisFormula = document.getElementById("oracleBasisFormula");
 
 const totalFortune = document.getElementById("totalFortune");
 const moneyFortune = document.getElementById("moneyFortune");
@@ -221,7 +227,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-15 test";
+const DEV_VERSION = "V3-15.1 test";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -2894,7 +2900,7 @@ const fortuneText = {
 };
 
 
-// V3-15 test: AI 오라클 신뢰도 엔진 1차
+// V3-15.1 test: AI 오라클 신뢰도 엔진 1차 + 분석 근거 카드 보강
 // 완전 랜덤이 아니라 생년월일, 태어난 시간, 성별 선택값, 오늘 날짜를 해시로 묶어
 // 같은 사람은 같은 날 일관되고, 다른 사람은 다른 결과가 나오도록 구성합니다.
 const oracleElementProfile = {
@@ -3922,6 +3928,30 @@ function getSeededItem(list, seed, salt = 0) {
   return list[mod(seed + salt * 97, list.length)];
 }
 
+function formatElementScore(score) {
+  return Object.entries(score)
+    .map(([key, value]) => `${elementName[key]} ${Math.round(value * 10)}`)
+    .join(" · ");
+}
+
+function buildOracleBasis({ profile, timeInfo, todayInfo, todayElement, elementScore, rankedElements, mainElement, subElement, relationReport, elementProfile, subProfile, pattern, daySignal }) {
+  const genderText = getGenderLabel(profile.gender);
+  const timeText = timeInfo ? `${timeInfo.name}시 ${timeInfo.range}` : "태어난 시간 모름";
+  const scoreText = formatElementScore(elementScore);
+  const mainText = elementName[mainElement];
+  const subText = elementName[subElement];
+  const todayText = elementName[todayElement];
+
+  return {
+    input: `생년월일 ${profile.date} · ${timeText} · 성별 ${genderText} · 오늘 ${todayInfo.key}`,
+    personal: `출생 연/월/일${timeInfo ? "/시간" : ""} 점수: ${scoreText} → 주 흐름 ${mainText}(${elementProfile.code}), 보조 흐름 ${subText}(${subProfile.code})`,
+    today: `오늘 날짜 ${todayInfo.key}와 요일 값을 코드화해 ${todayText} 흐름 + ${daySignal.code}(${daySignal.label}) 신호로 읽었습니다.`,
+    sync: `개인 주 흐름 ${mainText}과 오늘 흐름 ${todayText}의 관계를 ${relationReport.label}로 판단했습니다.`,
+    reason: `${relationReport.text} 그래서 오늘의 행동 방향은 “${relationReport.action}” 쪽으로 생성했습니다.`,
+    formula: `규칙: 입력값 → 개인 코드(${elementProfile.code}/${pattern.code}) → 오늘 신호(${daySignal.code}) → 관계 판단(${relationReport.label}) → 분야별 리포트. 같은 입력값과 같은 날짜는 같은 코드로 유지됩니다.`
+  };
+}
+
 function getElementScore(profile, yearInfo, monthElement, birthDayElement, timeElement) {
   const score = { wood: 0, fire: 0, earth: 0, metal: 0, water: 0 };
   const seed = getHash(`${profile.date}-${profile.time}-${profile.gender || "none"}-${profile.name || "guest"}`);
@@ -4000,6 +4030,21 @@ function makeResult(profile) {
   const subProfile = oracleElementProfile[subElement] || elementProfile;
   const pattern = oraclePatternTypes[mod(personalSeed + profile.day + (timeInfo ? timeIndex[profile.time] : 0), oraclePatternTypes.length)];
   const daySignal = oracleDaySignals[mod(todaySeed + getDayOfYear(todayInfo), oracleDaySignals.length)];
+  const basis = buildOracleBasis({
+    profile,
+    timeInfo,
+    todayInfo,
+    todayElement,
+    elementScore,
+    rankedElements,
+    mainElement,
+    subElement,
+    relationReport,
+    elementProfile,
+    subProfile,
+    pattern,
+    daySignal
+  });
   const lucky = luckyData[mainElement];
   const luckyNumber = String((seed % 9) + 1);
   const completeBase = timeInfo ? 91 : 78;
@@ -4046,6 +4091,7 @@ function makeResult(profile) {
       ["행운 숫자", luckyNumber],
       ["행동키", daySignal.label]
     ],
+    basis,
     oracleReport: {
       personal: `${elementProfile.label} / 보조 ${subProfile.label}`,
       pattern: `${pattern.name}: ${pattern.desc}`,
@@ -4106,6 +4152,15 @@ function renderResult(result, partnerReaction = null) {
   resultTitle.textContent = result.title;
 
   baseInfo.innerHTML = renderChips(result.base);
+
+  if (result.basis) {
+    if (oracleBasisInput) oracleBasisInput.textContent = result.basis.input;
+    if (oracleBasisPersonal) oracleBasisPersonal.textContent = result.basis.personal;
+    if (oracleBasisToday) oracleBasisToday.textContent = result.basis.today;
+    if (oracleBasisSync) oracleBasisSync.textContent = result.basis.sync;
+    if (oracleBasisReason) oracleBasisReason.textContent = result.basis.reason;
+    if (oracleBasisFormula) oracleBasisFormula.textContent = result.basis.formula;
+  }
 
   if (resultSummaryFlow) resultSummaryFlow.textContent = result.summary ? result.summary.flow : "오늘의 흐름을 정리했습니다.";
   if (resultSummaryKeyword) resultSummaryKeyword.textContent = result.summary ? result.summary.keyword : "균형";
@@ -4534,7 +4589,7 @@ async function analyzeFortune(event) {
     saveFortuneHistory(profile, result, reaction);
     await autoSaveDefaultProfileAfterAnalyze();
     renderVisitorGuideState();
-    statusText.textContent = "AI 오라클 리포트가 완성되었습니다. 같은 정보와 같은 날짜는 같은 흐름으로 유지됩니다.";
+    statusText.textContent = "AI 오라클 리포트가 완성되었습니다. 결과의 분석 근거 카드도 함께 확인해보세요.";
   } catch (error) {
     console.error(error);
     statusText.textContent = "분석 중 오류가 생겼습니다. 파일을 새로 덮어씌운 뒤 Ctrl + F5로 새로고침해주세요.";
