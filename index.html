@@ -45,7 +45,7 @@
 }
 </script>
 <link href="manifest.json" rel="manifest"/>
-<link href="./style.css?v=20260604-v3152-test" rel="stylesheet"/>
+<link href="./style.css?v=20260604-v3153-test" rel="stylesheet"/>
 </head>
 <body>
 <canvas id="matrix"></canvas>
@@ -79,7 +79,7 @@
   </div>
 </div>
 <main class="container">
-<div class="brand-label">AI ORACLE FORTUNE SYSTEM</div><div class="top-version-badge" id="topVersionBadge">V3-15.2 test</div><h1 class="title" data-text="오늘의 운세코드">오늘의 운세코드</h1><p class="subtitle">
+<div class="brand-label">AI ORACLE FORTUNE SYSTEM</div><div class="top-version-badge" id="topVersionBadge">V3-15.3 test</div><h1 class="title" data-text="오늘의 운세코드">오늘의 운세코드</h1><p class="subtitle">
     AI 오라클이 생년월일과 오늘 날짜 신호를 코드화해, 오늘 주의 깊게 볼 방향을 쉽게 정리합니다.
   </p><section class="visitor-guide-card" id="visitorGuideCard" aria-label="처음 방문자 안내">
 <div class="visitor-guide-main">
@@ -214,30 +214,9 @@
 </div>
 </div>
 <h2 id="resultTitle">오늘의 운세 분석 결과</h2>
-<div class="base-info" id="baseInfo"></div>
 <div class="oracle-result-narration" id="oracleResultNarration">
 <span>파트너가 읽어주는 오늘의 운세</span>
 <p id="oracleResultText">AI 오라클 리포트를 생성하면 파트너가 먼저 핵심을 읽어드립니다.</p>
-</div>
-<div class="today-summary-card" aria-label="오늘의 핵심 요약 카드">
-<div class="today-summary-head">
-<span class="small-label">TODAY SUMMARY</span>
-<strong>오늘의 핵심 요약</strong>
-</div>
-<div class="today-summary-grid">
-<div class="summary-item summary-flow">
-<span>오늘의 흐름</span>
-<strong id="resultSummaryFlow">분석 대기</strong>
-</div>
-<div class="summary-item summary-keyword">
-<span>오늘의 키워드</span>
-<strong id="resultSummaryKeyword">--</strong>
-</div>
-<div class="summary-item summary-message">
-<span>오늘의 한마디</span>
-<strong id="resultSummaryMessage">운세를 분석하면 표시됩니다.</strong>
-</div>
-</div>
 </div>
 <div class="oracle-basis-card oracle-basis-card-soft" id="oracleBasisCard" aria-label="AI 오라클 분석 요약">
 <div class="oracle-basis-top">
@@ -245,7 +224,7 @@
 <span class="small-label">AI ORACLE NOTE</span>
 <strong>오늘의 AI 해석</strong>
 </div>
-<em>복잡한 근거보다, 오늘 볼 방향만 짧게 정리했어요.</em>
+<em>핵심만 먼저 짧게 보여드릴게요.</em>
 </div>
 <p class="oracle-basis-reason" id="oracleBasisReason">생년월일과 오늘 날짜 흐름을 조합해 오늘의 방향을 정리합니다.</p>
 <div class="oracle-basis-grid compact-basis-grid">
@@ -254,15 +233,10 @@
 <div><span>오늘의 방향</span><strong id="oracleBasisSync">분석 전</strong></div>
 </div>
 <details class="oracle-basis-detail">
-<summary>분석 기준 살짝 보기</summary>
+<summary>왜 이렇게 나왔나요?</summary>
 <p id="oracleBasisInput">분석 전</p>
 <p id="oracleBasisFormula">같은 입력값과 같은 날짜는 같은 코드로 유지됩니다.</p>
 </details>
-</div>
-
-<div class="partner-insight-box hidden" id="partnerInsightBox">
-<span id="partnerInsightLabel">파트너 해석</span>
-<p id="partnerInsightText"></p>
 </div>
 <div class="priority-result-grid">
 <article class="fortune-section priority-section total-priority">
@@ -275,8 +249,35 @@
 </article>
 </div>
 <div class="advice-box advice-box-v39">
-<span>오늘의 한 줄 조언</span>
+<span>오늘 하면 좋은 행동</span>
 <p id="finalAdvice"></p>
+</div>
+<details class="result-detail-drawer" id="resultDetailDrawer">
+<summary>세부운세 더 보기</summary>
+<div class="result-detail-body">
+<div class="base-info" id="baseInfo"></div>
+<div class="today-summary-card" aria-label="오늘의 핵심 요약 카드">
+<div class="today-summary-head">
+<span class="small-label">TODAY SUMMARY</span>
+<strong>오늘의 핵심 요약</strong>
+</div>
+<div class="today-summary-grid">
+<div class="summary-item summary-flow">
+<span>오늘의 흐름</span>
+<strong id="resultSummaryFlow">분석 대기</strong>
+</div>
+<div class="summary-item summary-keyword">
+<span>오늘의 키워드</span>
+<strong id="resultSummaryKeyword">--</strong></div>
+<div class="summary-item summary-message">
+<span>오늘의 한마디</span>
+<strong id="resultSummaryMessage">운세를 분석하면 표시됩니다.</strong>
+</div>
+</div>
+</div>
+<div class="partner-insight-box hidden" id="partnerInsightBox">
+<span id="partnerInsightLabel">파트너 해석</span>
+<p id="partnerInsightText"></p>
 </div>
 <div class="fortune-grid detail-fortune-grid">
 <article class="fortune-section">
@@ -300,15 +301,17 @@
 <h3>오늘의 행운 요소</h3>
 <div class="lucky-items" id="luckyItems"></div>
 </div>
+</div>
+</details>
 <div class="result-next-actions" aria-label="운세 결과 다음 행동">
 <div>
 <span>RESULT ACTIONS</span>
-<strong>AI 오라클 리포트가 준비됐어요. 공유하거나 필요한 기능만 가볍게 선택해보세요.</strong>
+<strong>결과만 간단히 보고, 필요할 때만 다음 행동을 선택하세요.</strong>
 </div>
 <div class="result-action-buttons">
 <button class="small-button share-result-button" id="shareResultBtn" type="button">공유하기</button>
-<button class="small-button" id="restartInputBtn" type="button">다시 보기</button>
-<button class="small-button" id="openPartnerResultBtn" type="button">파트너</button>
+<button class="small-button" id="restartInputBtn" type="button">내 정보 수정</button>
+<button class="small-button" id="openPartnerResultBtn" type="button">다른 사람 보기</button>
 <button class="small-button" id="openHistoryResultBtn" type="button">기록</button>
 </div>
 <p class="share-feedback-message" id="shareFeedbackMessage" aria-live="polite">공유하기를 누르면 문구를 복사해드릴게요.</p>
@@ -932,11 +935,11 @@
 <div class="admin-stats-message" id="adminStatsMessage">
       관리자 Google 계정으로 로그인하면 통계를 확인할 수 있습니다.
     </div>
-</section></div></details><div class="version-footer">오늘의 운세코드 V3-15.2 test · 부드러운 AI 리포트</div></main>
+</section></div></details><div class="version-footer">오늘의 운세코드 V3-15.3 test · 부드러운 AI 리포트</div></main>
 <div class="level-toast hidden" id="levelToast">
 <strong id="levelToastTitle">LEVEL UP</strong>
 <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
-<script src="./app.js?v=20260604-v3152-test"></script>
+<script src="./app.js?v=20260604-v3153-test"></script>
 </body>
 </html>

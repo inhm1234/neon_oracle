@@ -5723,3 +5723,91 @@ body {
   }
 }
 
+
+/* V3-15.3: 결과 화면 미니멀화 */
+body.result-mode .visitor-guide-card,
+body.result-mode .hero-input-card,
+body.result-mode #statusText,
+body.result-mode #firebaseLoginCard {
+  display: none !important;
+}
+
+body.result-mode #simpleExploreCard {
+  display: none;
+}
+
+body.result-mode #simpleExploreCard.result-drawer-open {
+  display: block;
+  margin-top: 18px;
+}
+
+.result-card-v39 {
+  margin-top: 18px;
+}
+
+.result-detail-drawer {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1px solid rgba(142, 245, 255, 0.16);
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.14);
+  text-align: left;
+}
+
+.result-detail-drawer summary {
+  cursor: pointer;
+  list-style: none;
+  color: rgba(174, 247, 255, 0.82);
+  font-size: 0.82rem;
+}
+
+.result-detail-drawer summary::-webkit-details-marker {
+  display: none;
+}
+
+.result-detail-drawer summary::after {
+  content: " +";
+  color: rgba(255, 225, 132, 0.8);
+}
+
+.result-detail-drawer[open] summary::after {
+  content: " -";
+}
+
+.result-detail-body {
+  margin-top: 12px;
+  display: grid;
+  gap: 14px;
+}
+
+.result-card-v39 .base-info {
+  margin-bottom: 0;
+}
+
+.result-card-v39 .today-summary-card {
+  margin-top: 0;
+}
+
+.result-card-v39 .result-next-actions {
+  grid-template-columns: 1fr;
+}
+
+.result-card-v39 .result-action-buttons {
+  justify-content: flex-start;
+}
+
+@media (max-width: 720px) {
+  .result-detail-drawer {
+    padding: 13px 14px;
+  }
+
+  .result-card-v39 .result-action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .result-card-v39 .result-action-buttons .share-result-button,
+  .result-card-v39 .result-action-buttons .small-button:last-child {
+    grid-column: auto;
+  }
+}

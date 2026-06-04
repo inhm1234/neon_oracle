@@ -53,6 +53,7 @@ const sharePreviewCode = document.getElementById("sharePreviewCode");
 const sharePreviewFlow = document.getElementById("sharePreviewFlow");
 const sharePreviewKeyword = document.getElementById("sharePreviewKeyword");
 const sharePreviewMessage = document.getElementById("sharePreviewMessage");
+const resultDetailDrawer = document.getElementById("resultDetailDrawer");
 const quickStartBtn = document.getElementById("quickStartBtn");
 const visitorGuideCard = document.getElementById("visitorGuideCard");
 const partnerDrawer = document.getElementById("partnerDrawer");
@@ -4151,6 +4152,15 @@ function renderResult(result, partnerReaction = null) {
   latestShareResult = result;
   resultTitle.textContent = result.title;
 
+  const exploreCard = document.getElementById("simpleExploreCard");
+  if (exploreCard) {
+    exploreCard.classList.remove("result-drawer-open");
+  }
+
+  if (partnerDrawer) partnerDrawer.open = false;
+  if (historyDrawer) historyDrawer.open = false;
+  if (resultDetailDrawer) resultDetailDrawer.open = false;
+
   baseInfo.innerHTML = renderChips(result.base);
 
   if (result.basis) {
@@ -4192,8 +4202,10 @@ function scrollToResultCard() {
 
 function focusFortuneFormForRetry() {
   document.body.classList.remove("result-mode");
+  if (resultCard) resultCard.classList.add("hidden");
+
   if (form && typeof form.scrollIntoView === "function") {
-    form.scrollIntoView({ behavior: "smooth", block: "center" });
+    form.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   if (birthDateEl && typeof birthDateEl.focus === "function") {
@@ -4201,7 +4213,29 @@ function focusFortuneFormForRetry() {
   }
 
   if (statusText) {
-    statusText.textContent = "새로운 정보로 다시 운세를 볼 수 있습니다.";
+    statusText.textContent = "내 정보를 수정해서 다시 운세를 볼 수 있습니다.";
+  }
+}
+
+function startFreshFortuneForNewPerson() {
+  document.body.classList.remove("result-mode");
+  if (resultCard) resultCard.classList.add("hidden");
+
+  if (userNameEl) userNameEl.value = "";
+  if (genderEl) genderEl.value = "none";
+  if (birthDateEl) birthDateEl.value = "";
+  if (birthTimeEl) birthTimeEl.value = "unknown";
+
+  if (statusText) {
+    statusText.textContent = "다른 사람 정보를 입력해 새로운 운세를 볼 수 있습니다.";
+  }
+
+  if (form && typeof form.scrollIntoView === "function") {
+    form.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  if (userNameEl && typeof userNameEl.focus === "function") {
+    window.setTimeout(() => userNameEl.focus(), 250);
   }
 }
 
@@ -4589,7 +4623,7 @@ async function analyzeFortune(event) {
     saveFortuneHistory(profile, result, reaction);
     await autoSaveDefaultProfileAfterAnalyze();
     renderVisitorGuideState();
-    statusText.textContent = "AI 오라클 리포트가 완성되었습니다. 결과의 분석 근거 카드도 함께 확인해보세요.";
+    statusText.textContent = "AI 오라클 리포트가 완성되었습니다.";
   } catch (error) {
     console.error(error);
     statusText.textContent = "분석 중 오류가 생겼습니다. 파일을 새로 덮어씌운 뒤 Ctrl + F5로 새로고침해주세요.";
@@ -5555,9 +5589,7 @@ if (restartInputBtn) {
 }
 
 if (openPartnerResultBtn) {
-  openPartnerResultBtn.addEventListener("click", () => {
-    openDrawerFromResult(partnerDrawer, "내 파트너 영역을 열었습니다.");
-  });
+  openPartnerResultBtn.addEventListener("click", startFreshFortuneForNewPerson);
 }
 
 if (openHistoryResultBtn) {
