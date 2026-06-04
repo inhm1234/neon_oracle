@@ -45,7 +45,7 @@
 }
 </script>
 <link href="manifest.json" rel="manifest"/>
-<link href="./style.css?v=20260604-v3151-test" rel="stylesheet"/>
+<link href="./style.css?v=20260604-v3152-test" rel="stylesheet"/>
 </head>
 <body>
 <canvas id="matrix"></canvas>
@@ -79,7 +79,7 @@
   </div>
 </div>
 <main class="container">
-<div class="brand-label">AI ORACLE FORTUNE SYSTEM</div><div class="top-version-badge" id="topVersionBadge">V3-15.1 test</div><h1 class="title" data-text="오늘의 운세코드">오늘의 운세코드</h1><p class="subtitle">
+<div class="brand-label">AI ORACLE FORTUNE SYSTEM</div><div class="top-version-badge" id="topVersionBadge">V3-15.2 test</div><h1 class="title" data-text="오늘의 운세코드">오늘의 운세코드</h1><p class="subtitle">
     AI 오라클이 생년월일과 오늘 날짜 신호를 코드화해, 오늘 주의 깊게 볼 방향을 쉽게 정리합니다.
   </p><section class="visitor-guide-card" id="visitorGuideCard" aria-label="처음 방문자 안내">
 <div class="visitor-guide-main">
@@ -239,28 +239,25 @@
 </div>
 </div>
 </div>
-<div class="oracle-basis-card" id="oracleBasisCard" aria-label="AI 오라클 분석 근거">
+<div class="oracle-basis-card oracle-basis-card-soft" id="oracleBasisCard" aria-label="AI 오라클 분석 요약">
 <div class="oracle-basis-top">
 <div>
-<span class="small-label">AI ORACLE BASIS</span>
-<strong>왜 이런 결과가 나왔나요?</strong>
+<span class="small-label">AI ORACLE NOTE</span>
+<strong>오늘의 AI 해석</strong>
 </div>
-<em>입력값을 코드화한 일관 규칙 기반 리포트입니다.</em>
+<em>복잡한 근거보다, 오늘 볼 방향만 짧게 정리했어요.</em>
 </div>
-<div class="oracle-basis-route" aria-label="분석 흐름">
-<div><span>1</span><strong>입력값 확인</strong><em>생년월일·시간·성별·오늘 날짜</em></div>
-<div><span>2</span><strong>개인 코드 산출</strong><em>출생 정보의 흐름 점수화</em></div>
-<div><span>3</span><strong>오늘 신호 산출</strong><em>오늘 날짜와 요일 신호화</em></div>
-<div><span>4</span><strong>동기화 판단</strong><em>개인 코드와 오늘 신호 비교</em></div>
+<p class="oracle-basis-reason" id="oracleBasisReason">생년월일과 오늘 날짜 흐름을 조합해 오늘의 방향을 정리합니다.</p>
+<div class="oracle-basis-grid compact-basis-grid">
+<div><span>내 기본 흐름</span><strong id="oracleBasisPersonal">분석 전</strong></div>
+<div><span>오늘의 신호</span><strong id="oracleBasisToday">분석 전</strong></div>
+<div><span>오늘의 방향</span><strong id="oracleBasisSync">분석 전</strong></div>
 </div>
-<div class="oracle-basis-grid">
-<div><span>반영 정보</span><strong id="oracleBasisInput">분석 전</strong></div>
-<div><span>개인 코드 근거</span><strong id="oracleBasisPersonal">분석 전</strong></div>
-<div><span>오늘 신호 근거</span><strong id="oracleBasisToday">분석 전</strong></div>
-<div><span>동기화 판단</span><strong id="oracleBasisSync">분석 전</strong></div>
-</div>
-<p class="oracle-basis-reason" id="oracleBasisReason">같은 입력값과 같은 날짜는 같은 코드로 유지됩니다.</p>
-<p class="oracle-basis-note" id="oracleBasisFormula">※ 정통 만세력 전체 풀이가 아니라, 생년월일과 오늘 날짜 흐름을 AI 오라클 코드로 해석한 간이 리포트입니다.</p>
+<details class="oracle-basis-detail">
+<summary>분석 기준 살짝 보기</summary>
+<p id="oracleBasisInput">분석 전</p>
+<p id="oracleBasisFormula">같은 입력값과 같은 날짜는 같은 코드로 유지됩니다.</p>
+</details>
 </div>
 
 <div class="partner-insight-box hidden" id="partnerInsightBox">
@@ -935,11 +932,11 @@
 <div class="admin-stats-message" id="adminStatsMessage">
       관리자 Google 계정으로 로그인하면 통계를 확인할 수 있습니다.
     </div>
-</section></div></details><div class="version-footer">오늘의 운세코드 V3-15.1 test · AI 분석 근거 카드 보강</div></main>
+</section></div></details><div class="version-footer">오늘의 운세코드 V3-15.2 test · 부드러운 AI 리포트</div></main>
 <div class="level-toast hidden" id="levelToast">
 <strong id="levelToastTitle">LEVEL UP</strong>
 <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
-<script src="./app.js?v=20260604-v3151-test"></script>
+<script src="./app.js?v=20260604-v3152-test"></script>
 </body>
 </html>

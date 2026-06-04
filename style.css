@@ -5604,19 +5604,15 @@ body {
 }
 
 
-/* V3-15.1: AI 오라클 분석 근거 카드 */
+/* V3-15.2: 부드러운 AI 오라클 분석 요약 */
 .oracle-basis-card {
   margin: 0 0 18px;
-  padding: 18px;
-  border: 1px solid rgba(142, 245, 255, 0.28);
-  border-radius: 22px;
+  padding: 16px;
+  border: 1px solid rgba(142, 245, 255, 0.18);
+  border-radius: 20px;
   background:
-    radial-gradient(circle at top left, rgba(142, 245, 255, 0.12), transparent 56%),
-    radial-gradient(circle at bottom right, rgba(216, 195, 255, 0.1), transparent 60%),
-    rgba(0, 0, 0, 0.2);
-  box-shadow:
-    0 0 20px rgba(142, 245, 255, 0.08),
-    inset 0 0 18px rgba(142, 245, 255, 0.04);
+    radial-gradient(circle at top left, rgba(142, 245, 255, 0.08), transparent 56%),
+    rgba(0, 0, 0, 0.16);
   text-align: left;
 }
 
@@ -5625,111 +5621,90 @@ body {
   justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
 .oracle-basis-top strong {
   display: block;
   color: #dffcff;
-  font-size: 1rem;
-  text-shadow: 0 0 10px rgba(142, 245, 255, 0.28);
+  font-size: 0.98rem;
 }
 
 .oracle-basis-top em {
-  max-width: 260px;
-  color: rgba(239, 252, 255, 0.58);
+  max-width: 240px;
+  color: rgba(239, 252, 255, 0.54);
   font-size: 0.72rem;
-  line-height: 1.5;
+  line-height: 1.45;
   font-style: normal;
   text-align: right;
 }
 
-.oracle-basis-route {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 9px;
+.oracle-basis-reason {
   margin-bottom: 12px;
-}
-
-.oracle-basis-route div {
-  padding: 12px 10px;
-  border: 1px solid rgba(142, 245, 255, 0.14);
-  border-radius: 16px;
-  background: rgba(0, 0, 0, 0.18);
-}
-
-.oracle-basis-route span {
-  width: 24px;
-  height: 24px;
-  display: grid;
-  place-items: center;
-  margin-bottom: 8px;
-  border: 1px solid rgba(255, 225, 132, 0.3);
-  border-radius: 50%;
-  color: #fff1b8;
-  background: rgba(255, 225, 132, 0.08);
-  font-size: 0.72rem;
-  font-weight: bold;
-}
-
-.oracle-basis-route strong {
-  display: block;
-  margin-bottom: 5px;
-  color: rgba(239, 252, 255, 0.9);
-  font-size: 0.8rem;
-}
-
-.oracle-basis-route em {
-  color: rgba(239, 252, 255, 0.52);
-  font-size: 0.68rem;
-  line-height: 1.4;
-  font-style: normal;
+  color: rgba(239, 252, 255, 0.86);
+  font-size: 0.9rem;
+  line-height: 1.65;
 }
 
 .oracle-basis-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
 }
 
 .oracle-basis-grid div {
-  padding: 13px;
-  border: 1px solid rgba(216, 195, 255, 0.16);
-  border-radius: 16px;
-  background: rgba(0, 0, 0, 0.18);
+  padding: 11px 10px;
+  border: 1px solid rgba(216, 195, 255, 0.13);
+  border-radius: 15px;
+  background: rgba(0, 0, 0, 0.14);
 }
 
 .oracle-basis-grid span {
   display: block;
-  margin-bottom: 6px;
-  color: rgba(225, 248, 255, 0.5);
-  font-size: 0.68rem;
+  margin-bottom: 5px;
+  color: rgba(225, 248, 255, 0.48);
+  font-size: 0.66rem;
   letter-spacing: 0.08em;
 }
 
 .oracle-basis-grid strong {
   display: block;
-  color: rgba(239, 252, 255, 0.9);
-  font-size: 0.82rem;
-  line-height: 1.6;
+  color: rgba(239, 252, 255, 0.88);
+  font-size: 0.8rem;
+  line-height: 1.5;
   word-break: keep-all;
 }
 
-.oracle-basis-reason {
-  padding: 13px 14px;
-  border: 1px solid rgba(255, 225, 132, 0.24);
-  border-radius: 16px;
-  color: #fff7d6;
-  background: rgba(255, 225, 132, 0.07);
-  font-size: 0.86rem;
-  line-height: 1.65;
+.oracle-basis-detail {
+  margin-top: 10px;
+  border-top: 1px solid rgba(142, 245, 255, 0.1);
+  padding-top: 9px;
 }
 
-.oracle-basis-note {
-  margin-top: 9px;
-  color: rgba(239, 252, 255, 0.52);
-  font-size: 0.72rem;
+.oracle-basis-detail summary {
+  cursor: pointer;
+  color: rgba(174, 247, 255, 0.78);
+  font-size: 0.76rem;
+  list-style: none;
+}
+
+.oracle-basis-detail summary::-webkit-details-marker {
+  display: none;
+}
+
+.oracle-basis-detail summary::after {
+  content: " +";
+  color: rgba(255, 225, 132, 0.8);
+}
+
+.oracle-basis-detail[open] summary::after {
+  content: " -";
+}
+
+.oracle-basis-detail p {
+  margin-top: 8px;
+  color: rgba(239, 252, 255, 0.56);
+  font-size: 0.74rem;
   line-height: 1.55;
 }
 
@@ -5743,8 +5718,8 @@ body {
     text-align: left;
   }
 
-  .oracle-basis-route,
   .oracle-basis-grid {
     grid-template-columns: 1fr;
   }
 }
+
