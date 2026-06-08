@@ -60,9 +60,11 @@ const shareCardDate = document.getElementById("shareCardDate");
 const shareCardFlow = document.getElementById("shareCardFlow");
 const shareCardKeyword = document.getElementById("shareCardKeyword");
 const shareCardMessage = document.getElementById("shareCardMessage");
+const shareCardSubnote = document.getElementById("shareCardSubnote");
 const shareCardCode = document.getElementById("shareCardCode");
 const shareCardPartner = document.getElementById("shareCardPartner");
 const shareCardFooter = document.getElementById("shareCardFooter");
+const shareCardSignature = document.getElementById("shareCardSignature");
 const shareCardStickers = document.getElementById("shareCardStickers");
 const shareThemeButtons = Array.from(document.querySelectorAll("[data-share-theme]"));
 const stickerButtons = Array.from(document.querySelectorAll("[data-sticker]"));
@@ -246,7 +248,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-16.1 test";
+const DEV_VERSION = "V3-16.2 test";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -2919,7 +2921,7 @@ const fortuneText = {
 };
 
 
-// V3-16.1 test: 배경/첫화면 파스텔 보정
+// V3-16.2 test: 공유 카드 디자인 강화
 // 완전 랜덤이 아니라 생년월일, 태어난 시간, 성별 선택값, 오늘 날짜를 해시로 묶어
 // 같은 사람은 같은 날 일관되고, 다른 사람은 다른 결과가 나오도록 구성합니다.
 const oracleElementProfile = {
@@ -4172,6 +4174,22 @@ function formatTodayCardDate() {
   return `${year}.${month}.${date}`;
 }
 
+function trimShareCardMessage(text, max = 60) {
+  if (!text) return "오늘의 한마디를 가볍게 남겨보세요.";
+  const normalized = String(text).replace(/\s+/g, " ").trim();
+  if (normalized.length <= max) return normalized;
+  return `${normalized.slice(0, max).trim()}…`;
+}
+
+function getShareThemeMeta(theme) {
+  const meta = {
+    lovely: { subnote: "말랑하고 사랑스러운 오늘의 기분", footer: "말랑한 하루를 위한 저장 카드" },
+    sky: { subnote: "맑고 차분한 흐름을 담은 카드", footer: "깨끗한 기분으로 남기는 오늘의 카드" },
+    twinkle: { subnote: "반짝이는 무드와 키워드를 담은 카드", footer: "통통 튀는 하루를 위한 감성 카드" }
+  };
+  return meta[theme] || meta.lovely;
+}
+
 function updateShareThemeButtons() {
   shareThemeButtons.forEach((button) => {
     button.classList.toggle("is-active", button.dataset.shareTheme === shareCardState.theme);
@@ -4198,9 +4216,10 @@ function renderShareCardPreview(result = latestShareResult) {
 
   const flow = result && result.summary ? result.summary.flow : "오늘의 흐름";
   const keyword = result && result.summary ? result.summary.keyword : "마음 카드";
-  const message = result && result.summary ? result.summary.message : "운세를 분석하면 오늘의 한마디가 여기에 들어갑니다.";
+  const message = trimShareCardMessage(result && result.summary ? result.summary.message : "운세를 분석하면 오늘의 한마디가 여기에 들어갑니다.");
   const partnerNameText = result ? getPartnerShareName() : "파트너 오라클";
-  const footerText = result ? "재미와 기록용으로 가볍게 남기는 오늘의 카드" : "운세를 보고 나면 저장용 카드가 만들어져요";
+  const themeMeta = getShareThemeMeta(shareCardState.theme);
+  const footerText = result ? themeMeta.footer : "운세를 보고 나면 저장용 카드가 만들어져요";
 
   shareCardPreview.classList.remove("theme-lovely", "theme-sky", "theme-twinkle");
   shareCardPreview.classList.add(`theme-${shareCardState.theme}`);
@@ -4209,10 +4228,12 @@ function renderShareCardPreview(result = latestShareResult) {
   if (shareCardDate) shareCardDate.textContent = `${formatTodayCardDate()} · 나만의 감성 카드`;
   if (shareCardFlow) shareCardFlow.textContent = flow;
   if (shareCardKeyword) shareCardKeyword.textContent = keyword;
-  if (shareCardMessage) shareCardMessage.textContent = message;
+  if (shareCardMessage) shareCardMessage.textContent = `“${message}”`;
+  if (shareCardSubnote) shareCardSubnote.textContent = themeMeta.subnote;
   if (shareCardCode) shareCardCode.textContent = result ? result.code || "#----" : "#----";
   if (shareCardPartner) shareCardPartner.textContent = partnerNameText;
   if (shareCardFooter) shareCardFooter.textContent = footerText;
+  if (shareCardSignature) shareCardSignature.textContent = shareCardState.theme === "sky" ? "soft sky card" : (shareCardState.theme === "twinkle" ? "twinkle mood card" : "lovely mood card");
 
   renderShareCardStickers();
   updateShareThemeButtons();
@@ -5849,7 +5870,7 @@ shareThemeButtons.forEach((button) => {
   button.addEventListener("click", () => {
     shareCardState.theme = button.dataset.shareTheme || "lovely";
     renderShareCardPreview();
-    if (shareStudioStatus) shareStudioStatus.textContent = `${button.textContent.trim()} 테마로 바꿨어요.`;
+    if (shareStudioStatus) shareStudioStatus.textContent = `${button.textContent.trim()} 테마로 카드 분위기를 바꿨어요.`;
   });
 });
 
