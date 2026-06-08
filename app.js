@@ -248,7 +248,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-16.3.3 test";
+const DEV_VERSION = "V3-16.3.4 test";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -4378,7 +4378,68 @@ function getExportThemeColors(theme) {
   return themes[theme] || themes.lovely;
 }
 
-function buildShareCardSvg(format = "square") {
+function measureWrappedLines(context, text, maxWidth, maxLines = 3) {
+  const raw = String(text || "").replace(/\s+/g, " ").trim();
+  if (!raw) return [""];
+  const words = raw.split(" ");
+  const lines = [];
+  let current = "";
+
+  words.forEach((word) => {
+    const candidate = current ? `${current} ${word}` : word;
+    if (context.measureText(candidate).width <= maxWidth || !current) {
+      current = candidate;
+    } else {
+      lines.push(current);
+      current = word;
+    }
+  });
+
+  if (current) lines.push(current);
+  if (lines.length <= maxLines) return lines;
+
+  const clipped = lines.slice(0, maxLines);
+  let last = clipped[maxLines - 1];
+  while (context.measureText(`${last}…`).width > maxWidth && last.length > 1) {
+    last = last.slice(0, -1);
+  }
+  clipped[maxLines - 1] = `${last}…`;
+  return clipped;
+}
+
+function fitFontSize(context, text, maxWidth, startSize, minSize = 18, weight = "700") {
+  let size = startSize;
+  while (size > minSize) {
+    context.font = `${weight} ${size}px Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif`;
+    if (context.measureText(String(text || "")).width <= maxWidth) return size;
+    size -= 1;
+  }
+  return minSize;
+}
+
+function drawRoundedRect(context, x, y, width, height, radius, fillStyle) {
+  context.beginPath();
+  context.moveTo(x + radius, y);
+  context.lineTo(x + width - radius, y);
+  context.quadraticCurveTo(x + width, y, x + width, y + radius);
+  context.lineTo(x + width, y + height - radius);
+  context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  context.lineTo(x + radius, y + height);
+  context.quadraticCurveTo(x, y + height, x, y + height - radius);
+  context.lineTo(x, y + radius);
+  context.quadraticCurveTo(x, y, x + radius, y);
+  context.closePath();
+  context.fillStyle = fillStyle;
+  context.fill();
+}
+
+function drawWrappedLines(context, lines, x, y, lineHeight) {
+  lines.forEach((line, index) => {
+    context.fillText(line, x, y + index * lineHeight);
+  });
+}
+
+function createShareCardCanvas(format = "square") {
   const result = latestShareResult;
   const exportWidth = 1080;
   const exportHeight = format === "story" ? 1920 : 1080;
@@ -4392,61 +4453,141 @@ function buildShareCardSvg(format = "square") {
   const message = trimShareCardMessage(result && result.summary ? result.summary.message : "오늘의 한마디를 가볍게 남겨보세요.", format === "story" ? 72 : 58);
   const partnerNameText = result ? getPartnerShareName() : "파트너 오라클";
   const themeMeta = getShareThemeMeta(shareCardState.theme);
-  const messageLines = splitSvgLines(message, format === "story" ? 17 : 15, 4);
-  const flowLines = splitSvgLines(flow, format === "story" ? 13 : 10, 2);
-  const keywordLines = splitSvgLines(keyword, format === "story" ? 8 : 7, 2);
   const dateText = `${formatTodayCardDate()} · 나만의 감성 카드`;
   const codeText = result ? result.code || "#----" : "#----";
   const brandText = shareCardState.theme === "sky" ? "soft sky card" : (shareCardState.theme === "twinkle" ? "twinkle mood card" : "lovely mood card");
-  const fontFamily = "Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+
+  const canvas = document.createElement("canvas");
+  canvas.width = exportWidth;
+  canvas.height = exportHeight;
+  const context = canvas.getContext("2d");
+
+  const pageGradient = context.createLinearGradient(0, 0, 0, exportHeight);
+  pageGradient.addColorStop(0, colors.pageA);
+  pageGradient.addColorStop(1, colors.pageB);
+  context.fillStyle = pageGradient;
+  context.fillRect(0, 0, exportWidth, exportHeight);
+
+  context.globalAlpha = 0.42;
+  context.fillStyle = '#ffffff';
+  context.beginPath(); context.arc(cardX + 120, cardY + 90, 140, 0, Math.PI * 2); context.fill();
+  context.fillStyle = colors.deco;
+  context.beginPath(); context.arc(cardX + cardWidth - 90, cardY + 160, 92, 0, Math.PI * 2); context.fill();
+  context.globalAlpha = 0.22;
+  context.fillStyle = colors.accent;
+  context.beginPath(); context.arc(cardX + 110, cardY + cardHeight - 150, 104, 0, Math.PI * 2); context.fill();
+  context.globalAlpha = 1;
+
+  context.save();
+  context.shadowColor = 'rgba(183, 154, 192, 0.22)';
+  context.shadowBlur = 28;
+  context.shadowOffsetY = 24;
+  const cardGradient = context.createLinearGradient(0, cardY, 0, cardY + cardHeight);
+  cardGradient.addColorStop(0, colors.cardA);
+  cardGradient.addColorStop(0.48, colors.cardB);
+  cardGradient.addColorStop(1, colors.cardC);
+  drawRoundedRect(context, cardX, cardY, cardWidth, cardHeight, 54, cardGradient);
+  context.restore();
+
+  context.globalAlpha = 0.42;
+  context.fillStyle = '#ffffff';
+  context.beginPath(); context.arc(cardX + 74, cardY + 76, 92, 0, Math.PI * 2); context.fill();
+  context.fillStyle = colors.deco;
+  context.beginPath(); context.arc(cardX + cardWidth - 82, cardY + 150, 70, 0, Math.PI * 2); context.fill();
+  context.globalAlpha = 1;
+
+  drawRoundedRect(context, cardX + 58, cardY + 58, 210, 48, 24, 'rgba(255,255,255,0.7)');
+  context.fillStyle = colors.soft;
+  context.font = "21px Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+  context.fillText('오늘의 운세코드', cardX + 82, cardY + 90);
+  context.textAlign = 'right';
+  context.font = "700 22px Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+  context.fillText(dateText, cardX + cardWidth - 58, cardY + 90);
+  context.textAlign = 'left';
+
   const flowY = cardY + (format === "story" ? 260 : 220);
-  const keywordY = flowY + (format === "story" ? 92 : 86);
-  const messageY = keywordY + (keywordLines.length * 72) + 44;
+  drawRoundedRect(context, cardX + 58, flowY - 42, 172, 42, 21, 'rgba(255,255,255,0.66)');
+  context.fillStyle = colors.soft;
+  context.font = "20px Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+  context.fillText('TODAY MOOD', cardX + 80, flowY - 15);
+  context.font = "700 34px Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+  const flowLines = measureWrappedLines(context, flow, cardWidth - 128, 2);
+  drawWrappedLines(context, flowLines, cardX + 64, flowY + 18, 40);
+
+  let keywordSize = format === "story" ? 74 : 70;
+  context.font = `800 ${keywordSize}px Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif`;
+  let keywordLines = measureWrappedLines(context, keyword, cardWidth - 128, 2);
+  while (keywordSize > 48 && (keywordLines.length > 2 || keywordLines.some((line) => context.measureText(line).width > cardWidth - 128))) {
+    keywordSize -= 2;
+    context.font = `800 ${keywordSize}px Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif`;
+    keywordLines = measureWrappedLines(context, keyword, cardWidth - 128, 2);
+  }
+  const keywordY = flowY + 66;
+  context.fillStyle = colors.ink;
+  drawWrappedLines(context, keywordLines, cardX + 64, keywordY, Math.round(keywordSize * 0.95));
+
+  context.font = `700 ${format === "story" ? 34 : 32}px Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif`;
+  const messageLines = measureWrappedLines(context, message, cardWidth - 128, 4);
+  const messageY = keywordY + keywordLines.length * Math.round(keywordSize * 0.95) + 50;
+  context.fillStyle = colors.soft;
+  drawWrappedLines(context, messageLines, cardX + 64, messageY, 42);
+
+  context.font = "24px Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+  context.globalAlpha = 0.82;
+  context.fillText(themeMeta.subnote, cardX + 64, messageY + messageLines.length * 42 + 34);
+  context.globalAlpha = 1;
+
   const miniY = cardY + cardHeight - (format === "story" ? 330 : 260);
-  const stickerNodes = shareCardState.stickers.map((item) => {
+  const miniW = Math.round((cardWidth - 138) / 2);
+  drawRoundedRect(context, cardX + 58, miniY, miniW, 130, 30, 'rgba(255,255,255,0.72)');
+  drawRoundedRect(context, cardX + 80 + miniW, miniY, miniW, 130, 30, 'rgba(255,255,255,0.72)');
+  context.font = "21px Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+  context.globalAlpha = 0.76;
+  context.fillStyle = colors.soft;
+  context.fillText('운세코드', cardX + 90, miniY + 42);
+  context.fillText('파트너', cardX + 112 + miniW, miniY + 42);
+  context.globalAlpha = 1;
+
+  let codeFont = fitFontSize(context, codeText, miniW - 36, 26, 17, '800');
+  context.font = `800 ${codeFont}px Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif`;
+  context.fillStyle = colors.ink;
+  context.fillText(codeText, cardX + 90, miniY + 86);
+  let partnerFont = fitFontSize(context, partnerNameText, miniW - 36, 26, 17, '800');
+  context.font = `800 ${partnerFont}px Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif`;
+  context.fillText(partnerNameText, cardX + 112 + miniW, miniY + 86);
+
+  context.strokeStyle = 'rgba(255,255,255,0.72)';
+  context.lineWidth = 2;
+  context.beginPath();
+  context.moveTo(cardX + 58, cardY + cardHeight - 72);
+  context.lineTo(cardX + cardWidth - 58, cardY + cardHeight - 72);
+  context.stroke();
+
+  context.font = "22px Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+  context.fillStyle = colors.soft;
+  context.fillText(themeMeta.footer, cardX + 64, cardY + cardHeight - 34);
+  context.textAlign = 'right';
+  context.font = "18px Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+  context.globalAlpha = 0.78;
+  context.fillText(brandText.toUpperCase(), cardX + cardWidth - 64, cardY + cardHeight - 34);
+  context.globalAlpha = 1;
+  context.textAlign = 'left';
+
+  shareCardState.stickers.forEach((item) => {
     const x = cardX + (cardWidth * (Number.isFinite(item.x) ? item.x : 50) / 100);
     const y = cardY + (cardHeight * (Number.isFinite(item.y) ? item.y : 50) / 100);
     const rotate = Number.isFinite(item.rotate) ? item.rotate : 0;
-    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="46" font-family="${fontFamily}" transform="rotate(${rotate} ${x} ${y})">${escapeSvgText(item.symbol)}</text>`;
-  }).join("\n");
-  const flowText = flowLines.map((line, index) => `<tspan x="${cardX + 64}" dy="${index === 0 ? 0 : 34}">${escapeSvgText(line)}</tspan>`).join("");
-  const keywordText = keywordLines.map((line, index) => `<tspan x="${cardX + 64}" dy="${index === 0 ? 0 : 78}">${escapeSvgText(line)}</tspan>`).join("");
-  const messageText = messageLines.map((line, index) => `<tspan x="${cardX + 64}" dy="${index === 0 ? 0 : 42}">${escapeSvgText(line)}</tspan>`).join("");
+    context.save();
+    context.translate(x, y);
+    context.rotate((rotate * Math.PI) / 180);
+    context.font = "46px Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(item.symbol, 0, 0);
+    context.restore();
+  });
 
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${exportWidth}" height="${exportHeight}" viewBox="0 0 ${exportWidth} ${exportHeight}">
-  <defs>
-    <linearGradient id="pageBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${colors.pageA}"/><stop offset="1" stop-color="${colors.pageB}"/></linearGradient>
-    <linearGradient id="cardBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${colors.cardA}"/><stop offset="0.48" stop-color="${colors.cardB}"/><stop offset="1" stop-color="${colors.cardC}"/></linearGradient>
-    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#b79ac0" flood-opacity="0.22"/></filter>
-  </defs>
-  <rect width="${exportWidth}" height="${exportHeight}" fill="url(#pageBg)"/>
-  <circle cx="${cardX + 120}" cy="${cardY + 90}" r="140" fill="#ffffff" opacity="0.42"/>
-  <circle cx="${cardX + cardWidth - 90}" cy="${cardY + 160}" r="92" fill="${colors.deco}" opacity="0.52"/>
-  <circle cx="${cardX + 110}" cy="${cardY + cardHeight - 150}" r="104" fill="${colors.accent}" opacity="0.22"/>
-  <rect x="${cardX}" y="${cardY}" width="${cardWidth}" height="${cardHeight}" rx="54" fill="url(#cardBg)" filter="url(#softShadow)"/>
-  <circle cx="${cardX + 74}" cy="${cardY + 76}" r="92" fill="#ffffff" opacity="0.42"/>
-  <circle cx="${cardX + cardWidth - 82}" cy="${cardY + 150}" r="70" fill="${colors.deco}" opacity="0.42"/>
-  <rect x="${cardX + 58}" y="${cardY + 58}" width="210" height="48" rx="24" fill="#ffffff" opacity="0.7"/>
-  <text x="${cardX + 82}" y="${cardY + 90}" font-family="${fontFamily}" font-size="21" fill="${colors.soft}" letter-spacing="1">오늘의 운세코드</text>
-  <text x="${cardX + cardWidth - 58}" y="${cardY + 90}" text-anchor="end" font-family="${fontFamily}" font-size="22" font-weight="700" fill="${colors.soft}">${escapeSvgText(dateText)}</text>
-  <rect x="${cardX + 58}" y="${flowY - 42}" width="172" height="42" rx="21" fill="#ffffff" opacity="0.66"/>
-  <text x="${cardX + 80}" y="${flowY - 15}" font-family="${fontFamily}" font-size="20" fill="${colors.soft}" letter-spacing="2">TODAY MOOD</text>
-  <text x="${cardX + 64}" y="${flowY + 42}" font-family="${fontFamily}" font-size="34" font-weight="700" fill="${colors.soft}">${flowText}</text>
-  <text x="${cardX + 64}" y="${keywordY}" font-family="${fontFamily}" font-size="70" font-weight="800" fill="${colors.ink}">${keywordText}</text>
-  <text x="${cardX + 64}" y="${messageY}" font-family="${fontFamily}" font-size="32" font-weight="700" fill="${colors.soft}">${messageText}</text>
-  <text x="${cardX + 64}" y="${messageY + (messageLines.length * 42) + 40}" font-family="${fontFamily}" font-size="24" fill="${colors.soft}" opacity="0.82">${escapeSvgText(themeMeta.subnote)}</text>
-  <rect x="${cardX + 58}" y="${miniY}" width="${Math.round((cardWidth - 138) / 2)}" height="130" rx="30" fill="#ffffff" opacity="0.72"/>
-  <rect x="${cardX + 80 + Math.round((cardWidth - 138) / 2)}" y="${miniY}" width="${Math.round((cardWidth - 138) / 2)}" height="130" rx="30" fill="#ffffff" opacity="0.72"/>
-  <text x="${cardX + 90}" y="${miniY + 42}" font-family="${fontFamily}" font-size="21" fill="${colors.soft}" opacity="0.76">운세코드</text>
-  <text x="${cardX + 90}" y="${miniY + 86}" font-family="${fontFamily}" font-size="26" font-weight="800" fill="${colors.ink}">${escapeSvgText(codeText)}</text>
-  <text x="${cardX + 112 + Math.round((cardWidth - 138) / 2)}" y="${miniY + 42}" font-family="${fontFamily}" font-size="21" fill="${colors.soft}" opacity="0.76">파트너</text>
-  <text x="${cardX + 112 + Math.round((cardWidth - 138) / 2)}" y="${miniY + 86}" font-family="${fontFamily}" font-size="26" font-weight="800" fill="${colors.ink}">${escapeSvgText(partnerNameText)}</text>
-  <line x1="${cardX + 58}" y1="${cardY + cardHeight - 72}" x2="${cardX + cardWidth - 58}" y2="${cardY + cardHeight - 72}" stroke="#ffffff" stroke-width="2" opacity="0.72"/>
-  <text x="${cardX + 64}" y="${cardY + cardHeight - 34}" font-family="${fontFamily}" font-size="22" fill="${colors.soft}">${escapeSvgText(themeMeta.footer)}</text>
-  <text x="${cardX + cardWidth - 64}" y="${cardY + cardHeight - 34}" text-anchor="end" font-family="${fontFamily}" font-size="18" fill="${colors.soft}" letter-spacing="2" opacity="0.78">${escapeSvgText(brandText)}</text>
-  ${stickerNodes}
-</svg>`;
+  return canvas;
 }
 
 async function downloadShareCardImage(format = "square") {
@@ -4454,46 +4595,21 @@ async function downloadShareCardImage(format = "square") {
     if (shareStudioStatus) shareStudioStatus.textContent = "먼저 운세 결과를 본 뒤에 저장할 수 있어요.";
     return;
   }
-  const exportWidth = 1080;
-  const exportHeight = format === "story" ? 1920 : 1080;
-  let svg = "";
-  try {
-    svg = buildShareCardSvg(format);
-  } catch (error) {
-    console.error("카드 SVG 생성 실패", error);
-    if (shareStudioStatus) shareStudioStatus.textContent = "카드 이미지 생성 준비 중 오류가 생겼어요. 새로고침 후 다시 시도해주세요.";
-    return;
-  }
-  const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const image = new Image();
   if (shareStudioStatus) shareStudioStatus.textContent = "이미지를 만드는 중이에요...";
-  image.onload = () => {
-    try {
-      const canvas = document.createElement("canvas");
-      canvas.width = exportWidth;
-      canvas.height = exportHeight;
-      const context = canvas.getContext("2d");
-      context.drawImage(image, 0, 0);
-      URL.revokeObjectURL(url);
-      const link = document.createElement("a");
-      const dateText = formatTodayCardDate().replace(/\./g, "");
-      link.download = `fortune-code-card-${format}-${dateText}.png`;
-      link.href = canvas.toDataURL("image/png");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      if (shareStudioStatus) shareStudioStatus.textContent = format === "story" ? "스토리용 카드를 저장했어요." : "카톡용 카드를 저장했어요.";
-    } catch (error) {
-      console.error("카드 이미지 저장 실패", error);
-      if (shareStudioStatus) shareStudioStatus.textContent = "이미지 저장 중 문제가 생겼어요. 다시 한 번 시도해주세요.";
-    }
-  };
-  image.onerror = () => {
-    URL.revokeObjectURL(url);
-    if (shareStudioStatus) shareStudioStatus.textContent = "이미지 저장 중 문제가 생겼어요. 다시 한 번 시도해주세요.";
-  };
-  image.src = url;
+  try {
+    const canvas = createShareCardCanvas(format);
+    const link = document.createElement('a');
+    const dateText = formatTodayCardDate().replace(/\./g, '');
+    link.download = `fortune-code-card-${format}-${dateText}.png`;
+    link.href = canvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    if (shareStudioStatus) shareStudioStatus.textContent = format === 'story' ? '스토리용 카드를 저장했어요.' : '카톡용 카드를 저장했어요.';
+  } catch (error) {
+    console.error('카드 이미지 저장 실패', error);
+    if (shareStudioStatus) shareStudioStatus.textContent = '이미지 저장 중 문제가 생겼어요. 다시 한 번 시도해주세요.';
+  }
 }
 
 
