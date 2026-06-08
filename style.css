@@ -7041,3 +7041,97 @@ button:hover {
   height: 54px !important;
   font-size: 30px !important;
 }
+
+
+/* V3-16.5.1 test: 멍처럼 보이는 장식 제거 */
+.share-card-preview::before {
+  display: none !important;
+}
+
+.share-card-preview::after {
+  content: "♡   ✦";
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  font-size: 18px;
+  letter-spacing: 10px;
+  color: rgba(231, 171, 200, 0.58);
+  pointer-events: none;
+}
+
+.share-card-preview.theme-sky::after {
+  color: rgba(159, 197, 232, 0.6);
+}
+
+.share-card-preview.theme-twinkle::after {
+  color: rgba(233, 191, 112, 0.68);
+}
+
+.share-card-deco {
+  opacity: 0.55 !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+.deco-top-left {
+  width: 74px !important;
+  height: 74px !important;
+  left: -10px !important;
+  top: -6px !important;
+  background: rgba(255,255,255,0.5) !important;
+  border: 1px solid rgba(255,255,255,0.4);
+}
+
+.deco-top-right {
+  width: 42px !important;
+  height: 42px !important;
+  right: 26px !important;
+  top: 62px !important;
+  background: rgba(255,225,238,0.65) !important;
+}
+
+.deco-bottom-left {
+  width: 44px !important;
+  height: 44px !important;
+  left: 18px !important;
+  bottom: 60px !important;
+  background: rgba(255,232,243,0.55) !important;
+}
+
+.share-card-message {
+  text-shadow: none !important;
+}
+
+.share-export-stage .share-card-preview::after {
+  top: 34px !important;
+  right: 34px !important;
+  font-size: 28px !important;
+  letter-spacing: 14px !important;
+}
+
+.share-export-stage .share-card-deco {
+  opacity: 0.48 !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+.share-export-stage .deco-top-left {
+  width: 112px !important;
+  height: 112px !important;
+  left: -8px !important;
+  top: -8px !important;
+}
+
+.share-export-stage .deco-top-right {
+  width: 62px !important;
+  height: 62px !important;
+  right: 42px !important;
+  top: 86px !important;
+}
+
+.share-export-stage .deco-bottom-left {
+  width: 62px !important;
+  height: 62px !important;
+  left: 28px !important;
+  bottom: 74px !important;
+}
