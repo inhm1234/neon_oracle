@@ -248,7 +248,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-16.3.1 test";
+const DEV_VERSION = "V3-16.3.2 test";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -2921,7 +2921,7 @@ const fortuneText = {
 };
 
 
-// V3-16.3.1 test: 카드 레이아웃 / 스티커 드래그 보정
+// V3-16.3.2 test: 카드 레이아웃 / 스티커 드래그 보정
 // 완전 랜덤이 아니라 생년월일, 태어난 시간, 성별 선택값, 오늘 날짜를 해시로 묶어
 // 같은 사람은 같은 날 일관되고, 다른 사람은 다른 결과가 나오도록 구성합니다.
 const oracleElementProfile = {
@@ -4338,95 +4338,154 @@ function clearShareCardStickers() {
   if (shareStudioStatus) shareStudioStatus.textContent = "스티커를 모두 지웠어요.";
 }
 
+function escapeSvgText(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function splitSvgLines(value, maxChars = 16, maxLines = 3) {
+  const text = String(value || "").replace(/[“”]/g, "").replace(/\s+/g, " ").trim();
+  if (!text) return [""];
+
+  const chunks = [];
+  let current = "";
+  Array.from(text).forEach((char) => {
+    current += char;
+    if (current.length >= maxChars && chunks.length < maxLines - 1) {
+      chunks.push(current.trim());
+      current = "";
+    }
+  });
+
+  if (current.trim()) chunks.push(current.trim());
+  if (chunks.length > maxLines) {
+    const clipped = chunks.slice(0, maxLines);
+    clipped[maxLines - 1] = `${clipped[maxLines - 1].slice(0, Math.max(1, maxChars - 1))}…`;
+    return clipped;
+  }
+  return chunks;
+}
+
+function getExportThemeColors(theme) {
+  const themes = {
+    lovely: { pageA: "#fff6fb", pageB: "#f5f0ff", cardA: "#ffd7ea", cardB: "#fff7fb", cardC: "#f8efff", ink: "#6f4e80", soft: "#7d678c", accent: "#ffbfde", deco: "#ffd2e8" },
+    sky: { pageA: "#f3fbff", pageB: "#eff2ff", cardA: "#d9f1ff", cardB: "#f9fcff", cardC: "#e7ecff", ink: "#536281", soft: "#66708e", accent: "#b9dcff", deco: "#cfeaff" },
+    twinkle: { pageA: "#fff9ea", pageB: "#ffeef6", cardA: "#fff0ba", cardB: "#fff9ef", cardC: "#ffdcec", ink: "#7a586e", soft: "#806777", accent: "#ffd976", deco: "#ffe39d" }
+  };
+  return themes[theme] || themes.lovely;
+}
+
+function buildShareCardSvg(format = "square") {
+  const result = latestShareResult;
+  const exportWidth = 1080;
+  const exportHeight = format === "story" ? 1920 : 1080;
+  const cardWidth = format === "story" ? 900 : 860;
+  const cardHeight = format === "story" ? 1380 : 860;
+  const cardX = Math.round((exportWidth - cardWidth) / 2);
+  const cardY = Math.round((exportHeight - cardHeight) / 2);
+  const colors = getExportThemeColors(shareCardState.theme);
+  const flow = result && result.summary ? result.summary.flow : "오늘의 흐름";
+  const keyword = result && result.summary ? result.summary.keyword : "마음 카드";
+  const message = trimShareCardMessage(result && result.summary ? result.summary.message : "오늘의 한마디를 가볍게 남겨보세요.", format === "story" ? 72 : 58);
+  const partnerNameText = result ? getPartnerShareName() : "파트너 오라클";
+  const themeMeta = getShareThemeMeta(shareCardState.theme);
+  const messageLines = splitSvgLines(message, format === "story" ? 17 : 15, 4);
+  const flowLines = splitSvgLines(flow, format === "story" ? 13 : 10, 2);
+  const keywordLines = splitSvgLines(keyword, format === "story" ? 8 : 7, 2);
+  const dateText = `${formatTodayCardDate()} · 나만의 감성 카드`;
+  const codeText = result ? result.code || "#----" : "#----";
+  const brandText = shareCardState.theme === "sky" ? "soft sky card" : (shareCardState.theme === "twinkle" ? "twinkle mood card" : "lovely mood card");
+  const fontFamily = "Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+  const flowY = cardY + (format === "story" ? 260 : 220);
+  const keywordY = flowY + (format === "story" ? 92 : 86);
+  const messageY = keywordY + (keywordLines.length * 72) + 44;
+  const miniY = cardY + cardHeight - (format === "story" ? 330 : 260);
+  const stickerNodes = shareCardState.stickers.map((item) => {
+    const x = cardX + (cardWidth * (Number.isFinite(item.x) ? item.x : 50) / 100);
+    const y = cardY + (cardHeight * (Number.isFinite(item.y) ? item.y : 50) / 100);
+    const rotate = Number.isFinite(item.rotate) ? item.rotate : 0;
+    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="46" font-family="${fontFamily}" transform="rotate(${rotate} ${x} ${y})">${escapeSvgText(item.symbol)}</text>`;
+  }).join("\n");
+  const flowText = flowLines.map((line, index) => `<tspan x="${cardX + 64}" dy="${index === 0 ? 0 : 34}">${escapeSvgText(line)}</tspan>`).join("");
+  const keywordText = keywordLines.map((line, index) => `<tspan x="${cardX + 64}" dy="${index === 0 ? 0 : 78}">${escapeSvgText(line)}</tspan>`).join("");
+  const messageText = messageLines.map((line, index) => `<tspan x="${cardX + 64}" dy="${index === 0 ? 0 : 42}">${escapeSvgText(line)}</tspan>`).join("");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${exportWidth}" height="${exportHeight}" viewBox="0 0 ${exportWidth} ${exportHeight}">
+  <defs>
+    <linearGradient id="pageBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${colors.pageA}"/><stop offset="1" stop-color="${colors.pageB}"/></linearGradient>
+    <linearGradient id="cardBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${colors.cardA}"/><stop offset="0.48" stop-color="${colors.cardB}"/><stop offset="1" stop-color="${colors.cardC}"/></linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#b79ac0" flood-opacity="0.22"/></filter>
+  </defs>
+  <rect width="${exportWidth}" height="${exportHeight}" fill="url(#pageBg)"/>
+  <circle cx="${cardX + 120}" cy="${cardY + 90}" r="140" fill="#ffffff" opacity="0.42"/>
+  <circle cx="${cardX + cardWidth - 90}" cy="${cardY + 160}" r="92" fill="${colors.deco}" opacity="0.52"/>
+  <circle cx="${cardX + 110}" cy="${cardY + cardHeight - 150}" r="104" fill="${colors.accent}" opacity="0.22"/>
+  <rect x="${cardX}" y="${cardY}" width="${cardWidth}" height="${cardHeight}" rx="54" fill="url(#cardBg)" filter="url(#softShadow)"/>
+  <circle cx="${cardX + 74}" cy="${cardY + 76}" r="92" fill="#ffffff" opacity="0.42"/>
+  <circle cx="${cardX + cardWidth - 82}" cy="${cardY + 150}" r="70" fill="${colors.deco}" opacity="0.42"/>
+  <rect x="${cardX + 58}" y="${cardY + 58}" width="210" height="48" rx="24" fill="#ffffff" opacity="0.7"/>
+  <text x="${cardX + 82}" y="${cardY + 90}" font-family="${fontFamily}" font-size="21" fill="${colors.soft}" letter-spacing="1">오늘의 운세코드</text>
+  <text x="${cardX + cardWidth - 58}" y="${cardY + 90}" text-anchor="end" font-family="${fontFamily}" font-size="22" font-weight="700" fill="${colors.soft}">${escapeSvgText(dateText)}</text>
+  <rect x="${cardX + 58}" y="${flowY - 42}" width="172" height="42" rx="21" fill="#ffffff" opacity="0.66"/>
+  <text x="${cardX + 80}" y="${flowY - 15}" font-family="${fontFamily}" font-size="20" fill="${colors.soft}" letter-spacing="2">TODAY MOOD</text>
+  <text x="${cardX + 64}" y="${flowY + 42}" font-family="${fontFamily}" font-size="34" font-weight="700" fill="${colors.soft}">${flowText}</text>
+  <text x="${cardX + 64}" y="${keywordY}" font-family="${fontFamily}" font-size="70" font-weight="800" fill="${colors.ink}">${keywordText}</text>
+  <text x="${cardX + 64}" y="${messageY}" font-family="${fontFamily}" font-size="32" font-weight="700" fill="${colors.soft}">${messageText}</text>
+  <text x="${cardX + 64}" y="${messageY + (messageLines.length * 42) + 40}" font-family="${fontFamily}" font-size="24" fill="${colors.soft}" opacity="0.82">${escapeSvgText(themeMeta.subnote)}</text>
+  <rect x="${cardX + 58}" y="${miniY}" width="${Math.round((cardWidth - 138) / 2)}" height="130" rx="30" fill="#ffffff" opacity="0.72"/>
+  <rect x="${cardX + 80 + Math.round((cardWidth - 138) / 2)}" y="${miniY}" width="${Math.round((cardWidth - 138) / 2)}" height="130" rx="30" fill="#ffffff" opacity="0.72"/>
+  <text x="${cardX + 90}" y="${miniY + 42}" font-family="${fontFamily}" font-size="21" fill="${colors.soft}" opacity="0.76">운세코드</text>
+  <text x="${cardX + 90}" y="${miniY + 86}" font-family="${fontFamily}" font-size="26" font-weight="800" fill="${colors.ink}">${escapeSvgText(codeText)}</text>
+  <text x="${cardX + 112 + Math.round((cardWidth - 138) / 2)}" y="${miniY + 42}" font-family="${fontFamily}" font-size="21" fill="${colors.soft}" opacity="0.76">파트너</text>
+  <text x="${cardX + 112 + Math.round((cardWidth - 138) / 2)}" y="${miniY + 86}" font-family="${fontFamily}" font-size="26" font-weight="800" fill="${colors.ink}">${escapeSvgText(partnerNameText)}</text>
+  <line x1="${cardX + 58}" y1="${cardY + cardHeight - 72}" x2="${cardX + cardWidth - 58}" y2="${cardY + cardHeight - 72}" stroke="#ffffff" stroke-width="2" opacity="0.72"/>
+  <text x="${cardX + 64}" y="${cardY + cardHeight - 34}" font-family="${fontFamily}" font-size="22" fill="${colors.soft}">${escapeSvgText(themeMeta.footer)}</text>
+  <text x="${cardX + cardWidth - 64}" y="${cardY + cardHeight - 34}" text-anchor="end" font-family="${fontFamily}" font-size="18" fill="${colors.soft}" letter-spacing="2" opacity="0.78">${escapeSvgText(brandText)}</text>
+  ${stickerNodes}
+</svg>`;
+}
+
 async function downloadShareCardImage(format = "square") {
-  if (!latestShareResult || !shareCardPreview) {
+  if (!latestShareResult) {
     if (shareStudioStatus) shareStudioStatus.textContent = "먼저 운세 결과를 본 뒤에 저장할 수 있어요.";
     return;
   }
-
   const exportWidth = 1080;
   const exportHeight = format === "story" ? 1920 : 1080;
-  const cardWidth = format === "story" ? 900 : 900;
-  const cardHeight = format === "story" ? 1500 : 900;
-  const previewClone = shareCardPreview.cloneNode(true);
-  previewClone.style.width = `${cardWidth}px`;
-  previewClone.style.minHeight = `${cardHeight}px`;
-  const inner = previewClone.querySelector('.share-card-inner');
-  if (inner) {
-    inner.style.minHeight = `${cardHeight}px`;
-  }
-  const footer = previewClone.querySelector('.share-card-footer');
-  if (footer) {
-    footer.style.left = '32px';
-    footer.style.right = '32px';
-    footer.style.bottom = '28px';
-  }
-  const serialized = new XMLSerializer().serializeToString(previewClone);
-  const exportTheme = shareCardState.theme;
-  const wrapperClass = format === "story" ? "story" : "square";
-  const svg = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="${exportWidth}" height="${exportHeight}" viewBox="0 0 ${exportWidth} ${exportHeight}">
-    <foreignObject width="100%" height="100%">
-      <div xmlns="http://www.w3.org/1999/xhtml" class="download-root ${wrapperClass} theme-${exportTheme}">
-        <style>
-          * { box-sizing: border-box; }
-          .download-root { width:${exportWidth}px; height:${exportHeight}px; display:flex; justify-content:center; align-items:center; background:${format === 'story' ? 'linear-gradient(180deg,#fff3f8 0%,#f4efff 100%)' : 'linear-gradient(180deg,#fff6fb 0%,#f5f0ff 100%)'}; }
-          .download-root.story { padding: 110px 70px; }
-          .download-root.square { padding: 90px; }
-          .share-card-preview { position:relative; overflow:hidden; border-radius:48px; font-family: Arial, sans-serif; box-shadow:0 28px 48px rgba(189,135,181,0.18); }
-          .share-card-inner { position:relative; padding:32px; }
-          .theme-lovely { background: linear-gradient(180deg, #ffddec 0%, #fff8fb 48%, #f6f0ff 100%); color: #714d73; }
-          .theme-sky { background: linear-gradient(180deg, #dff4ff 0%, #f8fbff 46%, #e9ecff 100%); color: #536281; }
-          .theme-twinkle { background: linear-gradient(180deg, #fff0bf 0%, #fff8f0 40%, #ffe2ef 100%); color: #7a586e; }
-          .share-card-deco { position:absolute; border-radius:50%; opacity:.55; filter:blur(1px); }
-          .deco-top-left { width:120px; height:120px; left:-30px; top:-25px; background: rgba(255,255,255,0.55); }
-          .deco-top-right { width:84px; height:84px; right:18px; top:58px; background: rgba(255,214,236,0.55); }
-          .deco-bottom-left { width:92px; height:92px; left:26px; bottom:74px; background: rgba(224,228,255,0.5); }
-          .share-card-header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:34px; }
-          .share-card-badge { display:inline-flex; padding:8px 12px; border-radius:999px; background: rgba(255,255,255,0.72); border:1px solid rgba(255,255,255,0.82); font-size: 20px; letter-spacing:.02em; }
-          .share-card-header strong { font-size:20px; line-height:1.5; }
-          .share-card-kicker { font-size:24px; line-height:1.4; opacity:.85; }
-          h4 { margin:12px 0 18px; font-size:56px; line-height:1.16; }
-          .share-card-message { font-size:28px; line-height:1.8; margin-bottom:24px; }
-          .share-card-mini-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-          .share-card-mini-grid div { padding:16px; border-radius:24px; background: rgba(255,255,255,0.68); border:1px solid rgba(255,255,255,0.82); }
-          .share-card-mini-grid span { display:block; margin-bottom:6px; font-size:20px; opacity:.72; }
-          .share-card-mini-grid strong { font-size:24px; }
-          .share-card-footer { position:absolute; left:32px; right:32px; bottom:28px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.82); font-size:20px; }
-          .share-card-stickers { position:absolute; inset:0; }
-          .share-card-sticker { position:absolute; border:0; background:transparent; padding:0; font-size:32px; line-height:1; box-shadow:none; }
-        </style>
-        ${serialized}
-      </div>
-    </foreignObject>
-  </svg>`;
-
+  const svg = buildShareCardSvg(format);
   const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const image = new Image();
-
   if (shareStudioStatus) shareStudioStatus.textContent = "이미지를 만드는 중이에요...";
-
   image.onload = () => {
-    const canvas = document.createElement("canvas");
-    canvas.width = exportWidth;
-    canvas.height = exportHeight;
-    const context = canvas.getContext("2d");
-    context.drawImage(image, 0, 0);
-    URL.revokeObjectURL(url);
-    const link = document.createElement("a");
-    const dateText = formatTodayCardDate().replace(/\./g, "");
-    link.download = `fortune-code-card-${format}-${dateText}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-    if (shareStudioStatus) shareStudioStatus.textContent = format === "story" ? "스토리용 카드를 저장했어요." : "정사각형 카드를 저장했어요.";
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = exportWidth;
+      canvas.height = exportHeight;
+      const context = canvas.getContext("2d");
+      context.drawImage(image, 0, 0);
+      URL.revokeObjectURL(url);
+      const link = document.createElement("a");
+      const dateText = formatTodayCardDate().replace(/\./g, "");
+      link.download = `fortune-code-card-${format}-${dateText}.png`;
+      link.href = canvas.toDataURL("image/png");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      if (shareStudioStatus) shareStudioStatus.textContent = format === "story" ? "스토리용 카드를 저장했어요." : "카톡용 카드를 저장했어요.";
+    } catch (error) {
+      console.error("카드 이미지 저장 실패", error);
+      if (shareStudioStatus) shareStudioStatus.textContent = "이미지 저장 중 문제가 생겼어요. 다시 한 번 시도해주세요.";
+    }
   };
-
   image.onerror = () => {
     URL.revokeObjectURL(url);
     if (shareStudioStatus) shareStudioStatus.textContent = "이미지 저장 중 문제가 생겼어요. 다시 한 번 시도해주세요.";
   };
-
   image.src = url;
 }
 
