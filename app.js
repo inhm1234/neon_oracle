@@ -246,7 +246,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-16.0 test";
+const DEV_VERSION = "V3-16.1 test";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -2919,7 +2919,7 @@ const fortuneText = {
 };
 
 
-// V3-16.0 test: 결과 카드 꾸미기 / 이미지 저장 1차
+// V3-16.1 test: 배경/첫화면 파스텔 보정
 // 완전 랜덤이 아니라 생년월일, 태어난 시간, 성별 선택값, 오늘 날짜를 해시로 묶어
 // 같은 사람은 같은 날 일관되고, 다른 사람은 다른 결과가 나오도록 구성합니다.
 const oracleElementProfile = {
