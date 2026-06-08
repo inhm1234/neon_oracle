@@ -48,26 +48,6 @@ const restartInputBtn = document.getElementById("restartInputBtn");
 const openPartnerResultBtn = document.getElementById("openPartnerResultBtn");
 const openHistoryResultBtn = document.getElementById("openHistoryResultBtn");
 const shareResultBtn = document.getElementById("shareResultBtn");
-const openShareStudioBtn = document.getElementById("openShareStudioBtn");
-const closeShareStudioBtn = document.getElementById("closeShareStudioBtn");
-const downloadSquareCardBtn = document.getElementById("downloadSquareCardBtn");
-const downloadStoryCardBtn = document.getElementById("downloadStoryCardBtn");
-const clearStickersBtn = document.getElementById("clearStickersBtn");
-const shareStudioCard = document.getElementById("shareStudioCard");
-const shareStudioStatus = document.getElementById("shareStudioStatus");
-const shareCardPreview = document.getElementById("shareCardPreview");
-const shareCardDate = document.getElementById("shareCardDate");
-const shareCardFlow = document.getElementById("shareCardFlow");
-const shareCardKeyword = document.getElementById("shareCardKeyword");
-const shareCardMessage = document.getElementById("shareCardMessage");
-const shareCardSubnote = document.getElementById("shareCardSubnote");
-const shareCardCode = document.getElementById("shareCardCode");
-const shareCardPartner = document.getElementById("shareCardPartner");
-const shareCardFooter = document.getElementById("shareCardFooter");
-const shareCardSignature = document.getElementById("shareCardSignature");
-const shareCardStickers = document.getElementById("shareCardStickers");
-const shareThemeButtons = Array.from(document.querySelectorAll("[data-share-theme]"));
-const stickerButtons = Array.from(document.querySelectorAll("[data-sticker]"));
 const shareFeedbackMessage = document.getElementById("shareFeedbackMessage");
 const sharePreviewCode = document.getElementById("sharePreviewCode");
 const sharePreviewFlow = document.getElementById("sharePreviewFlow");
@@ -248,7 +228,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-16.2 test";
+const DEV_VERSION = "V3-15.2 test";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -2779,7 +2759,7 @@ const partnerTemplates = [
     },
     levelUps: [
       "연결 강도가 상승했어. 이제 더 많은 패턴을 읽을 수 있어.",
-      "오늘은 조금 더 편하게 읽을 수 있도록 짧게 정리해볼게.",
+      "분석 모듈이 확장됐어. 오늘부터 해석 정밀도가 조금 더 올라갈 거야.",
       "각성 프로토콜이 열렸어. 별빛 데이터와 네 운세코드가 더 깊게 연결됐어."
     ],
     result: [
@@ -2921,7 +2901,7 @@ const fortuneText = {
 };
 
 
-// V3-16.2 test: 공유 카드 디자인 강화
+// V3-15.2 test: AI 오라클 신뢰도 엔진 1차 + 부드러운 분석 요약
 // 완전 랜덤이 아니라 생년월일, 태어난 시간, 성별 선택값, 오늘 날짜를 해시로 묶어
 // 같은 사람은 같은 날 일관되고, 다른 사람은 다른 결과가 나오도록 구성합니다.
 const oracleElementProfile = {
@@ -4086,7 +4066,7 @@ function makeResult(profile) {
   });
 
   return {
-    title: profile.name ? `${profile.name}님의 오늘의 흐름 카드` : "오늘의 흐름 카드",
+    title: profile.name ? `${profile.name}님의 AI 오라클 리포트` : "AI 오라클 리포트",
     code: oracleCode,
     complete,
     relation,
@@ -4150,229 +4130,6 @@ function getPartnerShareName() {
   }
 }
 
-
-const SHARE_CARD_POSITIONS = [
-  { left: 26, top: 58, rotate: -10 },
-  { left: 78, top: 142, rotate: 8 },
-  { right: 30, top: 112, rotate: 6 },
-  { right: 42, top: 252, rotate: -8 },
-  { left: 36, bottom: 118, rotate: -6 },
-  { right: 34, bottom: 108, rotate: 12 },
-  { left: 138, bottom: 62, rotate: -4 },
-  { right: 126, bottom: 56, rotate: 4 }
-];
-const shareCardState = {
-  theme: "lovely",
-  stickers: []
-};
-
-function formatTodayCardDate() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const date = String(now.getDate()).padStart(2, "0");
-  return `${year}.${month}.${date}`;
-}
-
-function trimShareCardMessage(text, max = 60) {
-  if (!text) return "오늘의 한마디를 가볍게 남겨보세요.";
-  const normalized = String(text).replace(/\s+/g, " ").trim();
-  if (normalized.length <= max) return normalized;
-  return `${normalized.slice(0, max).trim()}…`;
-}
-
-function getShareThemeMeta(theme) {
-  const meta = {
-    lovely: { subnote: "말랑하고 사랑스러운 오늘의 기분", footer: "말랑한 하루를 위한 저장 카드" },
-    sky: { subnote: "맑고 차분한 흐름을 담은 카드", footer: "깨끗한 기분으로 남기는 오늘의 카드" },
-    twinkle: { subnote: "반짝이는 무드와 키워드를 담은 카드", footer: "통통 튀는 하루를 위한 감성 카드" }
-  };
-  return meta[theme] || meta.lovely;
-}
-
-function updateShareThemeButtons() {
-  shareThemeButtons.forEach((button) => {
-    button.classList.toggle("is-active", button.dataset.shareTheme === shareCardState.theme);
-  });
-}
-
-function renderShareCardStickers() {
-  if (!shareCardStickers) return;
-  shareCardStickers.innerHTML = shareCardState.stickers.map((item, index) => {
-    const pos = SHARE_CARD_POSITIONS[index % SHARE_CARD_POSITIONS.length];
-    const style = [
-      pos.left !== undefined ? `left:${pos.left}px` : "",
-      pos.right !== undefined ? `right:${pos.right}px` : "",
-      pos.top !== undefined ? `top:${pos.top}px` : "",
-      pos.bottom !== undefined ? `bottom:${pos.bottom}px` : "",
-      `transform: rotate(${pos.rotate || 0}deg)`
-    ].filter(Boolean).join(";");
-    return `<span class="share-card-sticker" style="${style}">${item}</span>`;
-  }).join("");
-}
-
-function renderShareCardPreview(result = latestShareResult) {
-  if (!shareCardPreview) return;
-
-  const flow = result && result.summary ? result.summary.flow : "오늘의 흐름";
-  const keyword = result && result.summary ? result.summary.keyword : "마음 카드";
-  const message = trimShareCardMessage(result && result.summary ? result.summary.message : "운세를 분석하면 오늘의 한마디가 여기에 들어갑니다.");
-  const partnerNameText = result ? getPartnerShareName() : "파트너 오라클";
-  const themeMeta = getShareThemeMeta(shareCardState.theme);
-  const footerText = result ? themeMeta.footer : "운세를 보고 나면 저장용 카드가 만들어져요";
-
-  shareCardPreview.classList.remove("theme-lovely", "theme-sky", "theme-twinkle");
-  shareCardPreview.classList.add(`theme-${shareCardState.theme}`);
-  shareCardPreview.dataset.shareTheme = shareCardState.theme;
-
-  if (shareCardDate) shareCardDate.textContent = `${formatTodayCardDate()} · 나만의 감성 카드`;
-  if (shareCardFlow) shareCardFlow.textContent = flow;
-  if (shareCardKeyword) shareCardKeyword.textContent = keyword;
-  if (shareCardMessage) shareCardMessage.textContent = `“${message}”`;
-  if (shareCardSubnote) shareCardSubnote.textContent = themeMeta.subnote;
-  if (shareCardCode) shareCardCode.textContent = result ? result.code || "#----" : "#----";
-  if (shareCardPartner) shareCardPartner.textContent = partnerNameText;
-  if (shareCardFooter) shareCardFooter.textContent = footerText;
-  if (shareCardSignature) shareCardSignature.textContent = shareCardState.theme === "sky" ? "soft sky card" : (shareCardState.theme === "twinkle" ? "twinkle mood card" : "lovely mood card");
-
-  renderShareCardStickers();
-  updateShareThemeButtons();
-}
-
-function openShareStudio() {
-  if (!latestShareResult) {
-    if (shareStudioStatus) shareStudioStatus.textContent = "먼저 운세 결과를 본 뒤에 꾸미기 카드를 열 수 있어요.";
-    if (statusText) statusText.textContent = "먼저 운세를 본 뒤에 꾸미기 카드를 사용할 수 있습니다.";
-    return;
-  }
-
-  if (shareStudioCard) {
-    shareStudioCard.classList.remove("hidden");
-  }
-  renderShareCardPreview();
-  if (shareStudioStatus) {
-    shareStudioStatus.textContent = "테마를 고르고 스티커를 붙인 뒤, 이미지로 저장해보세요.";
-  }
-  window.setTimeout(() => {
-    if (shareStudioCard && typeof shareStudioCard.scrollIntoView === "function") {
-      shareStudioCard.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, 60);
-}
-
-function closeShareStudio() {
-  if (shareStudioCard) shareStudioCard.classList.add("hidden");
-}
-
-function addStickerToShareCard(symbol) {
-  if (shareCardState.stickers.length >= 8) {
-    if (shareStudioStatus) shareStudioStatus.textContent = "스티커는 최대 8개까지 붙일 수 있어요.";
-    return;
-  }
-  shareCardState.stickers.push(symbol);
-  renderShareCardPreview();
-  if (shareStudioStatus) shareStudioStatus.textContent = `스티커 ${symbol} 를 추가했어요.`;
-}
-
-function clearShareCardStickers() {
-  shareCardState.stickers = [];
-  renderShareCardPreview();
-  if (shareStudioStatus) shareStudioStatus.textContent = "스티커를 모두 지웠어요.";
-}
-
-async function downloadShareCardImage(format = "square") {
-  if (!latestShareResult || !shareCardPreview) {
-    if (shareStudioStatus) shareStudioStatus.textContent = "먼저 운세 결과를 본 뒤에 저장할 수 있어요.";
-    return;
-  }
-
-  const exportWidth = 1080;
-  const exportHeight = format === "story" ? 1920 : 1080;
-  const cardWidth = format === "story" ? 900 : 900;
-  const cardHeight = format === "story" ? 1500 : 900;
-  const previewClone = shareCardPreview.cloneNode(true);
-  previewClone.style.width = `${cardWidth}px`;
-  previewClone.style.minHeight = `${cardHeight}px`;
-  const inner = previewClone.querySelector('.share-card-inner');
-  if (inner) {
-    inner.style.minHeight = `${cardHeight}px`;
-  }
-  const footer = previewClone.querySelector('.share-card-footer');
-  if (footer) {
-    footer.style.left = '32px';
-    footer.style.right = '32px';
-    footer.style.bottom = '28px';
-  }
-  const serialized = new XMLSerializer().serializeToString(previewClone);
-  const exportTheme = shareCardState.theme;
-  const wrapperClass = format === "story" ? "story" : "square";
-  const svg = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="${exportWidth}" height="${exportHeight}" viewBox="0 0 ${exportWidth} ${exportHeight}">
-    <foreignObject width="100%" height="100%">
-      <div xmlns="http://www.w3.org/1999/xhtml" class="download-root ${wrapperClass} theme-${exportTheme}">
-        <style>
-          * { box-sizing: border-box; }
-          .download-root { width:${exportWidth}px; height:${exportHeight}px; display:flex; justify-content:center; align-items:center; background:${format === 'story' ? 'linear-gradient(180deg,#fff3f8 0%,#f4efff 100%)' : 'linear-gradient(180deg,#fff6fb 0%,#f5f0ff 100%)'}; }
-          .download-root.story { padding: 110px 70px; }
-          .download-root.square { padding: 90px; }
-          .share-card-preview { position:relative; overflow:hidden; border-radius:48px; font-family: Arial, sans-serif; box-shadow:0 28px 48px rgba(189,135,181,0.18); }
-          .share-card-inner { position:relative; padding:32px; }
-          .theme-lovely { background: linear-gradient(180deg, #ffddec 0%, #fff8fb 48%, #f6f0ff 100%); color: #714d73; }
-          .theme-sky { background: linear-gradient(180deg, #dff4ff 0%, #f8fbff 46%, #e9ecff 100%); color: #536281; }
-          .theme-twinkle { background: linear-gradient(180deg, #fff0bf 0%, #fff8f0 40%, #ffe2ef 100%); color: #7a586e; }
-          .share-card-deco { position:absolute; border-radius:50%; opacity:.55; filter:blur(1px); }
-          .deco-top-left { width:120px; height:120px; left:-30px; top:-25px; background: rgba(255,255,255,0.55); }
-          .deco-top-right { width:84px; height:84px; right:18px; top:58px; background: rgba(255,214,236,0.55); }
-          .deco-bottom-left { width:92px; height:92px; left:26px; bottom:74px; background: rgba(224,228,255,0.5); }
-          .share-card-header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:34px; }
-          .share-card-badge { display:inline-flex; padding:8px 12px; border-radius:999px; background: rgba(255,255,255,0.72); border:1px solid rgba(255,255,255,0.82); font-size: 20px; letter-spacing:.02em; }
-          .share-card-header strong { font-size:20px; line-height:1.5; }
-          .share-card-kicker { font-size:24px; line-height:1.4; opacity:.85; }
-          h4 { margin:12px 0 18px; font-size:56px; line-height:1.16; }
-          .share-card-message { font-size:28px; line-height:1.8; margin-bottom:24px; }
-          .share-card-mini-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-          .share-card-mini-grid div { padding:16px; border-radius:24px; background: rgba(255,255,255,0.68); border:1px solid rgba(255,255,255,0.82); }
-          .share-card-mini-grid span { display:block; margin-bottom:6px; font-size:20px; opacity:.72; }
-          .share-card-mini-grid strong { font-size:24px; }
-          .share-card-footer { position:absolute; left:32px; right:32px; bottom:28px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.82); font-size:20px; }
-          .share-card-stickers { position:absolute; inset:0; }
-          .share-card-sticker { position:absolute; font-size:32px; line-height:1; }
-        </style>
-        ${serialized}
-      </div>
-    </foreignObject>
-  </svg>`;
-
-  const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const image = new Image();
-
-  if (shareStudioStatus) shareStudioStatus.textContent = "이미지를 만드는 중이에요...";
-
-  image.onload = () => {
-    const canvas = document.createElement("canvas");
-    canvas.width = exportWidth;
-    canvas.height = exportHeight;
-    const context = canvas.getContext("2d");
-    context.drawImage(image, 0, 0);
-    URL.revokeObjectURL(url);
-    const link = document.createElement("a");
-    const dateText = formatTodayCardDate().replace(/\./g, "");
-    link.download = `fortune-code-card-${format}-${dateText}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-    if (shareStudioStatus) shareStudioStatus.textContent = format === "story" ? "스토리용 카드를 저장했어요." : "정사각형 카드를 저장했어요.";
-  };
-
-  image.onerror = () => {
-    URL.revokeObjectURL(url);
-    if (shareStudioStatus) shareStudioStatus.textContent = "이미지 저장 중 문제가 생겼어요. 다시 한 번 시도해주세요.";
-  };
-
-  image.src = url;
-}
-
-
 function renderSharePreview(result) {
   if (!result) return;
 
@@ -4433,7 +4190,6 @@ function renderResult(result, partnerReaction = null) {
   setOraclePose("shy");
   setOracleGuideFromResult(result, partnerReaction);
   resultCard.classList.remove("hidden");
-  renderShareCardPreview(result);
 }
 
 function scrollToResultCard() {
@@ -4514,7 +4270,7 @@ function buildShareTextFromLatestResult() {
   const result = latestShareResult;
 
   if (!result) {
-    return `오늘의 운세코드에서 오늘의 흐름을 가볍게 확인해보세요.\n${url}`;
+    return `오늘의 운세코드에서 오늘 운세를 확인해보세요.\n${url}`;
   }
 
   const flow = result.summary ? result.summary.flow : "오늘의 흐름을 확인했어요.";
@@ -4529,7 +4285,7 @@ function buildShareTextFromLatestResult() {
     `키워드: ${keyword}`,
     `한마디: ${message}`,
     ``,
-    `${partnerNameText}가 개인 코드와 오늘 신호를 바탕으로 만든 재미와 기록용 감성 카드예요.`,
+    `${partnerNameText}가 개인 코드와 오늘 신호를 읽어준 AI 오라클 리포트예요.`,
     `나도 보기: ${url}`
   ].join("\n");
 }
@@ -4570,7 +4326,7 @@ function setShareButtonWorking(isWorking) {
   if (!shareResultBtn) return;
 
   shareResultBtn.disabled = isWorking;
-  shareResultBtn.textContent = isWorking ? "복사 중..." : "문구 공유";
+  shareResultBtn.textContent = isWorking ? "복사 중..." : "공유하기";
 }
 
 async function copyLatestFortuneShareText(message = "공유 문구를 복사했습니다. 카카오톡, 블로그, 문자에 붙여넣을 수 있어요.") {
@@ -4813,7 +4569,7 @@ async function analyzeFortune(event) {
   resultCard.classList.add("hidden");
   renderPartnerInsight(null);
   setOraclePose("fly");
-  setOracleGuideMessage("입력한 정보를 오늘의 흐름 카드로 정리하는 중이에요. 미래를 단정하지 않고 참고용으로 읽어볼게요.", "오늘 흐름 정리 중", "thinking");
+  setOracleGuideMessage("입력한 정보를 AI 오라클 코드로 변환하는 중이에요. 같은 사람은 같은 날 같은 흐름으로 읽을게요.", "AI 오라클 스캔 중", "thinking");
   if (oracleGuideOrb) oracleGuideOrb.classList.add("analyzing");
   document.body.classList.add("scanning");
 
@@ -4836,22 +4592,22 @@ async function analyzeFortune(event) {
     }
 
     statusText.textContent = "1/4 개인 출생 리듬을 스캔하는 중...";
-    setOracleGuideMessage("생년월일과 선택값을 묶어 오늘의 참고 코드를 만들고 있어요.", "기본 흐름 정리", "thinking");
+    setOracleGuideMessage("생년월일, 시간 좌표, 선택값을 묶어 개인 코드를 만들고 있어요.", "개인 코드 분석", "thinking");
     await wait(450);
 
     statusText.textContent = "2/4 오늘 날짜 신호를 수집하는 중...";
-    setOracleGuideMessage("오늘 날짜와 계절 흐름을 가벼운 참고 신호로 바꾸고 있어요.", "오늘 신호 수집", "thinking");
+    setOracleGuideMessage("오늘 날짜와 계절 흐름을 오늘의 신호 코드로 변환하고 있어요.", "오늘 신호 수집", "thinking");
     await wait(450);
 
-    statusText.textContent = "3/4 개인 코드와 오늘 신호를 가볍게 맞춰보는 중...";
+    statusText.textContent = "3/4 개인 코드와 오늘 신호를 동기화하는 중...";
     await wait(550);
 
-    statusText.textContent = "4/4 오늘의 흐름 문장을 정리하는 중...";
-    setOracleGuideMessage("오늘의 총운, 조심할 점, 작은 행동을 읽기 쉽게 정리하고 있어요.", "흐름 문장 정리", "thinking");
+    statusText.textContent = "4/4 분야별 운세 리포트를 조합하는 중...";
+    setOracleGuideMessage("재물, 관계, 일, 건강, 조심할 점을 같은 기준으로 나눠서 해석하고 있어요.", "분야별 리포트", "thinking");
     await wait(550);
 
-    statusText.textContent = "오늘의 흐름 카드를 정리하는 중...";
-    setOracleGuideMessage("미래를 단정하지 않고, 오늘을 돌아볼 작은 문장으로 번역하고 있어요.", "흐름 카드 생성", "thinking");
+    statusText.textContent = "AI 오라클 리포트를 정리하는 중...";
+    setOracleGuideMessage("미래를 단정하지 않고, 오늘 주의 깊게 볼 방향으로 쉽게 번역하고 있어요.", "리포트 생성", "thinking");
     await wait(450);
 
     const result = makeResult(profile);
@@ -4867,7 +4623,7 @@ async function analyzeFortune(event) {
     saveFortuneHistory(profile, result, reaction);
     await autoSaveDefaultProfileAfterAnalyze();
     renderVisitorGuideState();
-    statusText.textContent = "오늘의 흐름 카드가 완성되었습니다.";
+    statusText.textContent = "AI 오라클 리포트가 완성되었습니다.";
   } catch (error) {
     console.error(error);
     statusText.textContent = "분석 중 오류가 생겼습니다. 파일을 새로 덮어씌운 뒤 Ctrl + F5로 새로고침해주세요.";
@@ -5845,40 +5601,6 @@ if (openHistoryResultBtn) {
 if (shareResultBtn) {
   shareResultBtn.addEventListener("click", shareLatestFortuneResult);
 }
-
-if (openShareStudioBtn) {
-  openShareStudioBtn.addEventListener("click", openShareStudio);
-}
-
-if (closeShareStudioBtn) {
-  closeShareStudioBtn.addEventListener("click", closeShareStudio);
-}
-
-if (downloadSquareCardBtn) {
-  downloadSquareCardBtn.addEventListener("click", () => downloadShareCardImage("square"));
-}
-
-if (downloadStoryCardBtn) {
-  downloadStoryCardBtn.addEventListener("click", () => downloadShareCardImage("story"));
-}
-
-if (clearStickersBtn) {
-  clearStickersBtn.addEventListener("click", clearShareCardStickers);
-}
-
-shareThemeButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    shareCardState.theme = button.dataset.shareTheme || "lovely";
-    renderShareCardPreview();
-    if (shareStudioStatus) shareStudioStatus.textContent = `${button.textContent.trim()} 테마로 카드 분위기를 바꿨어요.`;
-  });
-});
-
-stickerButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    addStickerToShareCard(button.dataset.sticker || "♡");
-  });
-});
 
 if (quickStartBtn) {
   quickStartBtn.addEventListener("click", () => {

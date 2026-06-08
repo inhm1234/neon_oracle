@@ -45,7 +45,7 @@
 }
 </script>
 <link href="manifest.json" rel="manifest"/>
-<link href="./style.css?v=20260608-v3162-test" rel="stylesheet"/>
+<link href="./style.css?v=20260604-v3153-test" rel="stylesheet"/>
 </head>
 <body>
 <canvas id="matrix"></canvas>
@@ -79,18 +79,18 @@
   </div>
 </div>
 <main class="container">
-<div class="brand-label">AI ORACLE FORTUNE SYSTEM</div><div class="top-version-badge" id="topVersionBadge">V3-16.2 test</div><h1 class="title" data-text="오늘의 운세코드">오늘의 운세코드</h1><p class="subtitle">
-    생년월일과 오늘 날짜를 바탕으로, 오늘의 기분과 흐름을 가볍게 돌아보는 감성 운세카드입니다.
+<div class="brand-label">AI ORACLE FORTUNE SYSTEM</div><div class="top-version-badge" id="topVersionBadge">V3-15.3 test</div><h1 class="title" data-text="오늘의 운세코드">오늘의 운세코드</h1><p class="subtitle">
+    AI 오라클이 생년월일과 오늘 날짜 신호를 코드화해, 오늘 주의 깊게 볼 방향을 쉽게 정리합니다.
   </p><section class="visitor-guide-card" id="visitorGuideCard" aria-label="처음 방문자 안내">
 <div class="visitor-guide-main">
-<span class="small-label">FIRST 10 USERS GUIDE</span>
-<h2>처음 오셨다면, 오늘의 마음 흐름을 가볍게 확인해보세요</h2>
-<p>정통 점술이나 전문 상담이 아니라, 하루를 돌아보는 재미와 기록용 감성 리포트입니다. 부담 없이 한 번만 써봐도 괜찮아요.</p>
+<span class="small-label">FIRST VISIT GUIDE</span>
+<h2>처음 오셨다면, 30초만에 오늘의 운세를 확인해보세요</h2>
+<p>복잡한 가입 없이 생년월일을 입력하면 AI 오라클이 개인 코드와 오늘 신호를 비교해 오늘의 흐름을 읽어드립니다.</p>
 </div>
 <div class="visitor-guide-steps">
 <div><span>1</span><strong>생년월일 입력</strong><em>태어난 시간은 몰라도 괜찮아요.</em></div>
-<div><span>2</span><strong>오늘 흐름 정리</strong><em>미래를 단정하지 않고 참고용으로 정리합니다.</em></div>
-<div><span>3</span><strong>가볍게 저장/공유</strong><em>마음에 들면 주변 사람에게 보여줄 수 있어요.</em></div>
+<div><span>2</span><strong>AI 코드 스캔</strong><em>개인 코드와 오늘 신호를 비교합니다.</em></div>
+<div><span>3</span><strong>파트너 해설</strong><em>캐릭터가 핵심을 쉽게 정리해줍니다.</em></div>
 </div>
 <button class="small-button visitor-start-btn" id="quickStartBtn" type="button">바로 입력하러 가기</button>
 </section><section class="input-card hero-input-card">
@@ -132,7 +132,7 @@
 </label>
 </div>
 <p class="notice">
-        이 서비스는 재미와 자기기록을 위한 감성 리포트입니다. 정통 사주, 전문 상담, 중요한 의사결정의 근거로 사용하기보다는 오늘 하루를 가볍게 돌아보는 용도로 봐주세요.
+        현재는 양력 생년월일과 오늘 날짜 흐름을 AI 오라클 코드로 해석하는 간이 리포트입니다. 정밀 만세력, 음력 변환, 절기 기준 사주 계산은 추후 확장할 수 있습니다.
       </p>
 <div class="default-profile-box" id="defaultProfileBox">
 <div class="default-profile-top">
@@ -149,7 +149,7 @@
 <p class="default-profile-status" id="defaultProfileStatus">로그인 전에는 이 브라우저에, Google 로그인 후에는 계정에 자동 저장됩니다.</p>
 </div>
 <button id="analyzeBtn" type="submit">
-        오늘의 흐름 보기
+        AI 오라클 리포트 생성하기
       </button>
 </form>
 </section><div class="status-text" id="statusText">
@@ -163,7 +163,7 @@
 <strong class="firebase-status-badge" id="firebaseLoginStatus">연결 확인 중</strong>
 </div>
 <p class="firebase-login-desc user-simple-desc">
-      로그인은 선택사항입니다. 로그인하지 않아도 운세 보기는 바로 사용할 수 있고, 원할 때만 기록 저장을 사용할 수 있어요.
+      로그인하면 운세 기록과 파트너 데이터를 계정에 저장할 수 있습니다. 기본 화면에서는 운세 보기만 편하게 사용할 수 있어요.
     </p>
 <div class="embedded-browser-guide hidden" id="embeddedBrowserGuide">
 <strong>카카오톡 안에서는 Google 로그인이 제한될 수 있어요</strong>
@@ -213,20 +213,20 @@
 <strong id="completeRate">--%</strong>
 </div>
 </div>
-<h2 id="resultTitle">오늘의 흐름 카드</h2>
+<h2 id="resultTitle">오늘의 운세 분석 결과</h2>
 <div class="oracle-result-narration" id="oracleResultNarration">
 <span>파트너가 읽어주는 오늘의 운세</span>
-<p id="oracleResultText">오늘의 흐름을 보면 파트너가 핵심을 짧게 읽어드립니다.</p>
+<p id="oracleResultText">AI 오라클 리포트를 생성하면 파트너가 먼저 핵심을 읽어드립니다.</p>
 </div>
 <div class="oracle-basis-card oracle-basis-card-soft" id="oracleBasisCard" aria-label="AI 오라클 분석 요약">
 <div class="oracle-basis-top">
 <div>
-<span class="small-label">TODAY NOTE</span>
-<strong>오늘의 감성 해석</strong>
+<span class="small-label">AI ORACLE NOTE</span>
+<strong>오늘의 AI 해석</strong>
 </div>
-<em>단정하지 않고, 참고용으로 짧게 보여드릴게요.</em>
+<em>핵심만 먼저 짧게 보여드릴게요.</em>
 </div>
-<p class="oracle-basis-reason" id="oracleBasisReason">생년월일과 오늘 날짜 흐름을 조합해 오늘 돌아볼 방향을 정리합니다.</p>
+<p class="oracle-basis-reason" id="oracleBasisReason">생년월일과 오늘 날짜 흐름을 조합해 오늘의 방향을 정리합니다.</p>
 <div class="oracle-basis-grid compact-basis-grid">
 <div><span>내 기본 흐름</span><strong id="oracleBasisPersonal">분석 전</strong></div>
 <div><span>오늘의 신호</span><strong id="oracleBasisToday">분석 전</strong></div>
@@ -235,7 +235,7 @@
 <details class="oracle-basis-detail">
 <summary>왜 이렇게 나왔나요?</summary>
 <p id="oracleBasisInput">분석 전</p>
-<p id="oracleBasisFormula">같은 입력값과 같은 날짜는 같은 코드로 유지되지만, 결과는 재미와 기록용 참고로 봐주세요.</p>
+<p id="oracleBasisFormula">같은 입력값과 같은 날짜는 같은 코드로 유지됩니다.</p>
 </details>
 </div>
 <div class="priority-result-grid">
@@ -306,103 +306,15 @@
 <div class="result-next-actions" aria-label="운세 결과 다음 행동">
 <div>
 <span>RESULT ACTIONS</span>
-<strong>결과가 괜찮았다면 예쁘게 꾸며 저장하거나, 내일 다시 가볍게 확인해보세요.</strong>
+<strong>결과만 간단히 보고, 필요할 때만 다음 행동을 선택하세요.</strong>
 </div>
 <div class="result-action-buttons">
-<button class="small-button share-result-button" id="shareResultBtn" type="button">문구 공유</button>
-<button class="small-button" id="openShareStudioBtn" type="button">카드 꾸미기</button>
+<button class="small-button share-result-button" id="shareResultBtn" type="button">공유하기</button>
 <button class="small-button" id="restartInputBtn" type="button">내 정보 수정</button>
 <button class="small-button" id="openPartnerResultBtn" type="button">다른 사람 보기</button>
 <button class="small-button" id="openHistoryResultBtn" type="button">기록</button>
 </div>
-<p class="share-feedback-message" id="shareFeedbackMessage" aria-live="polite">문구를 공유하거나, 꾸미기 카드를 저장해 친구에게 보여줄 수 있어요.</p>
-</div>
-<div class="share-studio-card hidden" id="shareStudioCard" aria-label="꾸미기 카드 스튜디오">
-<div class="share-studio-top">
-<div>
-<span class="small-label">SHARE CARD STUDIO</span>
-<h3>오늘의 결과를 예쁘게 꾸며보세요</h3>
-<p>테마를 고르고 스티커를 붙인 뒤, 정사각형 또는 스토리 카드로 저장할 수 있어요.</p>
-</div>
-<button class="small-button" id="closeShareStudioBtn" type="button">닫기</button>
-</div>
-<div class="share-studio-editor">
-<div class="share-studio-panel">
-<div class="share-panel-group">
-<span>테마 선택</span>
-<div class="theme-selector-row">
-<button class="theme-pill is-active" data-share-theme="lovely" type="button">러블리 핑크</button>
-<button class="theme-pill" data-share-theme="sky" type="button">감성 하늘</button>
-<button class="theme-pill" data-share-theme="twinkle" type="button">반짝 키치</button>
-</div>
-</div>
-<div class="share-panel-group">
-<span>스티커 추가</span>
-<div class="sticker-selector-row">
-<button class="sticker-chip" data-sticker="♡" type="button">♡</button>
-<button class="sticker-chip" data-sticker="✦" type="button">✦</button>
-<button class="sticker-chip" data-sticker="🎀" type="button">🎀</button>
-<button class="sticker-chip" data-sticker="☁" type="button">☁</button>
-<button class="sticker-chip" data-sticker="🌙" type="button">🌙</button>
-<button class="sticker-chip" data-sticker="🍀" type="button">🍀</button>
-</div>
-</div>
-<div class="share-panel-group">
-<span>저장하기</span>
-<div class="share-download-row">
-<button class="small-button" id="downloadSquareCardBtn" type="button">카톡용 저장</button>
-<button class="small-button" id="downloadStoryCardBtn" type="button">스토리용 저장</button>
-</div>
-</div>
-<div class="share-panel-group">
-<button class="small-button" id="clearStickersBtn" type="button">스티커 지우기</button>
-<p class="share-studio-note">지금은 가벼운 꾸미기 기능만 먼저 넣었어요. 마음에 들면 저장해서 카톡이나 스토리로 공유해보세요.</p>
-</div>
-<p class="share-studio-status" id="shareStudioStatus">운세 결과를 보고 나면 꾸미기 카드 미리보기가 여기에 표시됩니다.</p>
-</div>
-<div class="share-studio-preview-wrap">
-<div class="share-card-frame is-square">
-<div class="share-card-preview theme-lovely" data-share-theme="lovely" id="shareCardPreview">
-<div class="share-card-inner">
-<div class="share-card-deco deco-top-left"></div>
-<div class="share-card-deco deco-top-right"></div>
-<div class="share-card-deco deco-bottom-left"></div>
-<div class="share-card-header">
-<span class="share-card-badge">오늘의 운세코드</span>
-<strong id="shareCardDate">오늘의 감성 카드</strong>
-</div>
-<div class="share-card-body">
-<span class="share-card-label">TODAY MOOD</span>
-<p class="share-card-kicker" id="shareCardFlow">오늘의 흐름</p>
-<h4 id="shareCardKeyword">반짝 키워드</h4>
-<p class="share-card-message" id="shareCardMessage">운세를 분석하면 여기에 오늘의 한마디가 들어갑니다.</p>
-<p class="share-card-subnote" id="shareCardSubnote">오늘의 키워드를 중심으로 가볍게 저장하는 카드예요.</p>
-<div class="share-card-mini-grid">
-<div><span>운세코드</span><strong id="shareCardCode">#----</strong></div>
-<div><span>파트너</span><strong id="shareCardPartner">파트너 오라클</strong></div>
-</div>
-</div>
-<div class="share-card-footer">
-<span id="shareCardFooter">재미와 기록용 감성 카드</span><strong id="shareCardSignature">오늘의 운세코드</strong>
-</div>
-<div class="share-card-stickers" id="shareCardStickers"></div>
-</div>
-</div>
-</div>
-</div>
-</div>
-
-<div class="operation-support-card" aria-label="무료 운영 안내">
-<div>
-<span class="small-label">FREE SERVICE NOTE</span>
-<strong>무료로 운영되는 작은 서비스입니다</strong>
-<p>전문 운세 판매가 아니라, 하루를 가볍게 돌아보는 감성 결과물로 만들고 있습니다. 광고와 후원은 나중에 서비스 유지용으로만 조용히 준비할게요.</p>
-</div>
-<div class="support-chip-row">
-<span>광고 자리 준비중</span>
-<span>후원 버튼 준비중</span>
-<span>10명 피드백 우선</span>
-</div>
+<p class="share-feedback-message" id="shareFeedbackMessage" aria-live="polite">공유하기를 누르면 문구를 복사해드릴게요.</p>
 </div>
 </section><section class="simple-explore-card" id="simpleExploreCard"><div class="simple-explore-top"><div><span class="small-label">OPTIONAL CONTENTS</span><h2>더 둘러보기</h2><p>운세를 본 뒤 궁금한 기능만 열어보세요. 처음 화면은 운세 보기에 집중하도록 정리했습니다.</p></div></div><div class="simple-feature-grid"><details class="feature-drawer feature-drawer-1" id="partnerDrawer"><summary><div class="feature-summary-text"><span>내 파트너</span><strong>운세를 함께 보는 오라클</strong><em>파트너를 만나고 성장 상태를 확인합니다.</em></div><b>열기</b></summary><section class="partner-card">
 <div class="partner-empty" id="partnerEmpty">
@@ -1023,11 +935,11 @@
 <div class="admin-stats-message" id="adminStatsMessage">
       관리자 Google 계정으로 로그인하면 통계를 확인할 수 있습니다.
     </div>
-</section></div></details><div class="version-footer">오늘의 운세코드 V3-16.2 test · 공유 카드 디자인 강화판</div></main>
+</section></div></details><div class="version-footer">오늘의 운세코드 V3-15.3 test · 부드러운 AI 리포트</div></main>
 <div class="level-toast hidden" id="levelToast">
 <strong id="levelToastTitle">LEVEL UP</strong>
 <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
-<script src="./app.js?v=20260608-v3154-test"></script>
+<script src="./app.js?v=20260604-v3153-test"></script>
 </body>
 </html>
