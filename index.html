@@ -45,7 +45,7 @@
 }
 </script>
 <link href="manifest.json" rel="manifest"/>
-<link href="./style.css?v=20260608-v31632-test" rel="stylesheet"/>
+<link href="./style.css?v=20260608-v3164-test" rel="stylesheet"/>
 </head>
 <body>
 <canvas id="matrix"></canvas>
@@ -79,7 +79,7 @@
   </div>
 </div>
 <main class="container">
-<div class="brand-label">AI ORACLE FORTUNE SYSTEM</div><div class="top-version-badge" id="topVersionBadge">V3-16.3.4 test</div><h1 class="title" data-text="오늘의 운세코드">오늘의 운세코드</h1><p class="subtitle">
+<div class="brand-label">AI ORACLE FORTUNE SYSTEM</div><div class="top-version-badge" id="topVersionBadge">V3-16.4 test</div><h1 class="title" data-text="오늘의 운세코드">오늘의 운세코드</h1><p class="subtitle">
     생년월일과 오늘 날짜를 바탕으로, 오늘의 기분과 흐름을 가볍게 돌아보는 감성 운세카드입니다.
   </p><section class="visitor-guide-card" id="visitorGuideCard" aria-label="처음 방문자 안내">
 <div class="visitor-guide-main">
@@ -361,7 +361,7 @@
 <p class="share-studio-status" id="shareStudioStatus">운세 결과를 보고 나면 꾸미기 카드 미리보기가 여기에 표시됩니다.</p>
 </div>
 <div class="share-studio-preview-wrap">
-<div class="share-card-frame is-square">
+<div class="share-card-frame is-square" id="shareCardFrame">
 <div class="share-card-preview theme-lovely" data-share-theme="lovely" id="shareCardPreview">
 <div class="share-card-inner">
 <div class="share-card-deco deco-top-left"></div>
@@ -1023,11 +1023,12 @@
 <div class="admin-stats-message" id="adminStatsMessage">
       관리자 Google 계정으로 로그인하면 통계를 확인할 수 있습니다.
     </div>
-</section></div></details><div class="version-footer">오늘의 운세코드 V3-16.3.4 test · 이미지 저장 안정화판</div></main>
+</section></div></details><div class="version-footer">오늘의 운세코드 V3-16.4 test · 보이는 카드 캡처 저장판</div></main>
 <div class="level-toast hidden" id="levelToast">
 <strong id="levelToastTitle">LEVEL UP</strong>
 <span id="levelToastText">파트너가 성장했습니다.</span>
 </div>
-<script src="./app.js?v=20260608-v3154-test"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="./app.js?v=20260608-v3164-test"></script>
 </body>
 </html>
