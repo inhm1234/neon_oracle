@@ -228,7 +228,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-15.2 test";
+const DEV_VERSION = "V3-15.4 test";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -2759,7 +2759,7 @@ const partnerTemplates = [
     },
     levelUps: [
       "연결 강도가 상승했어. 이제 더 많은 패턴을 읽을 수 있어.",
-      "분석 모듈이 확장됐어. 오늘부터 해석 정밀도가 조금 더 올라갈 거야.",
+      "오늘은 조금 더 편하게 읽을 수 있도록 짧게 정리해볼게.",
       "각성 프로토콜이 열렸어. 별빛 데이터와 네 운세코드가 더 깊게 연결됐어."
     ],
     result: [
@@ -2901,7 +2901,7 @@ const fortuneText = {
 };
 
 
-// V3-15.2 test: AI 오라클 신뢰도 엔진 1차 + 부드러운 분석 요약
+// V3-15.4 test: 10명 공개용 정직한 감성 운세카드 문구 정리
 // 완전 랜덤이 아니라 생년월일, 태어난 시간, 성별 선택값, 오늘 날짜를 해시로 묶어
 // 같은 사람은 같은 날 일관되고, 다른 사람은 다른 결과가 나오도록 구성합니다.
 const oracleElementProfile = {
@@ -4066,7 +4066,7 @@ function makeResult(profile) {
   });
 
   return {
-    title: profile.name ? `${profile.name}님의 AI 오라클 리포트` : "AI 오라클 리포트",
+    title: profile.name ? `${profile.name}님의 오늘의 흐름 카드` : "오늘의 흐름 카드",
     code: oracleCode,
     complete,
     relation,
@@ -4270,7 +4270,7 @@ function buildShareTextFromLatestResult() {
   const result = latestShareResult;
 
   if (!result) {
-    return `오늘의 운세코드에서 오늘 운세를 확인해보세요.\n${url}`;
+    return `오늘의 운세코드에서 오늘의 흐름을 가볍게 확인해보세요.\n${url}`;
   }
 
   const flow = result.summary ? result.summary.flow : "오늘의 흐름을 확인했어요.";
@@ -4285,7 +4285,7 @@ function buildShareTextFromLatestResult() {
     `키워드: ${keyword}`,
     `한마디: ${message}`,
     ``,
-    `${partnerNameText}가 개인 코드와 오늘 신호를 읽어준 AI 오라클 리포트예요.`,
+    `${partnerNameText}가 개인 코드와 오늘 신호를 바탕으로 만든 재미와 기록용 감성 카드예요.`,
     `나도 보기: ${url}`
   ].join("\n");
 }
@@ -4569,7 +4569,7 @@ async function analyzeFortune(event) {
   resultCard.classList.add("hidden");
   renderPartnerInsight(null);
   setOraclePose("fly");
-  setOracleGuideMessage("입력한 정보를 AI 오라클 코드로 변환하는 중이에요. 같은 사람은 같은 날 같은 흐름으로 읽을게요.", "AI 오라클 스캔 중", "thinking");
+  setOracleGuideMessage("입력한 정보를 오늘의 흐름 카드로 정리하는 중이에요. 미래를 단정하지 않고 참고용으로 읽어볼게요.", "오늘 흐름 정리 중", "thinking");
   if (oracleGuideOrb) oracleGuideOrb.classList.add("analyzing");
   document.body.classList.add("scanning");
 
@@ -4592,22 +4592,22 @@ async function analyzeFortune(event) {
     }
 
     statusText.textContent = "1/4 개인 출생 리듬을 스캔하는 중...";
-    setOracleGuideMessage("생년월일, 시간 좌표, 선택값을 묶어 개인 코드를 만들고 있어요.", "개인 코드 분석", "thinking");
+    setOracleGuideMessage("생년월일과 선택값을 묶어 오늘의 참고 코드를 만들고 있어요.", "기본 흐름 정리", "thinking");
     await wait(450);
 
     statusText.textContent = "2/4 오늘 날짜 신호를 수집하는 중...";
-    setOracleGuideMessage("오늘 날짜와 계절 흐름을 오늘의 신호 코드로 변환하고 있어요.", "오늘 신호 수집", "thinking");
+    setOracleGuideMessage("오늘 날짜와 계절 흐름을 가벼운 참고 신호로 바꾸고 있어요.", "오늘 신호 수집", "thinking");
     await wait(450);
 
-    statusText.textContent = "3/4 개인 코드와 오늘 신호를 동기화하는 중...";
+    statusText.textContent = "3/4 개인 코드와 오늘 신호를 가볍게 맞춰보는 중...";
     await wait(550);
 
-    statusText.textContent = "4/4 분야별 운세 리포트를 조합하는 중...";
-    setOracleGuideMessage("재물, 관계, 일, 건강, 조심할 점을 같은 기준으로 나눠서 해석하고 있어요.", "분야별 리포트", "thinking");
+    statusText.textContent = "4/4 오늘의 흐름 문장을 정리하는 중...";
+    setOracleGuideMessage("오늘의 총운, 조심할 점, 작은 행동을 읽기 쉽게 정리하고 있어요.", "흐름 문장 정리", "thinking");
     await wait(550);
 
-    statusText.textContent = "AI 오라클 리포트를 정리하는 중...";
-    setOracleGuideMessage("미래를 단정하지 않고, 오늘 주의 깊게 볼 방향으로 쉽게 번역하고 있어요.", "리포트 생성", "thinking");
+    statusText.textContent = "오늘의 흐름 카드를 정리하는 중...";
+    setOracleGuideMessage("미래를 단정하지 않고, 오늘을 돌아볼 작은 문장으로 번역하고 있어요.", "흐름 카드 생성", "thinking");
     await wait(450);
 
     const result = makeResult(profile);
@@ -4623,7 +4623,7 @@ async function analyzeFortune(event) {
     saveFortuneHistory(profile, result, reaction);
     await autoSaveDefaultProfileAfterAnalyze();
     renderVisitorGuideState();
-    statusText.textContent = "AI 오라클 리포트가 완성되었습니다.";
+    statusText.textContent = "오늘의 흐름 카드가 완성되었습니다.";
   } catch (error) {
     console.error(error);
     statusText.textContent = "분석 중 오류가 생겼습니다. 파일을 새로 덮어씌운 뒤 Ctrl + F5로 새로고침해주세요.";

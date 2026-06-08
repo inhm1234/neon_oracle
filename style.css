@@ -5811,3 +5811,52 @@ body.result-mode #simpleExploreCard.result-drawer-open {
     grid-column: auto;
   }
 }
+
+
+/* V3-15.4 test: 10명 공개용 정직한 운영 안내 */
+.operation-support-card {
+  margin-top: 14px;
+  padding: 15px;
+  display: grid;
+  gap: 12px;
+  border: 1px solid rgba(255, 225, 132, 0.18);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 225, 132, 0.09), transparent 56%),
+    rgba(0, 0, 0, 0.14);
+  text-align: left;
+}
+
+.operation-support-card strong {
+  display: block;
+  margin-bottom: 7px;
+  color: #fff1b8;
+  font-size: 0.92rem;
+}
+
+.operation-support-card p {
+  color: rgba(239, 252, 255, 0.72);
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+
+.support-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.support-chip-row span {
+  padding: 6px 9px;
+  border: 1px solid rgba(142, 245, 255, 0.14);
+  border-radius: 999px;
+  color: rgba(174, 247, 255, 0.76);
+  background: rgba(0, 0, 0, 0.16);
+  font-size: 0.7rem;
+}
+
+@media (max-width: 520px) {
+  .support-chip-row {
+    display: grid;
+  }
+}
