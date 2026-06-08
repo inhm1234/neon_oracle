@@ -248,7 +248,7 @@ const adminStatsClearAdminBtn = document.getElementById("adminStatsClearAdminBtn
 
 const PARTNER_KEY = "fortune_partner_guest_v1";
 const EXP_PER_LEVEL = 20;
-const DEV_VERSION = "V3-16.3.2 test";
+const DEV_VERSION = "V3-16.3.3 test";
 const CHECKLIST_KEY = "fortune_dev_checklist_state";
 const CHECKLIST_LEGACY_KEYS = ["fortune_dev_checklist_v231", "fortune_dev_checklist_v232"];
 const HISTORY_KEY = "fortune_history_guest_v1";
@@ -4456,7 +4456,14 @@ async function downloadShareCardImage(format = "square") {
   }
   const exportWidth = 1080;
   const exportHeight = format === "story" ? 1920 : 1080;
-  const svg = buildShareCardSvg(format);
+  let svg = "";
+  try {
+    svg = buildShareCardSvg(format);
+  } catch (error) {
+    console.error("카드 SVG 생성 실패", error);
+    if (shareStudioStatus) shareStudioStatus.textContent = "카드 이미지 생성 준비 중 오류가 생겼어요. 새로고침 후 다시 시도해주세요.";
+    return;
+  }
   const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const image = new Image();
