@@ -7135,3 +7135,68 @@ button:hover {
   left: 28px !important;
   bottom: 74px !important;
 }
+
+
+/* V3-16.5.2 test: 빈공간 보정 */
+.share-card-body {
+  gap: 10px;
+}
+
+.share-card-middle-note {
+  margin-top: 4px;
+  padding: 14px 16px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.54);
+  border: 1px solid rgba(255,255,255,0.78);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+}
+
+.share-card-middle-note span {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  color: #b090af;
+}
+
+.share-card-middle-note strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+  color: #755986;
+}
+
+.share-card-middle-note p {
+  font-size: 0.83rem;
+  line-height: 1.55;
+  color: #8b7595;
+  word-break: keep-all;
+}
+
+.share-card-mini-grid {
+  margin-top: 8px;
+}
+
+.share-export-stage.story .share-card-preview {
+  min-height: 1320px !important;
+}
+
+.share-export-stage .share-card-middle-note {
+  margin-top: 6px !important;
+  padding: 20px 22px !important;
+  border-radius: 28px !important;
+}
+
+.share-export-stage .share-card-middle-note span {
+  font-size: 17px !important;
+}
+
+.share-export-stage .share-card-middle-note strong {
+  font-size: 25px !important;
+  margin-bottom: 8px !important;
+}
+
+.share-export-stage .share-card-middle-note p {
+  font-size: 22px !important;
+  line-height: 1.55 !important;
+}
