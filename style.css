@@ -7200,3 +7200,39 @@ button:hover {
   font-size: 22px !important;
   line-height: 1.55 !important;
 }
+
+
+/* V3-16.5.3 test: 스티커 이동 레이어 복구 */
+.share-card-stickers {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 30 !important;
+  pointer-events: auto !important;
+}
+
+.share-card-sticker {
+  pointer-events: auto !important;
+  touch-action: none !important;
+  cursor: grab !important;
+  z-index: 31 !important;
+}
+
+.share-card-sticker.is-dragging {
+  cursor: grabbing !important;
+  z-index: 60 !important;
+}
+
+.share-card-body,
+.share-card-footer,
+.share-card-header {
+  pointer-events: none;
+}
+
+.share-card-sticker,
+.share-card-sticker * {
+  pointer-events: auto !important;
+}
+
+.share-export-stage .share-card-stickers {
+  pointer-events: none !important;
+}
